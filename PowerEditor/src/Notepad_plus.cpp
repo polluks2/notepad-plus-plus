@@ -140,7 +140,7 @@ Notepad_plus::Notepad_plus()
 
 	nppParam.setNativeLangSpeaker(&_nativeLangSpeaker);
 
-	TiXmlDocument *toolIconsDocRoot = nppParam.getToolIcons();
+	TiXmlDocument *toolIconsDocRoot = nppParam.getCustomizedToolIcons();
 
 	if (toolIconsDocRoot)
 	{
@@ -235,7 +235,7 @@ LRESULT Notepad_plus::init(HWND hwnd)
 	pIconListVector.push_back(&_docTabIconListAlt);     // 1
 	pIconListVector.push_back(&_docTabIconListDarkMode);// 2
 
-	unsigned char indexDocTabIcon = (((tabBarStatus & TAB_ALTICONS) == TAB_ALTICONS) ? 1 : NppDarkMode::isEnabled() ? 2 : 1);
+	unsigned char indexDocTabIcon = (((tabBarStatus & TAB_ALTICONS) == TAB_ALTICONS) ? 1 : NppDarkMode::isEnabled() ? 2 : 0);
 	
 	_mainDocTab.init(_pPublicInterface->getHinst(), hwnd, &_mainEditView, pIconListVector, indexDocTabIcon);
 	_subDocTab.init(_pPublicInterface->getHinst(), hwnd, &_subEditView, pIconListVector, indexDocTabIcon);
@@ -612,8 +612,6 @@ LRESULT Notepad_plus::init(HWND hwnd)
 	_pluginsManager.notify(&scnN);
 
 	_toolBar.init(_pPublicInterface->getHinst(), hwnd, tbStatus, toolBarIcons, sizeof(toolBarIcons) / sizeof(ToolBarButtonUnit));
-
-	changeToolBarIcons();
 
 	_rebarTop.init(_pPublicInterface->getHinst(), hwnd);
 	_rebarBottom.init(_pPublicInterface->getHinst(), hwnd);
@@ -5113,11 +5111,6 @@ bool Notepad_plus::addCurrentMacro()
 	return false;
 }
 
-void Notepad_plus::changeToolBarIcons()
-{
-    _toolBar.changeIcons();
-}
-
 bool Notepad_plus::switchToFile(BufferID id)
 {
 	int i = 0;
@@ -6627,7 +6620,7 @@ void Notepad_plus::launchClipboardHistoryPanel()
 
 		::SendMessage(_pPublicInterface->getHSelf(), NPPM_MODELESSDIALOG, MODELESSDIALOGREMOVE, reinterpret_cast<LPARAM>(_pClipboardHistoryPanel->getHSelf()));
 		// define the default docking behaviour
-		data.uMask = DWS_DF_CONT_RIGHT | DWS_ICONTAB;
+		data.uMask = DWS_DF_CONT_RIGHT | DWS_ICONTAB | DWS_USEOWNDARKMODE;
 
 		int icoID = IDR_CLIPBOARDPANEL_ICO;
 		if (NppDarkMode::isEnabled())
@@ -6680,7 +6673,7 @@ void Notepad_plus::launchDocumentListPanel()
 
 		::SendMessage(_pPublicInterface->getHSelf(), NPPM_MODELESSDIALOG, MODELESSDIALOGREMOVE, reinterpret_cast<LPARAM>(_pDocumentListPanel->getHSelf()));
 		// define the default docking behaviour
-		data.uMask = DWS_DF_CONT_LEFT | DWS_ICONTAB;
+		data.uMask = DWS_DF_CONT_LEFT | DWS_ICONTAB | DWS_USEOWNDARKMODE;
 
 		int icoID = IDR_DOCLIST_ICO;
 		if (NppDarkMode::isEnabled())
@@ -6731,7 +6724,7 @@ void Notepad_plus::launchAnsiCharPanel()
 
 		::SendMessage(_pPublicInterface->getHSelf(), NPPM_MODELESSDIALOG, MODELESSDIALOGREMOVE, reinterpret_cast<LPARAM>(_pAnsiCharPanel->getHSelf()));
 		// define the default docking behaviour
-		data.uMask = DWS_DF_CONT_RIGHT | DWS_ICONTAB;
+		data.uMask = DWS_DF_CONT_RIGHT | DWS_ICONTAB | DWS_USEOWNDARKMODE;
 
 		int icoID = IDR_ASCIIPANEL_ICO;
 		if (NppDarkMode::isEnabled())
@@ -6782,7 +6775,7 @@ void Notepad_plus::launchFileBrowser(const vector<generic_string> & folders, con
 
 		::SendMessage(_pPublicInterface->getHSelf(), NPPM_MODELESSDIALOG, MODELESSDIALOGREMOVE, reinterpret_cast<LPARAM>(_pFileBrowser->getHSelf()));
 		// define the default docking behaviour
-		data.uMask = DWS_DF_CONT_LEFT | DWS_ICONTAB;
+		data.uMask = DWS_DF_CONT_LEFT | DWS_ICONTAB | DWS_USEOWNDARKMODE;
 		
 		int icoID = IDR_FILEBROWSER_ICO;
 		if (NppDarkMode::isEnabled())
@@ -6890,7 +6883,7 @@ void Notepad_plus::launchProjectPanel(int cmdID, ProjectPanel ** pProjPanel, int
 
 		::SendMessage(_pPublicInterface->getHSelf(), NPPM_MODELESSDIALOG, MODELESSDIALOGREMOVE, reinterpret_cast<LPARAM>((*pProjPanel)->getHSelf()));
 		// define the default docking behaviour
-		data.uMask = DWS_DF_CONT_LEFT | DWS_ICONTAB;
+		data.uMask = DWS_DF_CONT_LEFT | DWS_ICONTAB | DWS_USEOWNDARKMODE;
 
 		int icoID = IDR_PROJECTPANEL_ICO;
 		if (NppDarkMode::isEnabled())
@@ -6954,7 +6947,7 @@ void Notepad_plus::launchDocMap()
 
 		::SendMessage(_pPublicInterface->getHSelf(), NPPM_MODELESSDIALOG, MODELESSDIALOGREMOVE, reinterpret_cast<LPARAM>(_pDocMap->getHSelf()));
 		// define the default docking behaviour
-		data.uMask = DWS_DF_CONT_RIGHT | DWS_ICONTAB;
+		data.uMask = DWS_DF_CONT_RIGHT | DWS_ICONTAB | DWS_USEOWNDARKMODE;
 
 		int icoID = IDR_DOCMAP_ICO;
 		if (NppDarkMode::isEnabled())
@@ -7001,7 +6994,7 @@ void Notepad_plus::launchFunctionList()
 
 		::SendMessage(_pPublicInterface->getHSelf(), NPPM_MODELESSDIALOG, MODELESSDIALOGREMOVE, reinterpret_cast<LPARAM>(_pFuncList->getHSelf()));
 		// define the default docking behaviour
-		data.uMask = DWS_DF_CONT_RIGHT | DWS_ICONTAB;
+		data.uMask = DWS_DF_CONT_RIGHT | DWS_ICONTAB | DWS_USEOWNDARKMODE;
 		
 		NppParameters& nppParam = NppParameters::getInstance();
 
@@ -7286,6 +7279,7 @@ static const QuoteParams quotes[] =
 	{TEXT("Anonymous #190"), QuoteParams::slow, false, SC_CP_UTF8, L_TEXT, TEXT("The greatest security vulnerability in any computer system is located between the keyboard and the chair.\n") },
 	{TEXT("Anonymous #191"), QuoteParams::slow, false, SC_CP_UTF8, L_TEXT, TEXT("My biggest talent is always being able to tell what's in a wrapped present.\n\nIt's a gift.\n") },
 	{TEXT("Anonymous #192"), QuoteParams::rapid, false, SC_CP_UTF8, L_TEXT, TEXT("You can't force someone to love you.\nBut you can lock this person in the basement and wait for him/her to develop Stockholm syndrome.\n") },
+	{TEXT("Anonymous #193"), QuoteParams::rapid, false, SC_CP_UTF8, L_TEXT, TEXT("Do you know:\nthere are more airplanes in the oceans, than submarines in the sky?\n") },
 	{TEXT("xkcd"), QuoteParams::rapid, false, SC_CP_UTF8, L_TEXT, TEXT("Never have I felt so close to another soul\nAnd yet so helplessly alone\nAs when I Google an error\nAnd there's one result\nA thread by someone with the same problem\nAnd no answer\nLast posted to in 2003\n\n\"Who were you, DenverCoder9?\"\n\"What did you see?!\"\n\n(ref: https://xkcd.com/979/)") },
 	{TEXT("A developer"), QuoteParams::slow, false, SC_CP_UTF8, L_TEXT, TEXT("No hugs & kisses.\nOnly bugs & fixes.") },
 	{TEXT("Elon Musk"), QuoteParams::rapid, false, SC_CP_UTF8, L_TEXT, TEXT("Don't set your password as your child's name.\nName your child after your password.") },
@@ -7474,7 +7468,7 @@ DWORD WINAPI Notepad_plus::threadTextPlayer(void *params)
 
 		previousChar = text2display[i];
 		//char ch[64];
-		//sprintf(ch, "writting char == %c", text2display[i]);
+		//sprintf(ch, "writing char == %c", text2display[i]);
 		//writeLog(TEXT("c:\\tmp\\log.txt"), ch);
     }
 

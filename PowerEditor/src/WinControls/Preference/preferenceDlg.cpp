@@ -217,7 +217,7 @@ intptr_t CALLBACK PreferenceDlg::run_dlgProc(UINT message, WPARAM wParam, LPARAM
 		{
 			if (NppDarkMode::isEnabled())
 			{
-				return NppDarkMode::onCtlColor(reinterpret_cast<HDC>(wParam));
+				return NppDarkMode::onCtlColorListbox(wParam, lParam);
 			}
 			break;
 		}
@@ -768,6 +768,7 @@ intptr_t CALLBACK EditingSubDlg::run_dlgProc(UINT message, WPARAM wParam, LPARAM
 
 
 			::SendMessage(::GetDlgItem(_hSelf, IDC_WIDTH_COMBO), CB_SETCURSEL, nppGUI._caretWidth, 0);
+			::SendDlgItemMessage(_hSelf, IDC_CHECK_FOLDINGTOGGLE, BM_SETCHECK, nppGUI._enableFoldCmdToggable, 0);
 			::SendDlgItemMessage(_hSelf, IDC_CHECK_MULTISELECTION, BM_SETCHECK, nppGUI._enableMultiSelection, 0);
 			
 			::SendMessage(::GetDlgItem(_hSelf, IDC_CARETBLINKRATE_SLIDER),TBM_SETRANGEMIN, TRUE, BLINKRATE_FASTEST);
@@ -903,6 +904,10 @@ intptr_t CALLBACK EditingSubDlg::run_dlgProc(UINT message, WPARAM wParam, LPARAM
                     ::SendMessage(::GetParent(_hParent), NPPM_INTERNAL_SETMULTISELCTION, 0, 0);
                     return TRUE;
 
+				case IDC_CHECK_FOLDINGTOGGLE:
+					nppGUI._enableFoldCmdToggable = isCheckedOrNot(IDC_CHECK_FOLDINGTOGGLE);
+					return TRUE;
+
 				case IDC_RADIO_LWDEF:
 					svp._lineWrapMethod = LINEWRAP_DEFAULT;
 					::SendMessage(_hParent, WM_COMMAND, IDM_VIEW_LWDEF, 0);
@@ -952,6 +957,7 @@ void DarkModeSubDlg::enableCustomizedColorCtrls(bool doEnable)
 	::EnableWindow(_pEdgeColorPicker->getHSelf(), doEnable);
 	::EnableWindow(_pLinkColorPicker->getHSelf(), doEnable);
 	::EnableWindow(_pHotEdgeColorPicker->getHSelf(), doEnable);
+	::EnableWindow(_pDisabledEdgeColorPicker->getHSelf(), doEnable);
 
 	::EnableWindow(::GetDlgItem(_hSelf, IDD_CUSTOMIZED_RESET_BUTTON), doEnable);
 
@@ -968,6 +974,7 @@ void DarkModeSubDlg::enableCustomizedColorCtrls(bool doEnable)
 		_pEdgeColorPicker->setColour(NppDarkMode::getEdgeColor());
 		_pLinkColorPicker->setColour(NppDarkMode::getLinkTextColor());
 		_pHotEdgeColorPicker->setColour(NppDarkMode::getHotEdgeColor());
+		_pDisabledEdgeColorPicker->setColour(NppDarkMode::getDisabledEdgeColor());
 
 		redraw();
 	}
@@ -1042,6 +1049,7 @@ intptr_t CALLBACK DarkModeSubDlg::run_dlgProc(UINT message, WPARAM wParam, LPARA
 			_pEdgeColorPicker = new ColourPicker;
 			_pLinkColorPicker = new ColourPicker;
 			_pHotEdgeColorPicker = new ColourPicker;
+			_pDisabledEdgeColorPicker = new ColourPicker;
 
 			_pBackgroundColorPicker->init(_hInst, _hSelf);
 			_pSofterBackgroundColorPicker->init(_hInst, _hSelf);
@@ -1055,6 +1063,7 @@ intptr_t CALLBACK DarkModeSubDlg::run_dlgProc(UINT message, WPARAM wParam, LPARA
 			_pEdgeColorPicker->init(_hInst, _hSelf);
 			_pLinkColorPicker->init(_hInst, _hSelf);
 			_pHotEdgeColorPicker->init(_hInst, _hSelf);
+			_pDisabledEdgeColorPicker->init(_hInst, _hSelf);
 
 			int cpDynamicalWidth = NppParameters::getInstance()._dpiManager.scaleX(25);
 			int cpDynamicalHeight = NppParameters::getInstance()._dpiManager.scaleY(25);
@@ -1070,6 +1079,7 @@ intptr_t CALLBACK DarkModeSubDlg::run_dlgProc(UINT message, WPARAM wParam, LPARA
 			move2CtrlLeft(IDD_CUSTOMIZED_COLOR9_STATIC, _pEdgeColorPicker->getHSelf(), cpDynamicalWidth, cpDynamicalHeight);
 			move2CtrlLeft(IDD_CUSTOMIZED_COLOR10_STATIC, _pLinkColorPicker->getHSelf(), cpDynamicalWidth, cpDynamicalHeight);
 			move2CtrlLeft(IDD_CUSTOMIZED_COLOR11_STATIC, _pHotEdgeColorPicker->getHSelf(), cpDynamicalWidth, cpDynamicalHeight);
+			move2CtrlLeft(IDD_CUSTOMIZED_COLOR12_STATIC, _pDisabledEdgeColorPicker->getHSelf(), cpDynamicalWidth, cpDynamicalHeight);
 
 			_pBackgroundColorPicker->display();
 			_pSofterBackgroundColorPicker->display();
@@ -1082,6 +1092,7 @@ intptr_t CALLBACK DarkModeSubDlg::run_dlgProc(UINT message, WPARAM wParam, LPARA
 			_pEdgeColorPicker->display();
 			_pLinkColorPicker->display();
 			_pHotEdgeColorPicker->display();
+			_pDisabledEdgeColorPicker->display();
 
 			::EnableWindow(::GetDlgItem(_hSelf, IDC_RADIO_DARKMODE_BLACK), nppGUI._darkmode._isEnabled);
 			::EnableWindow(::GetDlgItem(_hSelf, IDC_RADIO_DARKMODE_RED), nppGUI._darkmode._isEnabled);
@@ -1117,7 +1128,8 @@ intptr_t CALLBACK DarkModeSubDlg::run_dlgProc(UINT message, WPARAM wParam, LPARA
 				dlgCtrlID == IDD_CUSTOMIZED_COLOR8_STATIC ||
 				dlgCtrlID == IDD_CUSTOMIZED_COLOR9_STATIC ||
 				dlgCtrlID == IDD_CUSTOMIZED_COLOR10_STATIC ||
-				dlgCtrlID == IDD_CUSTOMIZED_COLOR11_STATIC);
+				dlgCtrlID == IDD_CUSTOMIZED_COLOR11_STATIC ||
+				dlgCtrlID == IDD_CUSTOMIZED_COLOR12_STATIC);
 			//set the static text colors to show enable/disable instead of ::EnableWindow which causes blurry text
 			if (isStaticText)
 			{
@@ -1150,6 +1162,7 @@ intptr_t CALLBACK DarkModeSubDlg::run_dlgProc(UINT message, WPARAM wParam, LPARA
 			_pEdgeColorPicker->destroy();
 			_pLinkColorPicker->destroy();
 			_pHotEdgeColorPicker->destroy();
+			_pDisabledEdgeColorPicker->destroy();
 
 			delete _pBackgroundColorPicker;
 			delete _pSofterBackgroundColorPicker;
@@ -1162,6 +1175,7 @@ intptr_t CALLBACK DarkModeSubDlg::run_dlgProc(UINT message, WPARAM wParam, LPARA
 			delete _pEdgeColorPicker;
 			delete _pLinkColorPicker;
 			delete _pHotEdgeColorPicker;
+			delete _pDisabledEdgeColorPicker;
 		}
 
 		case WM_COMMAND:
@@ -1353,6 +1367,12 @@ intptr_t CALLBACK DarkModeSubDlg::run_dlgProc(UINT message, WPARAM wParam, LPARA
 								NppDarkMode::setHotEdgeColor(c);
 								nppGUI._darkmode._customColors.hotEdge = c;
 							}
+							else if (reinterpret_cast<HWND>(lParam) == _pDisabledEdgeColorPicker->getHSelf())
+							{
+								c = _pDisabledEdgeColorPicker->getColour();
+								NppDarkMode::setDisabledEdgeColor(c);
+								nppGUI._darkmode._customColors.disabledEdge = c;
+							}
 							else
 							{
 								return FALSE;
@@ -1390,6 +1410,7 @@ intptr_t CALLBACK DarkModeSubDlg::run_dlgProc(UINT message, WPARAM wParam, LPARA
 					_pEdgeColorPicker->setColour(disabledColor);
 					_pLinkColorPicker->setColour(disabledColor);
 					_pHotEdgeColorPicker->setColour(disabledColor);
+					_pDisabledEdgeColorPicker->setColour(disabledColor);
 
 					redraw();
 				}
@@ -2514,7 +2535,7 @@ intptr_t CALLBACK LanguageSubDlg::run_dlgProc(UINT message, WPARAM wParam, LPARA
 		{
 			if (NppDarkMode::isEnabled())
 			{
-				return NppDarkMode::onCtlColor(reinterpret_cast<HDC>(wParam));
+				return NppDarkMode::onCtlColorListbox(wParam, lParam);
 			}
 			break;
 		}

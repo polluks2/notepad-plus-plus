@@ -361,7 +361,7 @@ LRESULT ScintillaEditView::scintillaNew_Proc(HWND hwnd, UINT Message, WPARAM wPa
 		case WM_MOUSEHWHEEL :
 		{
 			::CallWindowProc(_scintillaDefaultProc, hwnd, WM_HSCROLL, ((short)HIWORD(wParam) > 0)?SB_LINERIGHT:SB_LINELEFT, 0);
-			break;
+			return TRUE;
 		}
 
 		case WM_MOUSEWHEEL :
@@ -2132,6 +2132,26 @@ void ScintillaEditView::foldCurrentPos(bool mode)
 	fold(currentLine, mode);
 }
 
+bool ScintillaEditView::isCurrentLineFolded() const
+{
+	auto currentLine = this->getCurrentLineNumber();
+
+	intptr_t headerLine;
+	auto level = execute(SCI_GETFOLDLEVEL, currentLine);
+
+	if (level & SC_FOLDLEVELHEADERFLAG)
+		headerLine = currentLine;
+	else
+	{
+		headerLine = execute(SCI_GETFOLDPARENT, currentLine);
+		if (headerLine == -1)
+			return false;
+	}
+
+	bool isExpanded = execute(SCI_GETFOLDEXPANDED, headerLine);
+	return !isExpanded;
+}
+
 void ScintillaEditView::fold(size_t line, bool mode)
 {
     auto endStyled = execute(SCI_GETENDSTYLED);
@@ -2597,7 +2617,13 @@ void ScintillaEditView::performGlobalStyles()
 	execute(SCI_SETELEMENTCOLOUR, SC_ELEMENT_SELECTION_INACTIVE_BACK, selectColorBack);
 
 	if (nppParams.isSelectFgColorEnabled())
+	{
 		execute(SCI_SETSELFORE, 1, selectColorFore);
+
+		long alphaSelectColorFore = selectColorFore;
+		alphaSelectColorFore |= 0xFF000000; // add alpha color to make DirectWrite mode work
+		execute(SCI_SETELEMENTCOLOUR, SC_ELEMENT_SELECTION_INACTIVE_TEXT, alphaSelectColorFore);
+	}
 
 	COLORREF caretColor = black;
 	pStyle = stylers.findByID(SCI_SETCARETFORE);

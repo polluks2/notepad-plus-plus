@@ -1977,16 +1977,27 @@ void Notepad_plus::command(int id)
 		break;
 
 
-		case IDM_VIEW_FOLD_CURRENT :
-		case IDM_VIEW_UNFOLD_CURRENT :
-			_pEditView->foldCurrentPos((id==IDM_VIEW_FOLD_CURRENT)?fold_collapse:fold_uncollapse);
-			break;
+		case IDM_VIEW_FOLD_CURRENT:
+		case IDM_VIEW_UNFOLD_CURRENT:
+		{
+			bool isToggleEnabled = NppParameters::getInstance().getNppGUI()._enableFoldCmdToggable;
+			bool mode = id == IDM_VIEW_FOLD_CURRENT ? fold_collapse : fold_uncollapse;
 
-		case IDM_VIEW_TOGGLE_FOLDALL:
-		case IDM_VIEW_TOGGLE_UNFOLDALL:
+			if (isToggleEnabled)
+			{
+				bool isFolded = _pEditView->isCurrentLineFolded();
+				mode = isFolded ? fold_uncollapse : fold_collapse;
+			}
+
+			_pEditView->foldCurrentPos(mode);
+		}
+		break;
+
+		case IDM_VIEW_FOLDALL:
+		case IDM_VIEW_UNFOLDALL:
 		{
 			_isFolding = true; // So we can ignore events while folding is taking place
-			bool doCollapse = (id==IDM_VIEW_TOGGLE_FOLDALL)?fold_collapse:fold_uncollapse;
+			bool doCollapse = (id==IDM_VIEW_FOLDALL)?fold_collapse:fold_uncollapse;
  			_pEditView->foldAll(doCollapse);
 			if (_pDocMap)
 			{
@@ -2030,7 +2041,6 @@ void Notepad_plus::command(int id)
             if (state != TB_SMALL)
             {
 			    _toolBar.reduce();
-			    changeToolBarIcons();
             }
 		}
 		break;
@@ -2042,7 +2052,6 @@ void Notepad_plus::command(int id)
             if (state != TB_LARGE)
             {
 			    _toolBar.enlarge();
-			    changeToolBarIcons();
             }
 		}
 		break;
@@ -2054,7 +2063,6 @@ void Notepad_plus::command(int id)
 			if (state != TB_SMALL2)
 			{
 				_toolBar.reduceToSet2();
-				changeToolBarIcons();
 			}
 		}
 		break;
@@ -2066,7 +2074,6 @@ void Notepad_plus::command(int id)
 			if (state != TB_LARGE2)
 			{
 				_toolBar.enlargeToSet2();
-				changeToolBarIcons();
 			}
 		}
 		break;
@@ -3281,8 +3288,8 @@ void Notepad_plus::command(int id)
 				bool isCertifVerified = true;
 #else //RELEASE
 				// check the signature on updater
-				SecurityGard securityGard;
-				bool isCertifVerified = securityGard.checkModule(updaterFullPath, nm_gup);
+				SecurityGuard securityGuard;
+				bool isCertifVerified = securityGuard.checkModule(updaterFullPath, nm_gup);
 #endif
 				if (isCertifVerified)
 				{
@@ -3836,7 +3843,11 @@ void Notepad_plus::command(int id)
 */
 			else if ((id >= IDM_WINDOW_MRU_FIRST) && (id <= IDM_WINDOW_MRU_LIMIT))
 			{
-				activateDoc(id-IDM_WINDOW_MRU_FIRST);
+				activateDoc(id - IDM_WINDOW_MRU_FIRST);
+			}
+			else if ((id >= IDM_DROPLIST_MRU_FIRST) && (id < (IDM_DROPLIST_MRU_FIRST + static_cast<int32_t>(_pDocTab->nbItem()))))
+			{
+				activateDoc(id - IDM_DROPLIST_MRU_FIRST);
 			}
 	}
 
@@ -3930,8 +3941,8 @@ void Notepad_plus::command(int id)
 			case IDM_VIEW_WRAP :
 			case IDM_VIEW_FOLD_CURRENT :
 			case IDM_VIEW_UNFOLD_CURRENT :
-			case IDM_VIEW_TOGGLE_FOLDALL:
-			case IDM_VIEW_TOGGLE_UNFOLDALL:
+			case IDM_VIEW_FOLDALL:
+			case IDM_VIEW_UNFOLDALL:
 			case IDM_VIEW_FOLD_1:
 			case IDM_VIEW_FOLD_2:
 			case IDM_VIEW_FOLD_3:

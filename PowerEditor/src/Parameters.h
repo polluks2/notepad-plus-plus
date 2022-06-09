@@ -715,6 +715,7 @@ public:
 struct DarkModeConf final
 {
 	bool _isEnabled = false;
+	bool _isEnabledPlugin = true;
 	NppDarkMode::ColorTone _colorTone = NppDarkMode::blackTone;
 	NppDarkMode::Colors _customColors = NppDarkMode::getDarkModeDefaultColors();
 };
@@ -803,6 +804,7 @@ struct NppGUI final
 	bool _confirmReplaceInAllOpenDocs = true;
 	bool _replaceStopsWithoutFindingNext = false;
 	bool _muteSounds = false;
+	bool _enableFoldCmdToggable = false;
 	writeTechnologyEngine _writeTechnologyEngine = defaultTechnology;
 	bool _isWordCharDefault = true;
 	std::string _customWordChars;
@@ -883,6 +885,7 @@ struct NppGUI final
 	bool _shouldSortFunctionList = false;
 
 	DarkModeConf _darkmode;
+	DarkModeConf _darkmodeplugins;
 };
 
 struct ScintillaViewParams
@@ -1468,7 +1471,7 @@ public:
 
 	TiXmlDocumentA * getNativeLangA() const {return _pXmlNativeLangDocA;};
 
-	TiXmlDocument * getToolIcons() const {return _pXmlToolIconsDoc;};
+	TiXmlDocument * getCustomizedToolIcons() const {return _pXmlToolIconsDoc;};
 
 	bool isTransparentAvailable() const {
 		return (_transparentFuncAddr != NULL);

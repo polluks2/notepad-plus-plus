@@ -266,6 +266,9 @@ void PluginsAdminDlg::create(int dialogID, bool isRTL, bool msgDestParent)
 
 	switchDialog(0);
 
+	NppDarkMode::autoSubclassAndThemeChildControls(_hSelf);
+	NppDarkMode::autoSubclassAndThemeWindowNotify(_hSelf);
+
 	goToCenter();
 }
 
@@ -610,28 +613,35 @@ bool loadFromJson(std::vector<PluginUpdateInfo*>& pl, const json& j)
 			valStr = i.at("id").get<std::string>();
 			pi->_id = wmc.char2wchar(valStr.c_str(), CP_ACP);
 
-			valStr = i.at("version").get<std::string>();
-			generic_string newValStr(valStr.begin(), valStr.end());
-			pi->_version = Version(newValStr);
+			try {
+				valStr = i.at("version").get<std::string>();
+				generic_string newValStr(valStr.begin(), valStr.end());
+				pi->_version = Version(newValStr);
 
-			if (i.contains("npp-compatible-versions"))
-			{
-				json jNppCompatibleVer = i["npp-compatible-versions"];
+				if (i.contains("npp-compatible-versions"))
+				{
+					json jNppCompatibleVer = i["npp-compatible-versions"];
 
-				string versionsStr = jNppCompatibleVer.get<std::string>();
-				generic_string nppCompatibleVersionStr(versionsStr.begin(), versionsStr.end());
-				pi->_nppCompatibleVersions = getIntervalVersions(nppCompatibleVersionStr);
+					string versionsStr = jNppCompatibleVer.get<std::string>();
+					generic_string nppCompatibleVersionStr(versionsStr.begin(), versionsStr.end());
+					pi->_nppCompatibleVersions = getIntervalVersions(nppCompatibleVersionStr);
+				}
+
+				if (i.contains("old-versions-compatibility"))
+				{
+					json jOldVerCompatibility = i["old-versions-compatibility"];
+
+					string versionsStr = jOldVerCompatibility.get<std::string>();
+					generic_string oldVerCompatibilityStr(versionsStr.begin(), versionsStr.end());
+					pi->_oldVersionCompatibility = getTwoIntervalVersions(oldVerCompatibilityStr);
+				}
 			}
-
-			if (i.contains("old-versions-compatibility"))
+			catch (const wstring& s)
 			{
-				json jOldVerCompatibility = i["old-versions-compatibility"];
-
-				string versionsStr = jOldVerCompatibility.get<std::string>();
-				generic_string oldVerCompatibilityStr(versionsStr.begin(), versionsStr.end());
-				pi->_oldVersionCompatibility = getTwoIntervalVersions(oldVerCompatibilityStr);
+				wstring msg = pi->_displayName;
+				msg += L": ";
+				throw msg + s;
 			}
-
 			valStr = i.at("repository").get<std::string>();
 			pi->_repository = wmc.char2wchar(valStr.c_str(), CP_ACP);
 
@@ -706,20 +716,24 @@ bool PluginsAdminDlg::initFromJson()
 #ifdef DEBUG // if not debug, then it's release
 	
 	// load from nppPluginList.json instead of nppPluginList.dll
+#ifdef __MINGW32__
+	ifstream nppPluginListJson(wstring2string(_pluginListFullPath, CP_UTF8));
+#else // MSVC supports UTF-16 path names in file stream constructors 
 	ifstream nppPluginListJson(_pluginListFullPath);
+#endif
 	nppPluginListJson >> j;
 
 #else //RELEASE
 
 	// check the signature on default location : %APPDATA%\Notepad++\plugins\config\pl\nppPluginList.dll or NPP_INST_DIR\plugins\config\pl\nppPluginList.dll
 	
-	SecurityGard securityGard;
-	bool isSecured = securityGard.checkModule(_pluginListFullPath, nm_pluginList);
+	SecurityGuard securityGuard;
+	bool isSecured = securityGuard.checkModule(_pluginListFullPath, nm_pluginList);
 
 	if (!isSecured)
 		return false;
 
-	isSecured = securityGard.checkModule(_updaterFullPath, nm_gup);
+	isSecured = securityGuard.checkModule(_updaterFullPath, nm_gup);
 
 	if (isSecured)
 	{
@@ -1092,12 +1106,6 @@ intptr_t CALLBACK PluginsAdminDlg::run_dlgProc(UINT message, WPARAM wParam, LPAR
 {
 	switch (message)
 	{
-        case WM_INITDIALOG :
-		{
-			NppDarkMode::autoSubclassAndThemeChildControls(_hSelf);
-			return TRUE;
-		}
-
 		case WM_CTLCOLOREDIT:
 		{
 			if (NppDarkMode::isEnabled())
@@ -1145,11 +1153,6 @@ intptr_t CALLBACK PluginsAdminDlg::run_dlgProc(UINT message, WPARAM wParam, LPAR
 		case NPPM_INTERNAL_REFRESHDARKMODE:
 		{
 			NppDarkMode::autoThemeChildControls(_hSelf);
-
-			NppDarkMode::setDarkListView(_availableList.getViewHwnd());
-			NppDarkMode::setDarkListView(_updateList.getViewHwnd());
-			NppDarkMode::setDarkListView(_installedList.getViewHwnd());
-
 			return TRUE;
 		}
 
