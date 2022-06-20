@@ -401,9 +401,12 @@ struct Style final
 	COLORREF _fgColor = COLORREF(STYLE_NOT_USED);
 	COLORREF _bgColor = COLORREF(STYLE_NOT_USED);
 	int _colorStyle = COLORSTYLE_ALL;
+
+	bool _isFontEnabled = false;
 	generic_string _fontName;
 	int _fontStyle = FONTSTYLE_NONE;
 	int _fontSize = STYLE_NOT_USED;
+
 	int _nesting = FONTSTYLE_NONE;
 
 	int _keywordClass = STYLE_NOT_USED;
@@ -908,6 +911,9 @@ struct ScintillaViewParams
 	intptr_t _zoom2 = 0;
 	bool _whiteSpaceShow = false;
 	bool _eolShow = false;
+	enum crlfMode {plainText = 0, roundedRectangleText = 1, plainTextCustomColor = 2, roundedRectangleTextCustomColor = 3};
+	crlfMode _eolMode = roundedRectangleText;
+
 	int _borderWidth = 2;
 	bool _virtualSpace = false;
 	bool _scrollBeyondLastLine = true;

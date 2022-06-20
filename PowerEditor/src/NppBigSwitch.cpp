@@ -1386,6 +1386,13 @@ LRESULT Notepad_plus::process(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 			return cmdLineString.length();
 		}
 
+		case NPPM_CREATELEXER:
+		{
+			WcharMbcsConvertor& wmc = WcharMbcsConvertor::getInstance();
+			const char* lexer_name = wmc.wchar2char(reinterpret_cast<TCHAR*>(lParam), CP_ACP);
+			return (LRESULT) CreateLexer(lexer_name);
+		}
+
 		case WM_FRSAVE_INT:
 		{
 			_macro.push_back(recordedMacroStep(static_cast<int32_t>(wParam), 0, lParam, NULL, recordedMacroStep::mtSavedSnR));
@@ -2635,6 +2642,24 @@ LRESULT Notepad_plus::process(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 		case NPPM_INTERNAL_UPDATETITLEBAR:
 		{
 			setTitle();
+			return TRUE;
+		}
+
+		case NPPM_INTERNAL_CRLFFORMCHANGED:
+		{
+			_mainEditView.setCRLF();
+			_subEditView.setCRLF();
+			return TRUE;
+		}
+
+		case NPPM_INTERNAL_CRLFLAUNCHSTYLECONF:
+		{
+			// Launch _configStyleDlg (create or display it)
+			command(IDM_LANGSTYLE_CONFIG_DLG);
+
+			// go into the section we need
+			_configStyleDlg.goToSection(TEXT("Global Styles:EOL custom color"));
+
 			return TRUE;
 		}
 
