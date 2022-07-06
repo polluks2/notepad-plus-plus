@@ -917,6 +917,7 @@ The comments are here for explanation, it's not necessary to translate them.
                     <Item id="7124" name="Bord"/>
                     <Item id="7125" name="Lien"/>
                     <Item id="7126" name="Bord focalisé"/>
+                    <Item id="7127" name="Bord désactivé"/>
                     <Item id="7130" name="Réinitialiser"/>
                     <Item id="7135" name="Tons"/>
                 </DarkMode>
@@ -1047,6 +1048,7 @@ Vous pouvez définir plusieurs marqueurs de colonne en utilisant un espace pour 
                     <Item id="6903" name="La boîte de dialogue &quot;Rechercher&quot; reste ouverte après la recherche qui affiche la fenêtre de résultats"/>
                     <Item id="6904" name="Confirmer &quot;Remplacer dans tous les documents ouverts&quot;"/>
                     <Item id="6905" name="&quot;Remplacer&quot; : ne pas passer à l'occurrence suivante"/>
+                    <Item id="6906" name="Résultats de recherche : afficher une seule entrée par ligne trouvée"/>
                 </Searching>
 
                 <RecentFilesHistory title="Fichiers récents">
@@ -1433,7 +1435,10 @@ Continuer ?"/>
         <MiscStrings>
             <!-- $INT_REPLACE$  and $STR_REPLACE$ are a place holders, don't translate these place holders -->
             <word-chars-list-tip value="Ceci permet d'inclure des caractères supplémentaires dans les caractères de mot courants, lors de double-clic pour la sélection ou la recherche avec l'option &quot;Mot entier uniquement&quot;."/>
-<eol-custom-color-tip value="Accéder à Configurateur de coloration syntaxique pour personnaliser la couleur des sauts de ligne (&quot;EOL custom color&quot;)."/>
+
+            <!-- Don't translate "(&quot;EOL custom color&quot;)" -->
+            <eol-custom-color-tip value="Accéder au Configurateur de coloration syntaxique pour personnaliser la couleur des sauts de ligne (&quot;EOL custom color&quot;)."/>
+
             <word-chars-list-warning-begin value="Attention : "/>
             <word-chars-list-space-warning value="$INT_REPLACE$ espace(s)"/>
             <word-chars-list-tab-warning value="$INT_REPLACE$ TAB(s)"/>
