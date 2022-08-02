@@ -769,6 +769,7 @@ struct NppGUI final
 	RECT _appPos = {};
 
 	RECT _findWindowPos = {};
+	bool _findWindowLessMode = false;
 
 	bool _isMaximized = false;
 	bool _isMinimizedToTray = false;
@@ -805,6 +806,7 @@ struct NppGUI final
 	bool _replaceStopsWithoutFindingNext = false;
 	bool _muteSounds = false;
 	bool _enableFoldCmdToggable = false;
+	bool _hideMenuRightShortcuts = false;
 	writeTechnologyEngine _writeTechnologyEngine = defaultTechnology;
 	bool _isWordCharDefault = true;
 	std::string _customWordChars;

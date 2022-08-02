@@ -1634,12 +1634,19 @@ LRESULT Notepad_plus::process(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 				_mainEditView.execute(SCI_SETCARETWIDTH, nppGUI._caretWidth);
 				_subEditView.execute(SCI_SETCARETWIDTH, nppGUI._caretWidth);
 			}
-			else
+			else if (nppGUI._caretWidth == 4)
 			{
 				_mainEditView.execute(SCI_SETCARETWIDTH, 1);
 				_subEditView.execute(SCI_SETCARETWIDTH, 1);
 				_mainEditView.execute(SCI_SETCARETSTYLE, CARETSTYLE_BLOCK);
 				_subEditView.execute(SCI_SETCARETSTYLE, CARETSTYLE_BLOCK);
+			}
+			else // nppGUI._caretWidth == 5
+			{
+				_mainEditView.execute(SCI_SETCARETWIDTH, 1);
+				_subEditView.execute(SCI_SETCARETWIDTH, 1);
+				_mainEditView.execute(SCI_SETCARETSTYLE, CARETSTYLE_BLOCK | CARETSTYLE_BLOCK_AFTER);
+				_subEditView.execute(SCI_SETCARETSTYLE, CARETSTYLE_BLOCK | CARETSTYLE_BLOCK_AFTER);
 			}
 			return TRUE;
 		}
@@ -2662,6 +2669,17 @@ LRESULT Notepad_plus::process(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 
 			// go into the section we need
 			_configStyleDlg.goToSection(TEXT("Global Styles:EOL custom color"));
+
+			return TRUE;
+		}
+
+		case NPPM_INTERNAL_LAUNCHPREFERENCES:
+		{
+			// Launch _configStyleDlg (create or display it)
+			command(IDM_SETTING_PREFERENCE);
+
+			// go into the section we need
+			_preference.goToSection(wParam, lParam);
 
 			return TRUE;
 		}

@@ -417,7 +417,7 @@ static const WinMenuKeyDefinition winKeyDefs[] =
 	{ VK_NULL,    IDM_CMDLINEARGUMENTS,                         false, false, false, nullptr },
 	{ VK_NULL,    IDM_HOMESWEETHOME,                            false, false, false, nullptr },
 	{ VK_NULL,    IDM_PROJECTPAGE,                              false, false, false, nullptr },
-//  { VK_NULL,    IDM_ONLINEDOCUMENT,                               false, false, false, nullptr },
+	{ VK_NULL,    IDM_ONLINEDOCUMENT,                           false, false, false, nullptr },
 	{ VK_NULL,    IDM_FORUM,                                    false, false, false, nullptr },
 //	{ VK_NULL,    IDM_ONLINESUPPORT,                            false, false, false, nullptr },
 //	{ VK_NULL,    IDM_PLUGINSHOME,                              false, false, false, nullptr },
@@ -4848,6 +4848,10 @@ void NppParameters::feedGUIParameters(TiXmlNode *node)
 			{
 				_nppGUI._findWindowPos = oldRect;
 			}
+
+			const TCHAR* val = element->Attribute(TEXT("isLessModeOn"));
+			if (val)
+				_nppGUI._findWindowLessMode = (lstrcmp(val, TEXT("yes")) == 0);
 		}
 
 		else if (!lstrcmp(nm, TEXT("FinderConfig")))
@@ -5539,6 +5543,10 @@ void NppParameters::feedGUIParameters(TiXmlNode *node)
 			const TCHAR * optEnableFoldCmdToggable = element->Attribute(TEXT("enableFoldCmdToggable"));
 			if (optEnableFoldCmdToggable)
 				_nppGUI._enableFoldCmdToggable = lstrcmp(optEnableFoldCmdToggable, TEXT("yes")) == 0;
+
+			const TCHAR * hideMenuRightShortcuts = element->Attribute(TEXT("hideMenuRightShortcuts"));
+			if (hideMenuRightShortcuts)
+				_nppGUI._hideMenuRightShortcuts = lstrcmp(hideMenuRightShortcuts, TEXT("yes")) == 0;
 		}
 		else if (!lstrcmp(nm, TEXT("commandLineInterpreter")))
 		{
@@ -6324,6 +6332,7 @@ void NppParameters::createXmlTreeFromGUIParams()
 		GUIConfigElement->SetAttribute(TEXT("top"), _nppGUI._findWindowPos.top);
 		GUIConfigElement->SetAttribute(TEXT("right"), _nppGUI._findWindowPos.right);
 		GUIConfigElement->SetAttribute(TEXT("bottom"), _nppGUI._findWindowPos.bottom);
+		GUIConfigElement->SetAttribute(TEXT("isLessModeOn"), _nppGUI._findWindowLessMode ? TEXT("yes") : TEXT("no"));
 	}
 
 	// <GUIConfig name="FinderConfig" wrappedLines="no" purgeBeforeEverySearch="no" showOnlyOneEntryPerFoundLine="yes"/>
@@ -6660,6 +6669,7 @@ void NppParameters::createXmlTreeFromGUIParams()
 		GUIConfigElement->SetAttribute(TEXT("saveDlgExtFilterToAllTypes"), _nppGUI._setSaveDlgExtFiltToAllTypes ? TEXT("yes") : TEXT("no"));
 		GUIConfigElement->SetAttribute(TEXT("muteSounds"), _nppGUI._muteSounds ? TEXT("yes") : TEXT("no"));
 		GUIConfigElement->SetAttribute(TEXT("enableFoldCmdToggable"), _nppGUI._enableFoldCmdToggable ? TEXT("yes") : TEXT("no"));
+		GUIConfigElement->SetAttribute(TEXT("hideMenuRightShortcuts"), _nppGUI._hideMenuRightShortcuts ? TEXT("yes") : TEXT("no"));
 	}
 
 	// <GUIConfig name="Searching" "monospacedFontFindDlg"="no" stopFillingFindField="no" findDlgAlwaysVisible="no" confirmReplaceOpenDocs="yes" confirmMacroReplaceOpenDocs="yes" confirmReplaceInFiles="yes" confirmMacroReplaceInFiles="yes" replaceStopsWithoutFindingNext="no"/>

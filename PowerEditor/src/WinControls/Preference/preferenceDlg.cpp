@@ -95,6 +95,20 @@ static int encodings[] = {
 	20866
 };
 
+bool PreferenceDlg::goToSection(size_t iPage, intptr_t ctrlID)
+{
+	::SendDlgItemMessage(_hSelf, IDC_LIST_DLGTITLE, LB_SETCURSEL, iPage, 0);
+	showDialogByIndex(iPage);
+	getFocus();
+
+	if (ctrlID != -1)
+	{
+		::SetFocus(::GetDlgItem(_wVector[iPage]._dlg->getHSelf(), int(ctrlID)));
+	}
+
+	return true;
+}
+
 intptr_t CALLBACK PreferenceDlg::run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam)
 {
 	switch (message) 
@@ -440,6 +454,7 @@ intptr_t CALLBACK GeneralSubDlg::run_dlgProc(UINT message, WPARAM wParam, LPARAM
 			bool showTool = nppGUI._toolbarShow;
 			bool showStatus = nppGUI._statusBarShow;
 			bool showMenu = nppGUI._menuBarShow;
+			bool hideRightShortcutsFromMenu = nppGUI._hideMenuRightShortcuts;
 
 			::SendDlgItemMessage(_hSelf, IDC_CHECK_HIDE, BM_SETCHECK, showTool?BST_UNCHECKED:BST_CHECKED, 0);
 			int ID2Check = 0;
@@ -478,6 +493,7 @@ intptr_t CALLBACK GeneralSubDlg::run_dlgProc(UINT message, WPARAM wParam, LPARAM
 			::SendMessage(_hSelf, WM_COMMAND, IDC_CHECK_TAB_HIDE, 0);
 			::SendDlgItemMessage(_hSelf, IDC_CHECK_SHOWSTATUSBAR, BM_SETCHECK, showStatus, 0);
 			::SendDlgItemMessage(_hSelf, IDC_CHECK_HIDEMENUBAR, BM_SETCHECK, !showMenu, 0);
+			::SendDlgItemMessage(_hSelf, IDC_CHECK_HIDERIGHTSHORTCUTSOFMENUBAR, BM_SETCHECK, hideRightShortcutsFromMenu, 0);
 
 			LocalizationSwitcher & localizationSwitcher = nppParam.getLocalizationSwitcher();
 
@@ -543,6 +559,14 @@ intptr_t CALLBACK GeneralSubDlg::run_dlgProc(UINT message, WPARAM wParam, LPARAM
 				{
 					bool isChecked = (BST_CHECKED == ::SendDlgItemMessage(_hSelf, IDC_CHECK_HIDEMENUBAR, BM_GETCHECK, 0, 0));
 					::SendMessage(::GetParent(_hParent), NPPM_HIDEMENU, 0, isChecked?TRUE:FALSE);
+				}
+				return TRUE;
+
+				case IDC_CHECK_HIDERIGHTSHORTCUTSOFMENUBAR:
+				{
+					bool isChecked = (BST_CHECKED == ::SendDlgItemMessage(_hSelf, IDC_CHECK_HIDERIGHTSHORTCUTSOFMENUBAR, BM_GETCHECK, 0, 0));
+					NppGUI& nppGUI = nppParam.getNppGUI();
+					nppGUI._hideMenuRightShortcuts = isChecked;
 				}
 				return TRUE;
 
@@ -765,7 +789,7 @@ intptr_t CALLBACK EditingSubDlg::run_dlgProc(UINT message, WPARAM wParam, LPARAM
 			::SendDlgItemMessage(_hSelf, IDC_WIDTH_COMBO, CB_ADDSTRING, 0, reinterpret_cast<LPARAM>(TEXT("2")));
 			::SendDlgItemMessage(_hSelf, IDC_WIDTH_COMBO, CB_ADDSTRING, 0, reinterpret_cast<LPARAM>(TEXT("3")));
 			::SendDlgItemMessage(_hSelf, IDC_WIDTH_COMBO, CB_ADDSTRING, 0, reinterpret_cast<LPARAM>(TEXT("Block")));
-
+			::SendDlgItemMessage(_hSelf, IDC_WIDTH_COMBO, CB_ADDSTRING, 0, reinterpret_cast<LPARAM>(TEXT("Block After")));
 
 			::SendMessage(::GetDlgItem(_hSelf, IDC_WIDTH_COMBO), CB_SETCURSEL, nppGUI._caretWidth, 0);
 			::SendDlgItemMessage(_hSelf, IDC_CHECK_FOLDINGTOGGLE, BM_SETCHECK, nppGUI._enableFoldCmdToggable, 0);
