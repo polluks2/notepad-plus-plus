@@ -30,7 +30,7 @@ struct PluginCommand
 	generic_string _pluginName;
 	int _funcID = 0;
 	PFUNCPLUGINCMD _pFunc = nullptr;
-	PluginCommand(const TCHAR *pluginName, int funcID, PFUNCPLUGINCMD pFunc): _funcID(funcID), _pFunc(pFunc), _pluginName(pluginName){};
+	PluginCommand(const TCHAR *pluginName, int funcID, PFUNCPLUGINCMD pFunc): _pluginName(pluginName), _funcID(funcID), _pFunc(pFunc) {};
 };
 
 struct PluginInfo
@@ -91,7 +91,7 @@ public:
 		_nppData = nppData;
 	}
 
-	bool loadPlugins(const TCHAR *dir = NULL, const PluginViewList* pluginUpdateInfoList = nullptr);
+	bool loadPlugins(const TCHAR *dir = NULL, const PluginViewList* pluginUpdateInfoList = nullptr, PluginViewList* pluginImcompatibleList = nullptr);
 
     bool unloadPlugin(int index, HWND nppHandle);
 
@@ -116,7 +116,7 @@ public:
 	bool allocateCmdID(int numberRequired, int *start);
 	bool inDynamicRange(int id) { return _dynamicIDAlloc.isInRange(id); }
 
-	bool allocateMarker(int numberRequired, int *start);
+	bool allocateMarker(int numberRequired, int* start);
 	generic_string getLoadedPluginNames() const;
 
 private:
@@ -133,16 +133,14 @@ private:
 
 	int loadPluginFromPath(const TCHAR* pluginFilePath);
 
-	void pluginCrashAlert(const TCHAR *pluginName, const TCHAR *funcSignature)
-	{
+	void pluginCrashAlert(const TCHAR *pluginName, const TCHAR *funcSignature) {
 		generic_string msg = pluginName;
 		msg += TEXT(" just crashed in\r");
 		msg += funcSignature;
 		::MessageBox(NULL, msg.c_str(), TEXT("Plugin Crash"), MB_OK|MB_ICONSTOP);
 	}
 
-	void pluginExceptionAlert(const TCHAR *pluginName, const std::exception& e)
-	{
+	void pluginExceptionAlert(const TCHAR *pluginName, const std::exception& e) {
 		generic_string msg = TEXT("An exception occurred due to plugin: ");
 		msg += pluginName;
 		msg += TEXT("\r\n\r\nException reason: ");
@@ -151,8 +149,7 @@ private:
 		::MessageBox(NULL, msg.c_str(), TEXT("Plugin Exception"), MB_OK);
 	}
 
-	bool isInLoadedDlls(const TCHAR *fn) const
-	{
+	bool isInLoadedDlls(const TCHAR *fn) const {
 		for (size_t i = 0; i < _loadedDlls.size(); ++i)
 			if (generic_stricmp(fn, _loadedDlls[i]._fileName.c_str()) == 0)
 				return true;

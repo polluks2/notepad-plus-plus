@@ -23,6 +23,7 @@
 #include "TabBar.h"
 #include "ListView.h"
 #include "tinyxml.h"
+#include "URLCtrl.h"
 
 class PluginsManager;
 
@@ -128,13 +129,14 @@ public:
 	void changeColumnName(COLUMN_TYPE index, const TCHAR *name2change);
 
 private:
+	// _list & _ui should keep being synchronized
 	std::vector<PluginUpdateInfo*> _list;
 	ListView _ui;
 
 	SORT_TYPE _sortType = DISPLAY_NAME_ALPHABET_ENCREASE;
 };
 
-enum LIST_TYPE { AVAILABLE_LIST, UPDATES_LIST, INSTALLED_LIST };
+enum LIST_TYPE { AVAILABLE_LIST, UPDATES_LIST, INSTALLED_LIST, INCOMPATIBLE_LIST };
 
 
 class PluginsAdminDlg final : public StaticDialog
@@ -180,6 +182,10 @@ public :
 	const PluginViewList & getAvailablePluginUpdateInfoList() const {
 		return _availableList;
 	};
+	
+	PluginViewList & getIncompatibleList() {
+		return _incompatibleList;
+	};
 
 protected:
 	virtual intptr_t CALLBACK run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam);
@@ -191,9 +197,13 @@ private :
 
 	TabBar _tab;
 
-	PluginViewList _availableList; // A permanent list, once it's loaded (no removal - only hide or show) 
-	PluginViewList _updateList;    // A dynamical list, items are removable
-	PluginViewList _installedList; // A dynamical list, items are removable
+	std::wstring _pluginListVersion;
+	URLCtrl _repoLink;
+
+	PluginViewList _availableList;    // A permanent list, once it's loaded (no removal - only hide or show) 
+	PluginViewList _updateList;       // A dynamical list, items are removable
+	PluginViewList _installedList;    // A dynamical list, items are removable
+	PluginViewList _incompatibleList; // A permanent list, once it's loaded (no removal - only hide or show) 
 
 	PluginsManager *_pPluginsManager = nullptr;
 	NppCurrentStatus _nppCurrentStatus;
@@ -213,6 +223,7 @@ private :
 	};
 	
 	bool initAvailablePluginsViewFromList();
+	bool initIncompatiblePluginList();
 	bool loadFromPluginInfos();
 	bool checkUpdates();
 

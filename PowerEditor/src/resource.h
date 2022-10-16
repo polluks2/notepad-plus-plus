@@ -19,12 +19,12 @@
 //
 // Notepad++ version: begin
 //
-#define NOTEPAD_PLUS_VERSION TEXT("Notepad++ v8.4.4")
+#define NOTEPAD_PLUS_VERSION TEXT("Notepad++ v8.4.6")
 
 // should be X.Y : ie. if VERSION_DIGITALVALUE == 4, 7, 1, 0 , then X = 4, Y = 71
 // ex : #define VERSION_VALUE TEXT("5.63\0")
-#define VERSION_VALUE TEXT("8.44\0")
-#define VERSION_DIGITALVALUE 8, 4, 4, 0
+#define VERSION_VALUE TEXT("8.46\0")
+#define VERSION_DIGITALVALUE 8, 4, 6, 0
 
 // Notepad++ version: end
 
@@ -415,8 +415,8 @@
 #define ID_PLUGINS_CMD_DYNAMIC_LIMIT       24999
 
 
-#define MARKER_PLUGINS          3
-#define MARKER_PLUGINS_LIMIT   19
+#define MARKER_PLUGINS          1
+#define MARKER_PLUGINS_LIMIT   15
 
 
 
@@ -640,6 +640,9 @@
 	#define NPPM_INTERNAL_CRLFFORMCHANGED               (NOTEPADPLUS_USER_INTERNAL + 64)
 	#define NPPM_INTERNAL_CRLFLAUNCHSTYLECONF           (NOTEPADPLUS_USER_INTERNAL + 65)
 	#define NPPM_INTERNAL_LAUNCHPREFERENCES             (NOTEPADPLUS_USER_INTERNAL + 66)
+	#define NPPM_INTERNAL_ENABLECHANGEHISTORY           (NOTEPADPLUS_USER_INTERNAL + 67)
+	#define NPPM_INTERNAL_CLEANSMARTHILITING            (NOTEPADPLUS_USER_INTERNAL + 68)
+	#define NPPM_INTERNAL_CLEANBRACEMATCH               (NOTEPADPLUS_USER_INTERNAL + 69)
 
 // See Notepad_plus_msgs.h
 //#define NOTEPADPLUS_USER   (WM_USER + 1000)

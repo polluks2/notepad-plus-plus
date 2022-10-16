@@ -16,7 +16,7 @@
 
 #pragma once
 
-#include <Windows.h>
+#include <windows.h>
 
 constexpr COLORREF HEXRGB(DWORD rrggbb) {
 	// from 0xRRGGBB like natural #RRGGBB
@@ -50,6 +50,13 @@ namespace NppDarkMode
 		bool enable = false;
 		bool enableMenubar = false;
 		bool enablePlugin = false;
+	};
+
+	struct NppDarkModeParams
+	{
+		const wchar_t* _themeClassName = nullptr;
+		bool _subclass = false;
+		bool _theme = false;
 	};
 
 	enum class ToolTipsType
@@ -126,6 +133,8 @@ namespace NppDarkMode
 	HPEN getHotEdgePen();
 	HPEN getDisabledEdgePen();
 
+	COLORREF getIndividualTabColour(int colourIndex, bool themeDependant, bool saturated);
+
 	void setBackgroundColor(COLORREF c);
 	void setSofterBackgroundColor(COLORREF c);
 	void setHotBackgroundColor(COLORREF c);
@@ -166,6 +175,14 @@ namespace NppDarkMode
 	void subclassGroupboxControl(HWND hwnd);
 	void subclassTabControl(HWND hwnd);
 	void subclassComboBoxControl(HWND hwnd);
+
+	void subclassAndThemeButton(HWND hwnd, NppDarkModeParams p);
+	void subclassAndThemeComboBox(HWND hwnd, NppDarkModeParams p);
+	void subclassAndThemeListBoxOrEditControl(HWND hwnd, NppDarkModeParams p, bool isListBox);
+	void subclassAndThemeListView(HWND hwnd, NppDarkModeParams p);
+	void themeTreeView(HWND hwnd, NppDarkModeParams p);
+	void themeToolbar(HWND hwnd, NppDarkModeParams p);
+	void themeRichEdit(HWND hwnd, NppDarkModeParams p);
 
 	void autoSubclassAndThemeChildControls(HWND hwndParent, bool subclass = true, bool theme = true);
 	void autoThemeChildControls(HWND hwndParent);

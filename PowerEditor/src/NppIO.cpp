@@ -320,7 +320,7 @@ BufferID Notepad_plus::doOpen(const generic_string& fileName, bool isRecursive, 
 
     // Notify plugins that current file is about to load
     // Plugins can should use this notification to filter SCN_MODIFIED
-    SCNotification scnN;
+	SCNotification scnN{};
     scnN.nmhdr.code = NPPN_FILEBEFORELOAD;
     scnN.nmhdr.hwndFrom = _pPublicInterface->getHSelf();
     scnN.nmhdr.idFrom = 0;
@@ -334,7 +334,7 @@ BufferID Notepad_plus::doOpen(const generic_string& fileName, bool isRecursive, 
 	BufferID buffer;
 	if (isSnapshotMode)
 	{
-		buffer = MainFileManager.loadFile(longFileName, NULL, encoding, backupFileName, fileNameTimestamp);
+		buffer = MainFileManager.loadFile(longFileName, static_cast<Document>(NULL), encoding, backupFileName, fileNameTimestamp);
 
 		if (buffer != BUFFER_INVALID)
 		{
@@ -342,7 +342,7 @@ BufferID Notepad_plus::doOpen(const generic_string& fileName, bool isRecursive, 
 			if (isSnapshotMode)
 			{
 				// To notify plugins that a snapshot dirty file is loaded on startup
-				SCNotification scnN2;
+				SCNotification scnN2{};
 				scnN2.nmhdr.hwndFrom = 0;
 				scnN2.nmhdr.idFrom = (uptr_t)buffer;
 				scnN2.nmhdr.code = NPPN_SNAPSHOTDIRTYFILELOADED;
@@ -354,7 +354,7 @@ BufferID Notepad_plus::doOpen(const generic_string& fileName, bool isRecursive, 
 	}
 	else
 	{
-		buffer = MainFileManager.loadFile(longFileName, NULL, encoding);
+		buffer = MainFileManager.loadFile(longFileName, static_cast<Document>(NULL), encoding);
 	}
 
     if (buffer != BUFFER_INVALID)
@@ -540,7 +540,7 @@ bool Notepad_plus::doSave(BufferID id, const TCHAR * filename, bool isCopy)
 		return false;
 	}
 
-	SCNotification scnN;
+	SCNotification scnN{};
 	// Notify plugins that current file is about to be saved
 	if (!isCopy)
 	{
@@ -685,7 +685,7 @@ void Notepad_plus::doClose(BufferID id, int whichOne, bool doDeleteBackup)
 	Buffer * buf = MainFileManager.getBufferByID(id);
 
 	// Notify plugins that current file is about to be closed
-	SCNotification scnN;
+	SCNotification scnN{};
 	scnN.nmhdr.code = NPPN_FILEBEFORECLOSE;
 	scnN.nmhdr.hwndFrom = _pPublicInterface->getHSelf();
 	scnN.nmhdr.idFrom = (uptr_t)id;
@@ -779,7 +779,7 @@ void Notepad_plus::doClose(BufferID id, int whichOne, bool doDeleteBackup)
 generic_string Notepad_plus::exts2Filters(const generic_string& exts, int maxExtsLen) const
 {
 	const TCHAR *extStr = exts.c_str();
-	TCHAR aExt[MAX_PATH];
+	TCHAR aExt[MAX_PATH] = { '\0' };
 	generic_string filters(TEXT(""));
 
 	int j = 0;
@@ -1783,7 +1783,7 @@ bool Notepad_plus::fileRename(BufferID id)
 		bufferID = _pEditView->getCurrentBufferID();
 	Buffer * buf = MainFileManager.getBufferByID(bufferID);
 
-	SCNotification scnN;
+	SCNotification scnN{};
 	scnN.nmhdr.code = NPPN_FILEBEFORERENAME;
 	scnN.nmhdr.hwndFrom = _pPublicInterface->getHSelf();
 	scnN.nmhdr.idFrom = (uptr_t)bufferID;
@@ -1885,12 +1885,12 @@ bool Notepad_plus::fileDelete(BufferID id)
 	if (winVersion >= WV_WIN8 || winVersion == WV_UNKNOWN)
 	{
 		// Windows 8 (and version afer?) has no system alert, so we ask user's confirmation
-		goAhead = (doDeleteOrNot(fileNamePath) == IDYES);
+		goAhead = (doDeleteOrNot(fileNamePath) == IDOK);
 	}
 
 	if (goAhead)
 	{
-		SCNotification scnN;
+		SCNotification scnN{};
 		scnN.nmhdr.code = NPPN_FILEBEFOREDELETE;
 		scnN.nmhdr.hwndFrom = _pPublicInterface->getHSelf();
 		scnN.nmhdr.idFrom = (uptr_t)bufferID;
@@ -2074,15 +2074,22 @@ bool Notepad_plus::loadSession(Session & session, bool isSnapshotMode, bool shou
 		if (lastOpened != BUFFER_INVALID)
 		{
 			showView(MAIN_VIEW);
-			const TCHAR *pLn = session._mainViewFiles[i]._langName.c_str();
-			int id = getLangFromMenuName(pLn);
+			const TCHAR* pLn = nullptr;
 			LangType typeToSet = L_TEXT;
-			if (id != 0 && id != IDM_LANG_USER)
-				typeToSet = menuID2LangType(id);
-			if (typeToSet == L_EXTERNAL )
-				typeToSet = (LangType)(id - IDM_LANG_EXTERNAL + L_EXTERNAL);
+			Buffer* buf = MainFileManager.getBufferByID(lastOpened);
 
-			Buffer *buf = MainFileManager.getBufferByID(lastOpened);
+			if (!buf->isLargeFile())
+			{
+				pLn = session._mainViewFiles[i]._langName.c_str();
+
+				int id = getLangFromMenuName(pLn);
+				
+				if (id != 0 && id != IDM_LANG_USER)
+					typeToSet = menuID2LangType(id);
+				if (typeToSet == L_EXTERNAL)
+					typeToSet = (LangType)(id - IDM_LANG_EXTERNAL + L_EXTERNAL);
+			}
+			
 
 			if (session._mainViewFiles[i]._foldStates.size() > 0)
 			{
@@ -2104,6 +2111,8 @@ bool Notepad_plus::loadSession(Session & session, bool isSnapshotMode, bool shou
 
 			if (isSnapshotMode && session._mainViewFiles[i]._backupFilePath != TEXT("") && PathFileExists(session._mainViewFiles[i]._backupFilePath.c_str()))
 				buf->setDirty(true);
+
+			_mainDocTab.setIndividualTabColour(lastOpened, session._mainViewFiles[i]._individualTabColour);
 
 			//Force in the document so we can add the markers
 			//Don't use default methods because of performance

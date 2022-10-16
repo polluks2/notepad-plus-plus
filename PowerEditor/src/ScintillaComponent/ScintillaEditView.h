@@ -113,14 +113,12 @@ const UCHAR BASE_08 = 0x02; // Oct
 const UCHAR BASE_02 = 0x03; // Bin
 
 
-const int MARK_BOOKMARK = 24;
-const int MARK_HIDELINESBEGIN = 23;
-const int MARK_HIDELINESEND = 22;
-const int MARK_HIDELINESUNDERLINE = 21;
-//const int MARK_LINEMODIFIEDUNSAVED = 20;
-//const int MARK_LINEMODIFIEDSAVED = 19;
-// 24 - 16 reserved for Notepad++ internal used
-// 15 - 0  are free to use for plugins
+const int MARK_BOOKMARK = 20;
+const int MARK_HIDELINESBEGIN = 19;
+const int MARK_HIDELINESEND = 18;
+const int MARK_HIDELINESUNDERLINE = 17;
+// 20 - 17 reserved for Notepad++ internal used
+// 16 - 0  are free to use for plugins
 
 
 int getNbDigits(int aNum, int base);
@@ -138,8 +136,8 @@ struct ColumnModeInfo {
 	intptr_t _selRpos = 0;
 	intptr_t _order = -1; // 0 based index
 	bool _direction = L2R; // L2R or R2L
-	intptr_t _nbVirtualCaretSpc = 0;
 	intptr_t _nbVirtualAnchorSpc = 0;
+	intptr_t _nbVirtualCaretSpc = 0;
 
 	ColumnModeInfo(intptr_t lPos, intptr_t rPos, intptr_t order, bool dir = L2R, intptr_t vAnchorNbSpc = 0, intptr_t vCaretNbSpc = 0)
 		: _selLpos(lPos), _selRpos(rPos), _order(order), _direction(dir), _nbVirtualAnchorSpc(vAnchorNbSpc), _nbVirtualCaretSpc(vCaretNbSpc){};
@@ -274,7 +272,7 @@ public:
 	};
 
 	Sci_CharacterRange getSelection() const {
-		Sci_CharacterRange crange;
+		Sci_CharacterRange crange{};
 		crange.cpMin = static_cast<Sci_PositionCR>(execute(SCI_GETSELECTIONSTART));
 		crange.cpMax = static_cast<Sci_PositionCR>(execute(SCI_GETSELECTIONEND));
 		return crange;
@@ -306,11 +304,12 @@ public:
 
     //Marge member and method
     static const int _SC_MARGE_LINENUMBER;
-    static const int _SC_MARGE_SYBOLE;
+    static const int _SC_MARGE_SYMBOL;
     static const int _SC_MARGE_FOLDER;
-	//static const int _SC_MARGE_MODIFMARKER;
+    static const int _SC_MARGE_CHANGEHISTORY;
 
     void showMargin(int whichMarge, bool willBeShowed = true);
+    void showChangeHistoryMargin(bool willBeShowed = true);
 
     bool hasMarginShowed(int witchMarge) {
 		return (execute(SCI_GETMARGINWIDTHN, witchMarge, 0) != 0);
@@ -539,7 +538,7 @@ public:
 
 	void hideLines();
 
-	bool markerMarginClick(size_t lineNumber);	//true if it did something
+	bool markerMarginClick(intptr_t lineNumber);	//true if it did something
 	void notifyMarkers(Buffer * buf, bool isHide, size_t location, bool del);
 	void runMarkers(bool doHide, size_t searchStart, bool endOfDoc, bool doDelete);
 
@@ -918,7 +917,7 @@ protected:
 
 	void setREBOLLexer() {
 		setLexer(L_REBOL, LIST_0 | LIST_1 | LIST_2 | LIST_3 | LIST_4 | LIST_5 | LIST_6);
-		execute(SCI_SETWORDCHARS, 0, reinterpret_cast<LPARAM>("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789?!.’+-*&|=_~"));
+		execute(SCI_SETWORDCHARS, 0, reinterpret_cast<LPARAM>("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789?!.'+-*&|=_~"));
 	};
 
 	void setRegistryLexer() {

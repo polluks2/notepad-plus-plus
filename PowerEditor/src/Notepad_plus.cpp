@@ -250,8 +250,8 @@ LRESULT Notepad_plus::init(HWND hwnd)
 	// Configuration of 2 scintilla views
 	_mainEditView.showMargin(ScintillaEditView::_SC_MARGE_LINENUMBER, svp._lineNumberMarginShow);
 	_subEditView.showMargin(ScintillaEditView::_SC_MARGE_LINENUMBER, svp._lineNumberMarginShow);
-	_mainEditView.showMargin(ScintillaEditView::_SC_MARGE_SYBOLE, svp._bookMarkMarginShow);
-	_subEditView.showMargin(ScintillaEditView::_SC_MARGE_SYBOLE, svp._bookMarkMarginShow);
+	_mainEditView.showMargin(ScintillaEditView::_SC_MARGE_SYMBOL, svp._bookMarkMarginShow);
+	_subEditView.showMargin(ScintillaEditView::_SC_MARGE_SYMBOL, svp._bookMarkMarginShow);
 
 	_mainEditView.showIndentGuideLine(svp._indentGuideLineShow);
 	_subEditView.showIndentGuideLine(svp._indentGuideLineShow);
@@ -425,7 +425,7 @@ LRESULT Notepad_plus::init(HWND hwnd)
 	_pluginsManager.init(nppData);
 
 	bool enablePluginAdmin = _pluginsAdminDlg.initFromJson();
-	_pluginsManager.loadPlugins(nppParam.getPluginRootDir(), enablePluginAdmin ? &_pluginsAdminDlg.getAvailablePluginUpdateInfoList() : nullptr);
+	_pluginsManager.loadPlugins(nppParam.getPluginRootDir(), enablePluginAdmin ? &_pluginsAdminDlg.getAvailablePluginUpdateInfoList() : nullptr, enablePluginAdmin ? &_pluginsAdminDlg.getIncompatibleList() : nullptr);
 	_restoreButton.init(_pPublicInterface->getHinst(), hwnd);
 
 	// ------------ //
@@ -491,7 +491,7 @@ LRESULT Notepad_plus::init(HWND hwnd)
 
 		int numLangs = ::GetMenuItemCount(hLangMenu);
 		const int bufferSize = 100;
-		TCHAR buffer[bufferSize];
+		TCHAR buffer[bufferSize] = { '\0' };
 		const TCHAR* lexerNameW = wmc.char2wchar(externalLangContainer._name.c_str(), CP_ACP);
 
 		int x = 0;
@@ -609,7 +609,7 @@ LRESULT Notepad_plus::init(HWND hwnd)
 	willBeShown = nppGUI._toolbarShow;
 
 	// To notify plugins that toolbar icons can be registered
-	SCNotification scnN;
+	SCNotification scnN{};
 	scnN.nmhdr.code = NPPN_TBMODIFICATION;
 	scnN.nmhdr.hwndFrom = hwnd;
 	scnN.nmhdr.idFrom = 0;
@@ -820,7 +820,7 @@ bool Notepad_plus::saveGUIParams()
 
 	// When window is maximized GetWindowPlacement returns window's last non maximized coordinates.
 	// Save them so that those will be used when window is restored next time.
-	WINDOWPLACEMENT posInfo;
+	WINDOWPLACEMENT posInfo{};
 	posInfo.length = sizeof(WINDOWPLACEMENT);
 	::GetWindowPlacement(_pPublicInterface->getHSelf(), &posInfo);
 
@@ -1245,7 +1245,7 @@ void Notepad_plus::wsTabConvert(spaceTab whichWay)
     char * source = new char[docLength];
     if (source == NULL)
         return;
-	_pEditView->execute(SCI_GETTEXT, docLength, reinterpret_cast<LPARAM>(source));
+    _pEditView->execute(SCI_GETTEXT, docLength, reinterpret_cast<LPARAM>(source));
 
     if (whichWay == tab2Space)
     {
@@ -2141,7 +2141,7 @@ int Notepad_plus::doDeleteOrNot(const TCHAR *fn)
 		_pPublicInterface->getHSelf(),
 		TEXT("The file \"$STR_REPLACE$\"\rwill be moved to your Recycle Bin and this document will be closed.\rContinue?"),
 		TEXT("Delete file"),
-		MB_YESNO | MB_ICONQUESTION | MB_APPLMODAL,
+		MB_OKCANCEL | MB_ICONQUESTION | MB_APPLMODAL,
 		0, // not used
 		fn);
 }
@@ -2300,30 +2300,8 @@ void Notepad_plus::setupColorSampleBitmapsOnMainMenuItems()
 		const Style * pStyle = NppParameters::getInstance().getMiscStylerArray().findByID(bitmapOnStyleMenuItemsInfo[j].styleIndic);
 		if (pStyle)
 		{
+			HBITMAP hNewBitmap = generateSolidColourMenuItemIcon(pStyle->_bgColor);
 
-			HDC hDC = GetDC(NULL);
-			const int bitmapXYsize = 16;
-			HBITMAP hNewBitmap = CreateCompatibleBitmap(hDC, bitmapXYsize, bitmapXYsize);
-			HDC hDCn = CreateCompatibleDC(hDC);
-			HBITMAP hOldBitmap = static_cast<HBITMAP>(SelectObject(hDCn, hNewBitmap));
-			RECT rc = { 0, 0, bitmapXYsize, bitmapXYsize };
-
-			// paint full-size black square
-			HBRUSH hBlackBrush = CreateSolidBrush(RGB(0,0,0));
-			FillRect(hDCn, &rc, hBlackBrush);
-			DeleteObject(hBlackBrush);
-
-			// overpaint a slightly smaller colored square
-			rc.left = rc.top = 1;
-			rc.right = rc.bottom = bitmapXYsize - 1;
-			HBRUSH hColorBrush = CreateSolidBrush(pStyle->_bgColor);
-			FillRect(hDCn, &rc, hColorBrush);
-			DeleteObject(hColorBrush);
-
-			// restore old bitmap so we can delete it to avoid leak
-			SelectObject(hDCn, hOldBitmap);
-			DeleteDC(hDCn);
-			
 			SetMenuItemBitmaps(_mainMenuHandle, bitmapOnStyleMenuItemsInfo[j].firstOfThisColorMenuId, MF_BYCOMMAND, hNewBitmap, hNewBitmap);
 			for (int relatedMenuId : bitmapOnStyleMenuItemsInfo[j].sameColorMenuIds)
 			{
@@ -2331,11 +2309,19 @@ void Notepad_plus::setupColorSampleBitmapsOnMainMenuItems()
 			}
 		}
 	}
+
+	// Adds tab colour icons
+	for (int i = 0; i < 5; ++i)
+	{
+		COLORREF colour = NppDarkMode::getIndividualTabColour(i, NppDarkMode::isDarkMenuEnabled(), true);
+		HBITMAP hBitmap = generateSolidColourMenuItemIcon(colour);
+		SetMenuItemBitmaps(_mainMenuHandle, IDM_VIEW_TAB_COLOUR_1 + i, MF_BYCOMMAND, hBitmap, hBitmap);
+	}
 }
 
 bool doCheck(HMENU mainHandle, int id)
 {
-	MENUITEMINFO mii;
+	MENUITEMINFO mii{};
 	mii.cbSize = sizeof(MENUITEMINFO);
 	mii.fMask = MIIM_SUBMENU | MIIM_FTYPE | MIIM_ID | MIIM_STATE;
 
@@ -2406,7 +2392,7 @@ generic_string Notepad_plus::getLangDesc(LangType langType, bool getName)
 		return generic_string(lexerNameW);
 	}
 
-	if (langType > L_EXTERNAL)
+	if (langType < L_TEXT || langType > L_EXTERNAL)
         langType = L_TEXT;
 
 	generic_string str2Show;
@@ -2598,7 +2584,8 @@ void Notepad_plus::findMatchingBracePos(intptr_t& braceAtCaret, intptr_t& braceO
 bool Notepad_plus::braceMatch()
 {
 	Buffer* currentBuf = _pEditView->getCurrentBuffer();
-	if (currentBuf->isLargeFile())
+	const NppGUI& nppGui = NppParameters::getInstance().getNppGUI();
+	if (currentBuf->isLargeFile() && !nppGui._largeFileLimit._allowBraceMatch)
 		return false;
 
 	intptr_t braceAtCaret = -1;
@@ -2755,6 +2742,18 @@ bool isUrlSchemeSupported(INTERNET_SCHEME s, TCHAR *url)
 		case INTERNET_SCHEME_MAILTO:
 		case INTERNET_SCHEME_FILE:
 			return true;
+
+		case INTERNET_SCHEME_PARTIAL:
+		case INTERNET_SCHEME_UNKNOWN:
+		case INTERNET_SCHEME_DEFAULT:
+		case INTERNET_SCHEME_GOPHER:
+		case INTERNET_SCHEME_NEWS:
+		case INTERNET_SCHEME_SOCKS:
+		case INTERNET_SCHEME_JAVASCRIPT:
+		case INTERNET_SCHEME_VBSCRIPT:
+		case INTERNET_SCHEME_RES:
+		default:
+			break;
 	}
 	generic_string const mySchemes = (NppParameters::getInstance()).getNppGUI()._uriSchemes + TEXT(" ");
 	TCHAR *p = (TCHAR *)mySchemes.c_str();
@@ -2950,11 +2949,13 @@ bool removeUnwantedTrailingCharFromUrl (TCHAR const *text, int* length)
 				{
 					if (text [j] == closingParenthesis [i])
 						count++;
-					if (text [j] == openingParenthesis [i])
+					if (text[j] == openingParenthesis[i])
+					{
 						if (count > 0)
 							count--;
 						else
 							return false;
+					}
 				}
 				if (count != 0)
 					return false;
@@ -3358,7 +3359,7 @@ void Notepad_plus::setLanguage(LangType langType)
 		_subEditView.execute(SCI_SETDOCPOINTER, 0, prev);
 		_subEditView.restoreCurrentPosPreStep();
 	}
-};
+}
 
 LangType Notepad_plus::menuID2LangType(int cmdID)
 {
@@ -3873,6 +3874,11 @@ void Notepad_plus::updateStatusBar()
 	_statusBar.setText(strLnColSel, STATUSBAR_CUR_POS);
 
 	_statusBar.setText(_pEditView->execute(SCI_GETOVERTYPE) ? TEXT("OVR") : TEXT("INS"), STATUSBAR_TYPING_MODE);
+	
+	if (_goToLineDlg.isCreated() && _goToLineDlg.isVisible())
+	{
+		_goToLineDlg.updateLinesNumbers();
+	}
 }
 
 void Notepad_plus::dropFiles(HDROP hdrop)
@@ -4595,6 +4601,13 @@ void Notepad_plus::checkUnicodeMenuItems() const
 		case uni16LE   : id = IDM_FORMAT_UTF_16LE; break;
 		case uniCookie : id = IDM_FORMAT_AS_UTF_8; break;
 		case uni8Bit   : id = IDM_FORMAT_ANSI; break;
+
+		case uni7Bit:
+		case uni16BE_NoBOM:
+		case uni16LE_NoBOM:
+		case uniEnd:
+		default:
+			break;
 	}
 
 	if (encoding == -1)
@@ -4663,6 +4676,16 @@ void Notepad_plus::showFunctionComp()
 	autoC->showFunctionComplete();
 }
 
+void Notepad_plus::showFunctionNextHint(bool isNext)
+{
+	bool isFromPrimary = _pEditView == &_mainEditView;
+	AutoCompletion* autoC = isFromPrimary ? &_autoCompleteMain : &_autoCompleteSub;
+	if (isNext)
+		autoC->callTipClick(2);
+	else
+		autoC->callTipClick(1);
+}
+
 static generic_string extractSymbol(TCHAR firstChar, TCHAR secondChar, const TCHAR *str2extract)
 {
 	bool found = false;
@@ -4693,7 +4716,7 @@ static generic_string extractSymbol(TCHAR firstChar, TCHAR secondChar, const TCH
 		}
 	}
 	return  generic_string(extracted);
-};
+}
 
 bool Notepad_plus::doBlockComment(comment_mode currCommentMode)
 {
@@ -5302,7 +5325,7 @@ void Notepad_plus::fullScreenToggle()
 		_beforeSpecialView._winPlace.length = sizeof(_beforeSpecialView._winPlace);
 		::GetWindowPlacement(_pPublicInterface->getHSelf(), &_beforeSpecialView._winPlace);
 
-		RECT fullscreenArea;		//RECT used to calculate window fullscreen size
+		RECT fullscreenArea{};		//RECT used to calculate window fullscreen size
 		//Preset view area, in case something fails, primary monitor values
 		fullscreenArea.top = 0;
 		fullscreenArea.left = 0;
@@ -5312,7 +5335,7 @@ void Notepad_plus::fullScreenToggle()
 		//if (_winVersion != WV_NT)
 		{
 			HMONITOR currentMonitor;	//Handle to monitor where fullscreen should go
-			MONITORINFO mi;				//Info of that monitor
+			MONITORINFO mi{};				//Info of that monitor
 			//Caution, this will not work on windows 95, so probably add some checking of some sorts like Unicode checks, IF 95 were to be supported
 			currentMonitor = ::MonitorFromWindow(_pPublicInterface->getHSelf(), MONITOR_DEFAULTTONEAREST);	//should always be valid monitor handle
 			mi.cbSize = sizeof(MONITORINFO);
@@ -5652,7 +5675,7 @@ void Notepad_plus::doSynScorll(HWND whichView)
 	intptr_t pixel;
 	intptr_t mainColumn, subColumn;
 
-    if (whichView == _mainEditView.getHSelf())
+	if (whichView == _mainEditView.getHSelf())
 	{
 		if (_syncInfo._isSynScollV)
 		{
@@ -5674,9 +5697,9 @@ void Notepad_plus::doSynScorll(HWND whichView)
 			column = mainColumn - _syncInfo._column - subColumn;
 		}
 		pView = &_subEditView;
-    }
-    else if (whichView == _subEditView.getHSelf())
-    {
+	}
+	else if (whichView == _subEditView.getHSelf())
+	{
 		if (_syncInfo._isSynScollV)
 		{
 			// Compute for Line
@@ -5697,9 +5720,9 @@ void Notepad_plus::doSynScorll(HWND whichView)
 			column = subColumn + _syncInfo._column - mainColumn;
 		}
 		pView = &_mainEditView;
-    }
-    else
-        return;
+	}
+	else
+		return;
 
 	pView->scroll(column, line);
 }
@@ -5743,7 +5766,7 @@ void Notepad_plus::getCurrentOpenedFiles(Session & session, bool includUntitledD
 	//Use _invisibleEditView to temporarily open documents to retrieve markers
 	Document oldDoc = _invisibleEditView.execute(SCI_GETDOCPOINTER);
 	const int nbElem = 2;
-	DocTabView *docTab[nbElem];
+	DocTabView* docTab[nbElem]{};
 	docTab[0] = &_mainDocTab;
 	docTab[1] = &_subDocTab;
 	for (size_t k = 0; k < nbElem; ++k)
@@ -5770,6 +5793,7 @@ void Notepad_plus::getCurrentOpenedFiles(Session & session, bool includUntitledD
 			sessionFileInfo sfi(buf->getFullPathName(), langName, buf->getEncoding(), buf->getUserReadOnly(), buf->getPosition(editView), buf->getBackupFileName().c_str(), buf->getLastModifiedTimestamp(), buf->getMapPosition());
 
 			sfi._isMonitoring = buf->isMonitoringOn();
+			sfi._individualTabColour = docTab[0]->getIndividualTabColour(static_cast<int>(i));
 
 			_invisibleEditView.execute(SCI_SETDOCPOINTER, 0, buf->getDocument());
 			size_t maxLine = static_cast<size_t>(_invisibleEditView.execute(SCI_GETLINECOUNT));
@@ -5921,10 +5945,6 @@ void Notepad_plus::prepareBufferChangedDialog(Buffer * buffer)
 
 void Notepad_plus::notifyBufferChanged(Buffer * buffer, int mask)
 {
-	// To avoid to crash while MS-DOS style is set as default language,
-	// Checking the validity of current instance is necessary.
-	if (!this) return;
-
 	NppParameters& nppParam = NppParameters::getInstance();
 	const NppGUI & nppGUI = nppParam.getNppGUI();
 
@@ -6005,7 +6025,7 @@ void Notepad_plus::notifyBufferChanged(Buffer * buffer, int mask)
 			{
 				prepareBufferChangedDialog(buffer);
 
-				SCNotification scnN;
+				SCNotification scnN{};
 				scnN.nmhdr.code = NPPN_FILEDELETED;
 				scnN.nmhdr.hwndFrom = _pPublicInterface->getHSelf();
 				scnN.nmhdr.idFrom = (uptr_t)buffer->getID();
@@ -6040,7 +6060,7 @@ void Notepad_plus::notifyBufferChanged(Buffer * buffer, int mask)
 		bool isDirty = buffer->isDirty();
 
 		// To notify plugins ro status is changed
-		SCNotification scnN;
+		SCNotification scnN{};
 		scnN.nmhdr.hwndFrom = (void *)buffer->getID();
 		scnN.nmhdr.idFrom = (uptr_t)  ((isSysReadOnly || isUserReadOnly? DOCSTATUS_READONLY : 0) | (isDirty ? DOCSTATUS_BUFFERDIRTY : 0));
 		scnN.nmhdr.code = NPPN_READONLYCHANGED;
@@ -6090,7 +6110,7 @@ void Notepad_plus::notifyBufferChanged(Buffer * buffer, int mask)
 		else if (_subEditView.getCurrentBuffer() == buffer)
 			_autoCompleteSub.setLanguage(buffer->getLangType());
 
-		SCNotification scnN;
+		SCNotification scnN{};
 		scnN.nmhdr.code = NPPN_LANGCHANGED;
 		scnN.nmhdr.hwndFrom = _pPublicInterface->getHSelf();
 		scnN.nmhdr.idFrom = (uptr_t)_pEditView->getCurrentBufferID();
@@ -6141,7 +6161,7 @@ void Notepad_plus::notifyBufferActivated(BufferID bufid, int view)
 	::InvalidateRect(_mainDocTab.getHSelf(), NULL, FALSE);
 	::InvalidateRect(_subDocTab.getHSelf(), NULL, FALSE);
 
-	SCNotification scnN;
+	SCNotification scnN{};
 	scnN.nmhdr.code = NPPN_BUFFERACTIVATED;
 	scnN.nmhdr.hwndFrom = _pPublicInterface->getHSelf();
 	scnN.nmhdr.idFrom = (uptr_t)bufid;
@@ -6792,8 +6812,7 @@ void Notepad_plus::launchFileBrowser(const vector<generic_string> & folders, con
 		_pFileBrowser = new FileBrowser;
 		_pFileBrowser->init(_pPublicInterface->getHinst(), _pPublicInterface->getHSelf());
 
-		tTbData	data;
-		memset(&data, 0, sizeof(data));
+		tTbData	data = {};
 		_pFileBrowser->create(&data, _nativeLangSpeaker.isRTL());
 		data.pszName = TEXT("ST");
 
@@ -6902,8 +6921,7 @@ void Notepad_plus::launchProjectPanel(int cmdID, ProjectPanel ** pProjPanel, int
 		(*pProjPanel)->setWorkSpaceFilePath(nppParam.getWorkSpaceFilePath(panelID));
 		NativeLangSpeaker *pNativeSpeaker = nppParam.getNativeLangSpeaker();
 		bool isRTL = pNativeSpeaker->isRTL();
-		tTbData	data;
-		memset(&data, 0, sizeof(data));
+		tTbData	data = {};
 		(*pProjPanel)->create(&data, isRTL);
 		data.pszName = TEXT("ST");
 
@@ -7307,6 +7325,10 @@ static const QuoteParams quotes[] =
 	{TEXT("Anonymous #192"), QuoteParams::rapid, false, SC_CP_UTF8, L_TEXT, TEXT("You can't force someone to love you.\nBut you can lock this person in the basement and wait for him/her to develop Stockholm syndrome.\n") },
 	{TEXT("Anonymous #193"), QuoteParams::rapid, false, SC_CP_UTF8, L_TEXT, TEXT("Do you know:\nthere are more airplanes in the oceans, than submarines in the sky?\n") },
 	{TEXT("Anonymous #194"), QuoteParams::rapid, false, SC_CP_UTF8, L_TEXT, TEXT("If you hold a Unix shell up to your ear,\nyou might just be able to hear the C.\n") },
+	{TEXT("Anonymous #195"), QuoteParams::rapid, false, SC_CP_UTF8, L_TEXT, TEXT("Why do programmers always mix up Halloween and Christmas?\nBecause Oct 31 == Dec 25\n") },
+	{TEXT("Anonymous #196"), QuoteParams::rapid, false, SC_CP_UTF8, L_TEXT, TEXT("What happened to the function that ran away?\nIt never returned.\n") },
+	{TEXT("Anonymous #197"), QuoteParams::rapid, false, SC_CP_UTF8, L_TEXT, TEXT("When I am tasked with sorting through a stack of résumés, I throw about half of them in the garbage.\nI do not want unlucky people working in our company.\n") },
+	{TEXT("Anonymous #198"), QuoteParams::rapid, false, SC_CP_UTF8, L_TEXT, TEXT("The reason why we write SQL commands all in CAPITAL letters is because it stands for Screaming Query Language.\n") },
 	{TEXT("xkcd"), QuoteParams::rapid, false, SC_CP_UTF8, L_TEXT, TEXT("Never have I felt so close to another soul\nAnd yet so helplessly alone\nAs when I Google an error\nAnd there's one result\nA thread by someone with the same problem\nAnd no answer\nLast posted to in 2003\n\n\"Who were you, DenverCoder9?\"\n\"What did you see?!\"\n\n(ref: https://xkcd.com/979/)") },
 	{TEXT("A developer"), QuoteParams::slow, false, SC_CP_UTF8, L_TEXT, TEXT("No hugs & kisses.\nOnly bugs & fixes.") },
 	{TEXT("Elon Musk"), QuoteParams::rapid, false, SC_CP_UTF8, L_TEXT, TEXT("Don't set your password as your child's name.\nName your child after your password.") },
@@ -7930,8 +7952,9 @@ DWORD WINAPI Notepad_plus::backupDocument(void * /*param*/)
 }
 
 
-
+#ifdef _MSC_VER
 #pragma warning( disable : 4127 )
+#endif
 //-- undoStreamComment: New function to undo stream comment around or within selection end-points.
 bool Notepad_plus::undoStreamComment(bool tryBlockComment)
 {
@@ -8213,4 +8236,32 @@ void Notepad_plus::updateCommandShortcuts()
 
 		csc.setName(menuName.c_str(), shortcutName.c_str());
 	}
+}
+
+HBITMAP Notepad_plus::generateSolidColourMenuItemIcon(COLORREF colour)
+{
+	HDC hDC = GetDC(NULL);
+	const int bitmapXYsize = 16;
+	HBITMAP hNewBitmap = CreateCompatibleBitmap(hDC, bitmapXYsize, bitmapXYsize);
+	HDC hDCn = CreateCompatibleDC(hDC);
+	HBITMAP hOldBitmap = static_cast<HBITMAP>(SelectObject(hDCn, hNewBitmap));
+	RECT rc = { 0, 0, bitmapXYsize, bitmapXYsize };
+
+	// paint full-size black square
+	HBRUSH hBlackBrush = CreateSolidBrush(RGB(0,0,0));
+	FillRect(hDCn, &rc, hBlackBrush);
+	DeleteObject(hBlackBrush);
+
+	// overpaint a slightly smaller colored square
+	rc.left = rc.top = 1;
+	rc.right = rc.bottom = bitmapXYsize - 1;
+	HBRUSH hColorBrush = CreateSolidBrush(colour);
+	FillRect(hDCn, &rc, hColorBrush);
+	DeleteObject(hColorBrush);
+
+	// restore old bitmap so we can delete it to avoid leak
+	SelectObject(hDCn, hOldBitmap);
+	DeleteDC(hDCn);
+
+	return hNewBitmap;
 }

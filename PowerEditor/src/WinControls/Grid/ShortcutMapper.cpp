@@ -25,7 +25,7 @@ void ShortcutMapper::initTabs()
 {
 	HWND hTab = _hTabCtrl = ::GetDlgItem(_hSelf, IDC_BABYGRID_TABBAR);
 	NppDarkMode::subclassTabControl(hTab);
-	TCITEM tie;
+	TCITEM tie{};
 	tie.mask = TCIF_TEXT;
 
 	for (size_t i = 0; i < _nbTab; ++i)
@@ -39,8 +39,8 @@ void ShortcutMapper::initTabs()
     TabCtrl_SetCurSel(_hTabCtrl, int(_currentState));
 
 	// force alignment to babygrid
-	RECT rcTab;
-	WINDOWPLACEMENT wp;
+	RECT rcTab{};
+	WINDOWPLACEMENT wp{};
 	wp.length = sizeof(wp);
 
 	::GetWindowPlacement(hTab, &wp);
@@ -56,13 +56,13 @@ void ShortcutMapper::getClientRect(RECT & rc) const
 {
 		Window::getClientRect(rc);
 
-		RECT tabRect, btnRect;
+		RECT tabRect{}, btnRect{};
 		::GetClientRect(::GetDlgItem(_hSelf, IDC_BABYGRID_TABBAR), &tabRect);
 		int tabH = tabRect.bottom - tabRect.top;
 		int paddingTop = tabH / 2;
 		rc.top += tabH + paddingTop;
 
-		RECT infoRect, filterRect;
+		RECT infoRect{}, filterRect{};
 		::GetClientRect(::GetDlgItem(_hSelf, IDC_BABYGRID_INFO), &infoRect);
 		::GetClientRect(::GetDlgItem(_hSelf, IDC_BABYGRID_FILTER), &filterRect);
 		::GetClientRect(::GetDlgItem(_hSelf, IDOK), &btnRect);
@@ -104,7 +104,7 @@ generic_string ShortcutMapper::getTabString(size_t i) const
 
 void ShortcutMapper::initBabyGrid()
 {
-	RECT rect;
+	RECT rect{};
 	getClientRect(rect);
 
 	_lastHomeRow.resize(5, 1);
@@ -190,7 +190,7 @@ generic_string ShortcutMapper::getTextFromCombo(HWND hCombo)
 	::SendMessage(hCombo, WM_GETTEXT, NB_MAX, reinterpret_cast<LPARAM>(str));
 	generic_string res(str);
 	return stringToLower(res);
-};
+}
 
 bool ShortcutMapper::isFilterValid(Shortcut sc)
 {
@@ -946,7 +946,6 @@ intptr_t CALLBACK ShortcutMapper::run_dlgProc(UINT message, WPARAM wParam, LPARA
 					{
 						const int row = _babygrid.getSelectedRow();
 						size_t shortcutIndex = _shortcutIndex[row-1];
-						DWORD cmdID = 0;
 						
 						// Menu data
 						int32_t posBase = 0;
@@ -966,7 +965,6 @@ intptr_t CALLBACK ShortcutMapper::run_dlgProc(UINT message, WPARAM wParam, LPARA
 							{
 								vector<MacroShortcut> & theMacros = nppParam.getMacroList();
 								vector<MacroShortcut>::iterator it = theMacros.begin();
-								cmdID = theMacros[shortcutIndex].getID();
 								theMacros.erase(it + shortcutIndex);
 
 								//save the current view
@@ -1001,7 +999,6 @@ intptr_t CALLBACK ShortcutMapper::run_dlgProc(UINT message, WPARAM wParam, LPARA
 							{
 								vector<UserCommand> & theUserCmds = nppParam.getUserCommandList();
 								vector<UserCommand>::iterator it = theUserCmds.begin();
-								cmdID = theUserCmds[shortcutIndex].getID();
 								theUserCmds.erase(it + shortcutIndex);
 
 								//save the current view
@@ -1065,7 +1062,7 @@ intptr_t CALLBACK ShortcutMapper::run_dlgProc(UINT message, WPARAM wParam, LPARA
 
 						case BGN_CELLRCLICKED: //a cell was clicked in the properties grid
 						{
-							POINT p;
+							POINT p{};
 							::GetCursorPos(&p);
 							if (!_rightClickMenu.isCreated())
 							{
@@ -1121,6 +1118,12 @@ intptr_t CALLBACK ShortcutMapper::run_dlgProc(UINT message, WPARAM wParam, LPARA
 								case STATE_MACRO:
 								case STATE_USER:
 									return ::SendMessage(_hSelf, WM_COMMAND, IDM_BABYGRID_DELETE, 0);
+
+								case STATE_MENU:
+								case STATE_PLUGIN:
+								case STATE_SCINTILLA:
+								default:
+									break;
 							}
 							return TRUE;
 						}

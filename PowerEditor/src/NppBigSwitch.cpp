@@ -123,11 +123,9 @@ LRESULT Notepad_plus_Window::runProc(HWND hwnd, UINT message, WPARAM wParam, LPA
 		}
 		default:
 		{
-			if (this)
-				return _notepad_plus_plus_core.process(hwnd, message, wParam, lParam);
+			return _notepad_plus_plus_core.process(hwnd, message, wParam, lParam);
 		}
 	}
-	return FALSE;
 }
 
 // Used by NPPM_GETFILENAMEATCURSOR
@@ -203,9 +201,9 @@ LRESULT Notepad_plus::process(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 		{
 			refreshDarkMode(static_cast<bool>(wParam));
 			// Notify plugins that Dark Mode changed
-			SCNotification scnN;
+			SCNotification scnN{};
 			scnN.nmhdr.code = NPPN_DARKMODECHANGED;
-			scnN.nmhdr.hwndFrom = reinterpret_cast<void*>(lParam);
+			scnN.nmhdr.hwndFrom = hwnd;
 			scnN.nmhdr.idFrom = 0;
 			_pluginsManager.notify(&scnN);
 			return TRUE;
@@ -334,9 +332,9 @@ LRESULT Notepad_plus::process(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 			_findReplaceDlg.doDialog(FIND_DLG, _nativeLangSpeaker.isRTL());
 			
 			const NppGUI & nppGui = nppParam.getNppGUI();
-			if (!nppGui._stopFillingFindField)
+			if (nppGui._fillFindFieldWithSelected)
 			{
-				_pEditView->getGenericSelectedText(str, strSize);
+				_pEditView->getGenericSelectedText(str, strSize, nppGui._fillFindFieldSelectCaret);
 				_findReplaceDlg.setSearchText(str);
 			}
 
@@ -572,7 +570,7 @@ LRESULT Notepad_plus::process(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 			BufferID id = _pEditView->getCurrentBufferID();
 
 			// Notify plugins that current file is about to be closed
-			SCNotification scnN;
+			SCNotification scnN{};
 			scnN.nmhdr.code = NPPN_DOCORDERCHANGED;
 			scnN.nmhdr.hwndFrom = reinterpret_cast<void *>(lParam);
 			scnN.nmhdr.idFrom = reinterpret_cast<uptr_t>(id);
@@ -678,7 +676,7 @@ LRESULT Notepad_plus::process(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 						generic_string pluginMessage { nppParam.getCmdLineParams()._pluginMessage };
 						if (!pluginMessage.empty())
 						{
-							SCNotification scnN;
+							SCNotification scnN{};
 							scnN.nmhdr.code = NPPN_CMDLINEPLUGINMSG;
 							scnN.nmhdr.hwndFrom = hwnd;
 							scnN.nmhdr.idFrom = reinterpret_cast<uptr_t>(pluginMessage.c_str());
@@ -820,7 +818,7 @@ LRESULT Notepad_plus::process(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 
 		case NPPM_INTERNAL_PLUGINSHORTCUTMOTIFIED:
 		{
-			SCNotification scnN;
+			SCNotification scnN{};
 			scnN.nmhdr.code = NPPN_SHORTCUTREMAPPED;
 			scnN.nmhdr.hwndFrom = reinterpret_cast<void *>(lParam); // ShortcutKey structure
 			scnN.nmhdr.idFrom = (uptr_t)wParam; // cmdID
@@ -1269,7 +1267,7 @@ LRESULT Notepad_plus::process(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 			if (message == NPPM_TRIGGERTABBARCONTEXTMENU)
 			{
 				// open here tab menu
-				NMHDR	nmhdr;
+				NMHDR	nmhdr{};
 				nmhdr.code = NM_RCLICK;
 
 				nmhdr.hwndFrom = (whichView == MAIN_VIEW)?_mainDocTab.getHSelf():_subDocTab.getHSelf();
@@ -1553,7 +1551,7 @@ LRESULT Notepad_plus::process(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 			else if (wParam == NPPMAINMENU)
 				return (LRESULT)_mainMenuHandle;
 			else
-				return NULL;
+				return static_cast<LRESULT>(NULL);
 		}
 
 		case NPPM_LOADSESSION:
@@ -1733,7 +1731,7 @@ LRESULT Notepad_plus::process(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 				for (size_t i = 0, len = _hModelessDlgs.size() ; i < len ; ++i)
 				{
 					if (_hModelessDlgs[i] == reinterpret_cast<HWND>(lParam))
-						return NULL;
+						return static_cast<LRESULT>(NULL);
 				}
 
 				_hModelessDlgs.push_back(reinterpret_cast<HWND>(lParam));
@@ -1749,7 +1747,7 @@ LRESULT Notepad_plus::process(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 						{
 							vector<HWND>::iterator hDlg = _hModelessDlgs.begin() + i;
 							_hModelessDlgs.erase(hDlg);
-							return NULL;
+							return static_cast<LRESULT>(NULL);
 						}
 					}
 					return lParam;
@@ -2046,7 +2044,7 @@ LRESULT Notepad_plus::process(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 				_pDocMap->setSyntaxHiliting();
 
 			// Notify plugins of update to styles xml
-			SCNotification scnN;
+			SCNotification scnN{};
 			scnN.nmhdr.code = NPPN_WORDSTYLESUPDATED;
 			scnN.nmhdr.hwndFrom = hwnd;
 			scnN.nmhdr.idFrom = (uptr_t) _pEditView->getCurrentBufferID();
@@ -2075,7 +2073,26 @@ LRESULT Notepad_plus::process(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 				generic_string nppIssueLog = nppParam.getUserPath();
 				pathAppend(nppIssueLog, issueFn);
 
-				writeLog(nppIssueLog.c_str(), "WM_QUERYENDSESSION =====================================");
+				string wmqesType = std::to_string(lParam);
+				if (0 == lParam)
+				{
+					wmqesType += " - ordinary system shutdown/restart";
+				}
+				else
+				{
+					// the lParam here is a bit mask, it can be one or more of the following values
+					if (lParam & ENDSESSION_CLOSEAPP)
+						wmqesType += " - ENDSESSION_CLOSEAPP";
+					if (lParam & ENDSESSION_CRITICAL)
+						wmqesType += " - ENDSESSION_CRITICAL";
+					if (lParam & ENDSESSION_LOGOFF)
+						wmqesType += " - ENDSESSION_LOGOFF";
+				}
+				string queryEndSession = "WM_QUERYENDSESSION (lParam: " + wmqesType + ") =====================================";
+				if (WM_QUERYENDSESSION == message)
+					writeLog(nppIssueLog.c_str(), queryEndSession.c_str());
+				else
+					writeLog(nppIssueLog.c_str(), "WM_CLOSE (isQueryEndSessionStarted == true)");
 			}
 
 			if (_pPublicInterface->isPrelaunch())
@@ -2084,7 +2101,7 @@ LRESULT Notepad_plus::process(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 			}
 			else
 			{
-				SCNotification scnN;
+				SCNotification scnN{};
 				scnN.nmhdr.code = NPPN_BEFORESHUTDOWN;
 				scnN.nmhdr.hwndFrom = hwnd;
 				scnN.nmhdr.idFrom = 0;
@@ -2228,7 +2245,29 @@ LRESULT Notepad_plus::process(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 				generic_string nppIssueLog = nppParam.getUserPath();
 				pathAppend(nppIssueLog, issueFn);
 
-				writeLog(nppIssueLog.c_str(), "WM_ENDSESSION");
+				string wmesType = std::to_string(lParam);
+				if (0 == lParam)
+				{
+					wmesType += " - ordinary system shutdown/restart";
+				}
+				else
+				{
+					// the lParam here is a bit mask, it can be one or more of the following values
+					if (lParam & ENDSESSION_CLOSEAPP)
+						wmesType += " - ENDSESSION_CLOSEAPP";
+					if (lParam & ENDSESSION_CRITICAL)
+						wmesType += " - ENDSESSION_CRITICAL";
+					if (lParam & ENDSESSION_LOGOFF)
+						wmesType += " - ENDSESSION_LOGOFF";
+				}
+				string endSession = "WM_ENDSESSION (wParam: ";
+				if (wParam)
+					endSession += "TRUE, lParam: ";
+				else
+					endSession += "FALSE, lParam: ";
+				endSession += wmesType + ")";
+
+				writeLog(nppIssueLog.c_str(), endSession.c_str());
 			}
 
 			if (wParam == TRUE)
@@ -2375,7 +2414,7 @@ LRESULT Notepad_plus::process(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 		case NPPM_DMMGETPLUGINHWNDBYNAME : //(const TCHAR *windowName, const TCHAR *moduleName)
 		{
 			if (!lParam)
-				return NULL;
+				return static_cast<LRESULT>(NULL);
 
 			TCHAR *moduleName = reinterpret_cast<TCHAR *>(lParam);
 			TCHAR *windowName = reinterpret_cast<TCHAR *>(wParam);
@@ -2396,7 +2435,7 @@ LRESULT Notepad_plus::process(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 					}
 				}
 			}
-			return NULL;
+			return static_cast<LRESULT>(NULL);
 		}
 
 		case NPPM_ADDTOOLBARICON_DEPRECATED:
@@ -2516,6 +2555,11 @@ LRESULT Notepad_plus::process(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 		case NPPM_ALLOCATEMARKER:
 		{
 			return _pluginsManager.allocateMarker(static_cast<int32_t>(wParam), reinterpret_cast<int *>(lParam));
+		}
+
+		case NPPM_GETBOOKMARKID:
+		{
+			return MARK_BOOKMARK;
 		}
 
 		case NPPM_HIDETABBAR:
@@ -2659,6 +2703,35 @@ LRESULT Notepad_plus::process(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 		{
 			_mainEditView.setCRLF();
 			_subEditView.setCRLF();
+			return TRUE;
+		}
+
+		case NPPM_INTERNAL_ENABLECHANGEHISTORY:
+		{
+			const ScintillaViewParams& svp = nppParam.getSVP();
+			int enabledCH = svp._isChangeHistoryEnabled ? (SC_CHANGE_HISTORY_ENABLED | SC_CHANGE_HISTORY_MARKERS) : SC_CHANGE_HISTORY_DISABLED;
+
+			_mainEditView.execute(SCI_SETCHANGEHISTORY, enabledCH);
+			_subEditView.execute(SCI_SETCHANGEHISTORY, enabledCH);
+
+			_mainEditView.showChangeHistoryMargin(svp._isChangeHistoryEnabled);
+			_subEditView.showChangeHistoryMargin(svp._isChangeHistoryEnabled);
+			return TRUE;
+		}
+
+		case NPPM_INTERNAL_CLEANBRACEMATCH:
+		{
+			_mainEditView.execute(SCI_SETHIGHLIGHTGUIDE, 0);
+			_subEditView.execute(SCI_SETHIGHLIGHTGUIDE, 0);
+			_mainEditView.execute(SCI_BRACEBADLIGHT, WPARAM(-1));
+			_subEditView.execute(SCI_BRACEBADLIGHT, WPARAM(-1));
+			return TRUE;
+		}
+
+		case NPPM_INTERNAL_CLEANSMARTHILITING:
+		{
+			_mainEditView.clearIndicator(SCE_UNIVERSAL_FOUND_STYLE_SMART);
+			_subEditView.clearIndicator(SCE_UNIVERSAL_FOUND_STYLE_SMART);
 			return TRUE;
 		}
 

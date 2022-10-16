@@ -133,6 +133,8 @@ const int COPYDATA_FULL_CMDLINE = 3;
 #define ONEDRIVE_AVAILABLE 2
 #define GOOGLEDRIVE_AVAILABLE 4
 
+#define NPP_STYLING_FILESIZE_LIMIT_DEFAULT (200 * 1024 * 1024) // 200MB+ file won't be styled
+
 const TCHAR fontSizeStrs[][3] = {TEXT(""), TEXT("5"), TEXT("6"), TEXT("7"), TEXT("8"), TEXT("9"), TEXT("10"), TEXT("11"), TEXT("12"), TEXT("14"), TEXT("16"), TEXT("18"), TEXT("20"), TEXT("22"), TEXT("24"), TEXT("26"), TEXT("28")};
 
 const TCHAR localConfFile[] = TEXT("doLocalConf.xml");
@@ -185,7 +187,7 @@ public:
 struct sessionFileInfo : public Position
 {
 	sessionFileInfo(const TCHAR *fn, const TCHAR *ln, int encoding, bool userReadOnly, const Position& pos, const TCHAR *backupFilePath, FILETIME originalFileLastModifTimestamp, const MapPosition & mapPos) :
-		_isUserReadOnly(userReadOnly), _encoding(encoding), Position(pos), _originalFileLastModifTimestamp(originalFileLastModifTimestamp), _mapPos(mapPos)
+		Position(pos), _encoding(encoding), _isUserReadOnly(userReadOnly), _originalFileLastModifTimestamp(originalFileLastModifTimestamp), _mapPos(mapPos)
 	{
 		if (fn) _fileName = fn;
 		if (ln)	_langName = ln;
@@ -201,6 +203,7 @@ struct sessionFileInfo : public Position
 	int	_encoding = -1;
 	bool _isUserReadOnly = false;
 	bool _isMonitoring = false;
+	int _individualTabColour = -1;
 
 	generic_string _backupFilePath;
 	FILETIME _originalFileLastModifTimestamp = {};
@@ -282,8 +285,8 @@ struct CmdLineParamsDTO
 	intptr_t _pos2go = 0;
 
 	LangType _langType = L_EXTERNAL;
-	wchar_t _udlName[MAX_PATH];
-	wchar_t _pluginMessage[MAX_PATH];
+	wchar_t _udlName[MAX_PATH] = {'\0'};
+	wchar_t _pluginMessage[MAX_PATH] = {'\0'};
 
 	static CmdLineParamsDTO FromCmdLineParams(const CmdLineParams& params)
 	{
@@ -332,7 +335,7 @@ struct PluginDlgDockingInfo final
 	bool _isVisible = false;
 
 	PluginDlgDockingInfo(const TCHAR* pluginName, int id, int curr, int prev, bool isVis)
-		: _internalID(id), _currContainer(curr), _prevContainer(prev), _isVisible(isVis), _name(pluginName)
+		: _name(pluginName), _internalID(id), _currContainer(curr), _prevContainer(prev), _isVisible(isVis)
 	{}
 
 	bool operator == (const PluginDlgDockingInfo& rhs) const
@@ -719,6 +722,18 @@ struct DarkModeConf final
 	NppDarkMode::Colors _customColors = NppDarkMode::getDarkModeDefaultColors();
 };
 
+
+struct LargeFileLimitSettings final
+{
+	int64_t _largeFileSizeDefInByte = NPP_STYLING_FILESIZE_LIMIT_DEFAULT;
+	bool _isEnabled = true;
+
+	bool _allowBraceMatch = false;
+	bool _allowAutoCompletion = false;
+	bool _allowSmartHilite = false;
+	bool _allowWordWrap = false;
+};
+
 struct NppGUI final
 {
 	NppGUI()
@@ -799,7 +814,8 @@ struct NppGUI final
 	char _rightmostDelimiter = ')';
 	bool _delimiterSelectionOnEntireDocument = false;
 	bool _backSlashIsEscapeCharacterForSql = true;
-	bool _stopFillingFindField = false;
+	bool _fillFindFieldWithSelected = true;
+	bool _fillFindFieldSelectCaret = true;
 	bool _monospacedFontFindDlg = false;
 	bool _findDlgAlwaysVisible = false;
 	bool _confirmReplaceInAllOpenDocs = true;
@@ -888,13 +904,18 @@ struct NppGUI final
 
 	DarkModeConf _darkmode;
 	DarkModeConf _darkmodeplugins;
+
+	LargeFileLimitSettings _largeFileLimit;
 };
+
 
 struct ScintillaViewParams
 {
 	bool _lineNumberMarginShow = true;
 	bool _lineNumberMarginDynamicWidth = true;
 	bool _bookMarkMarginShow = true;
+	bool _isChangeHistoryEnabled = true;
+	bool _isChangeHistoryEnabled4NextSession = true;
 	folderStyle  _folderStyle = FOLDER_STYLE_BOX; //"simple", "arrow", "circle", "box" and "none"
 	lineWrapMethod _lineWrapMethod = LINEWRAP_ALIGNED;
 	bool _foldMarginShow = true;
@@ -1081,8 +1102,8 @@ private:
 	StyleArray _styles;
 	generic_string _name;
 	generic_string _ext;
-	generic_string _udlVersion;
 	bool _isDarkModeTheme = false;
+	generic_string _udlVersion;
 
 	TCHAR _keywordLists[SCE_USER_KWLIST_TOTAL][max_char];
 	bool _isPrefix[SCE_USER_TOTAL_KEYWORD_GROUPS] = {false};

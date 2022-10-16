@@ -381,7 +381,7 @@ IDI_FUNCLIST_RELOADBUTTON_DM       BITMAP      "icons/darkMode/panels/funclstRel
 IDI_FUNCLIST_PREFERENCEBUTTON_DM   BITMAP      "icons/darkMode/panels/funclstPreferences.bmp"
 
 
-IDI_GET_INFO_FROM_TOOLTIP       ICON        "icons/MoreOnTooltip.ico"
+IDI_GET_INFO_FROM_TOOLTIP       ICON        "icons/moreOnTooltip.ico"
 
 IDR_M30_MENU MENU
 BEGIN
@@ -406,7 +406,7 @@ BEGIN
         MENUITEM "&Rename...",                       IDM_FILE_RENAME
         MENUITEM "&Close",                           IDM_FILE_CLOSE
         MENUITEM "Clos&e All",                       IDM_FILE_CLOSEALL
-        POPUP "Close &More"
+        POPUP "Close &Multiple Documents"
         BEGIN
             MENUITEM "Close All but Active Document",    IDM_FILE_CLOSEALL_BUT_CURRENT
             MENUITEM "Close All to the Left",            IDM_FILE_CLOSEALL_TOLEFT
@@ -444,12 +444,12 @@ BEGIN
         END
         POPUP "Cop&y to Clipboard"
         BEGIN
-                MENUITEM "Current Full File path to Clipboard",    IDM_EDIT_FULLPATHTOCLIP
-                MENUITEM "Current Filename to Clipboard",          IDM_EDIT_FILENAMETOCLIP
-                MENUITEM "Current Dir. Path to Clipboard",         IDM_EDIT_CURRENTDIRTOCLIP
+                MENUITEM "Copy Current Full File path",    IDM_EDIT_FULLPATHTOCLIP
+                MENUITEM "Copy Current Filename",          IDM_EDIT_FILENAMETOCLIP
+                MENUITEM "Copy Current Dir. Path",         IDM_EDIT_CURRENTDIRTOCLIP
                 MENUITEM SEPARATOR
-                MENUITEM "All Filenames to Clipboard",             IDM_EDIT_COPY_ALL_NAMES
-                MENUITEM "All File Paths to Clipboard",            IDM_EDIT_COPY_ALL_PATHS
+                MENUITEM "Copy All Filenames",             IDM_EDIT_COPY_ALL_NAMES
+                MENUITEM "Copy All File Paths",            IDM_EDIT_COPY_ALL_PATHS
         END
         POPUP "&Indent"
         BEGIN
@@ -508,6 +508,8 @@ BEGIN
             MENUITEM "Function Completion",         IDM_EDIT_AUTOCOMPLETE
             MENUITEM "Word Completion",             IDM_EDIT_AUTOCOMPLETE_CURRENTFILE
             MENUITEM "Function Parameters Hint",    IDM_EDIT_FUNCCALLTIP
+            MENUITEM "Function Parameters Previous Hint", IDM_EDIT_FUNCCALLTIP_PREVIOUS
+            MENUITEM "Function Parameters Next Hint",     IDM_EDIT_FUNCCALLTIP_NEXT
             MENUITEM "Path Completion",             IDM_EDIT_AUTOCOMPLETE_PATH
         END
         POPUP "&EOL Conversion"
@@ -703,6 +705,13 @@ BEGIN
             MENUITEM SEPARATOR
             MENUITEM "Move Tab Forward",        IDM_VIEW_TAB_MOVEFORWARD
             MENUITEM "Move Tab Backward",       IDM_VIEW_TAB_MOVEBACKWARD
+            MENUITEM SEPARATOR
+            MENUITEM "Apply Color 1",           IDM_VIEW_TAB_COLOUR_1
+            MENUITEM "Apply Color 2",           IDM_VIEW_TAB_COLOUR_2
+            MENUITEM "Apply Color 3",           IDM_VIEW_TAB_COLOUR_3
+            MENUITEM "Apply Color 4",           IDM_VIEW_TAB_COLOUR_4
+            MENUITEM "Apply Color 5",           IDM_VIEW_TAB_COLOUR_5
+            MENUITEM "Remove Color",            IDM_VIEW_TAB_COLOUR_NONE
         END
         MENUITEM "Word wrap",                   IDM_VIEW_WRAP
         MENUITEM "Focus on Another View",         IDM_VIEW_SWITCHTO_OTHER_VIEW
@@ -710,9 +719,9 @@ BEGIN
         MENUITEM SEPARATOR
         MENUITEM "Fold All",                    IDM_VIEW_FOLDALL
         MENUITEM "Unfold All",                  IDM_VIEW_UNFOLDALL
-        MENUITEM "Collapse Current Level",      IDM_VIEW_FOLD_CURRENT
-        MENUITEM "Uncollapse Current Level",    IDM_VIEW_UNFOLD_CURRENT
-        POPUP "Collapse Level"
+        MENUITEM "Fold Current Level",          IDM_VIEW_FOLD_CURRENT
+        MENUITEM "Unfold Current Level",        IDM_VIEW_UNFOLD_CURRENT
+        POPUP "Fold Level"
         BEGIN
             MENUITEM "1",   IDM_VIEW_FOLD_1
             MENUITEM "2",   IDM_VIEW_FOLD_2
@@ -723,7 +732,7 @@ BEGIN
             MENUITEM "7",   IDM_VIEW_FOLD_7
             MENUITEM "8",   IDM_VIEW_FOLD_8
         END
-        POPUP "Uncollapse Level"
+        POPUP "Unfold Level"
         BEGIN
             MENUITEM "1",    IDM_VIEW_UNFOLD_1
             MENUITEM "2",    IDM_VIEW_UNFOLD_2
@@ -1251,10 +1260,10 @@ BEGIN
     //LTEXT           "Make Apps, not war",IDC_AUTHOR_NAME,85,38,100,8
     //LTEXT           "Stand Up For Ukraine",IDC_AUTHOR_NAME,85,38,100,8
     //LTEXT           "Unhappy Users' Edition",IDC_AUTHOR_NAME,85,38,100,8
-    LTEXT           "Happy Users' Edition",IDC_AUTHOR_NAME,85,38,100,8
-    LTEXT           "I want to get a refund",IDC_HOME_ADDR,85,48,126,8
-    //LTEXT           "Home:",IDC_STATIC,21,58,47,8
-    //LTEXT           "https://notepad-plus-plus.org/",IDC_HOME_ADDR,50,58,126,8
+    //LTEXT           "Happy Users' Edition",IDC_AUTHOR_NAME,85,38,100,8
+    //LTEXT           "I want to get a refund",IDC_HOME_ADDR,85,48,126,8
+    LTEXT           "Home:",IDC_STATIC,21,58,47,8
+    LTEXT           "https://notepad-plus-plus.org/",IDC_HOME_ADDR,50,58,126,8
     GROUPBOX        "GNU General Public Licence",IDC_STATIC,19,75,231,131,BS_CENTER
     DEFPUSHBUTTON   "OK",IDOK,106,215,50,14,BS_FLAT
     // IDC_LICENCE_EDIT should be the last line, don't know why

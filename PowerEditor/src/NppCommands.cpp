@@ -977,6 +977,21 @@ void Notepad_plus::command(int id)
 		}
 		break;
 
+		case IDM_VIEW_TAB_COLOUR_NONE:
+		case IDM_VIEW_TAB_COLOUR_1:
+		case IDM_VIEW_TAB_COLOUR_2:
+		case IDM_VIEW_TAB_COLOUR_3:
+		case IDM_VIEW_TAB_COLOUR_4:
+		case IDM_VIEW_TAB_COLOUR_5:
+		{
+			const int color_id = (id - IDM_VIEW_TAB_COLOUR_NONE) - 1;
+			const auto current_index = _pDocTab->getCurrentTabIndex();
+			BufferID buffer_id = _pDocTab->getBufferByIndex(current_index);
+			_pDocTab->setIndividualTabColour(buffer_id, color_id);
+			::SendMessage(_pPublicInterface->getHSelf(), WM_SIZE, 0, 0);
+		}
+		break;
+
 		case IDM_VIEW_TAB1:
 		case IDM_VIEW_TAB2:
 		case IDM_VIEW_TAB3:
@@ -1215,9 +1230,9 @@ void Notepad_plus::command(int id)
 			_findReplaceDlg.doDialog(dlgID, _nativeLangSpeaker.isRTL());
 
 			const NppGUI & nppGui = (NppParameters::getInstance()).getNppGUI();
-			if (!nppGui._stopFillingFindField)
+			if (nppGui._fillFindFieldWithSelected)
 			{
-				_pEditView->getGenericSelectedText(str, strSize);
+				_pEditView->getGenericSelectedText(str, strSize, nppGui._fillFindFieldSelectCaret);
 				_findReplaceDlg.setSearchText(str);
 			}
 
@@ -2940,7 +2955,7 @@ void Notepad_plus::command(int id)
 			{
 				NativeLangSpeaker *pNativeSpeaker = (NppParameters::getInstance()).getNativeLangSpeaker();
 				pNativeSpeaker->messageBox("NeedToRestartToLoadPlugins",
-					NULL,
+					_pPublicInterface->getHSelf(),
 					TEXT("You have to restart Notepad++ to load plugins you installed."),
 					TEXT("Notepad++ need to be relaunched"),
 					MB_OK | MB_APPLMODAL);
@@ -3345,6 +3360,14 @@ void Notepad_plus::command(int id)
 			showFunctionComp();
 			break;
 
+		case IDM_EDIT_FUNCCALLTIP_PREVIOUS :
+			showFunctionNextHint(false);
+			break;
+
+		case IDM_EDIT_FUNCCALLTIP_NEXT :
+			showFunctionNextHint();
+			break;
+
         case IDM_LANGSTYLE_CONFIG_DLG :
 		{
 			if (!(NppParameters::getInstance()).isStylerDocLoaded())
@@ -3718,13 +3741,12 @@ void Notepad_plus::command(int id)
 
 		case IDM_VIEW_LINENUMBER:
 		case IDM_VIEW_SYMBOLMARGIN:
-		case IDM_VIEW_DOCCHANGEMARGIN:
 		{
 			int margin;
 			if (id == IDM_VIEW_LINENUMBER)
 				margin = ScintillaEditView::_SC_MARGE_LINENUMBER;
 			else //if (id == IDM_VIEW_SYMBOLMARGIN)
-				margin = ScintillaEditView::_SC_MARGE_SYBOLE;
+				margin = ScintillaEditView::_SC_MARGE_SYMBOL;
 
 			if (_mainEditView.hasMarginShowed(margin))
 			{
@@ -3770,8 +3792,8 @@ void Notepad_plus::command(int id)
 			}
 			else
 			{
-				_mainEditView.execute(SCI_RESETELEMENTCOLOUR, SC_ELEMENT_CARET_LINE_BACK, NULL);
-				_subEditView.execute(SCI_RESETELEMENTCOLOUR, SC_ELEMENT_CARET_LINE_BACK, NULL);
+				_mainEditView.execute(SCI_RESETELEMENTCOLOUR, SC_ELEMENT_CARET_LINE_BACK, 0);
+				_subEditView.execute(SCI_RESETELEMENTCOLOUR, SC_ELEMENT_CARET_LINE_BACK, 0);
 			}
 
 			_mainEditView.execute(SCI_SETCARETLINEFRAME, frameWidth);

@@ -70,7 +70,7 @@ vector<generic_string> split(const generic_string & string2split, TCHAR sep)
 		}
 	}
 	return splitedStrings;
-};
+}
 
 bool isRelatedRootFolder(const generic_string & relatedRoot, const generic_string & subFolder)
 {
@@ -700,15 +700,14 @@ BrowserNodeType FileBrowser::getNodeType(HTREEITEM hItem)
 
 void FileBrowser::showContextMenu(int x, int y)
 {
-	TVHITTESTINFO tvHitInfo;
-	HTREEITEM hTreeItem;
+	TVHITTESTINFO tvHitInfo{};
 
 	// Detect if the given position is on the element TVITEM
 	tvHitInfo.pt.x = x;
 	tvHitInfo.pt.y = y;
 	tvHitInfo.flags = 0;
 	ScreenToClient(_treeView.getHSelf(), &(tvHitInfo.pt));
-	hTreeItem = TreeView_HitTest(_treeView.getHSelf(), &tvHitInfo);
+	TreeView_HitTest(_treeView.getHSelf(), &tvHitInfo);
 
 	if (tvHitInfo.hItem == nullptr)
 	{
@@ -1605,7 +1604,7 @@ LPCWSTR explainAction(DWORD dwAction)
 	default:
 		return L"BAD DATA";
 	}
-};
+}
 
 
 DWORD WINAPI FolderUpdater::watching(void *params)

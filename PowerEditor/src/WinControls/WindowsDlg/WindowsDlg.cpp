@@ -239,8 +239,6 @@ BEGIN_WINDOW_MAP(WindowsDlgMap)
 	ENDGROUP()
 END_WINDOW_MAP()
 
-LONG_PTR WindowsDlg::originalListViewProc = NULL;
-
 RECT WindowsDlg::_lastKnownLocation;
 
 WindowsDlg::WindowsDlg() : MyBaseClass(WindowsDlgMap)
@@ -562,7 +560,7 @@ void WindowsDlg::updateButtonState()
 int WindowsDlg::doDialog()
 {
 	return static_cast<int>(DialogBoxParam(_hInst, MAKEINTRESOURCE(IDD_WINDOWS), _hParent, dlgProc, reinterpret_cast<LPARAM>(this)));
-};
+}
 
 BOOL WindowsDlg::onInitDialog()
 {
@@ -590,8 +588,6 @@ BOOL WindowsDlg::onInitDialog()
 	ListView_SetBkColor(_hList, bgColor);
 	ListView_SetTextBkColor(_hList, bgColor);
 	ListView_SetTextColor(_hList, fgColor);
-
-	originalListViewProc = ::SetWindowLongPtr(_hList, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(listViewProc));
 
 	RECT rc;
 	GetClientRect(_hList, &rc);
@@ -1112,12 +1108,6 @@ Buffer* WindowsDlg::getBuffer(int index) const
 	return MainFileManager.getBufferByID(bufID);
 }
 
-LRESULT CALLBACK WindowsDlg::listViewProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam)
-{
-	return CallWindowProc(reinterpret_cast<WNDPROC>(originalListViewProc), hwnd, Message, wParam, lParam);
-}
-
-
 void WindowsMenu::init(HMENU hMainMenu)
 {
 	_hMenu = ::GetSubMenu(hMainMenu, MENUINDEX_WINDOW);
@@ -1155,13 +1145,13 @@ void WindowsMenu::initPopupMenu(HMENU hMenu, DocTabView* pTab)
 	if (firstId > 0 && limitId > 0 && menuPosId > 0)
 	{
 		auto curDoc = pTab->getCurrentTabIndex();
-		size_t nMaxDoc = limitId - firstId + 1;
+		size_t nMaxDoc = static_cast<size_t>(limitId) - firstId + 1;
 		size_t nDoc = pTab->nbItem();
 		nDoc = min(nDoc, nMaxDoc);
 		UINT id = firstId;
 		UINT guard = firstId + static_cast<int32_t>(nDoc);
 		size_t pos = 0;
-		for (id, pos; id < guard; ++id, ++pos)
+		for (; id < guard; ++id, ++pos)
 		{
 			BufferID bufID = pTab->getBufferByIndex(pos);
 			Buffer* buf = MainFileManager.getBufferByID(bufID);

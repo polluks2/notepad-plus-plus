@@ -3,7 +3,7 @@
 The comments are here for explanation, it's not necessary to translate them.
 -->
 <NotepadPlus>
-    <Native-Langue name="Portuguese Portugal" filename="portuguese.xml" version="8.4.1">
+    <Native-Langue name="Portuguese Portugal" filename="portuguese.xml" version="8.4.6">
         <Menu>
             <Main>
                 <!-- Main Menu Entries -->
@@ -24,7 +24,7 @@ The comments are here for explanation, it's not necessary to translate them.
                 <!-- Sub Menu Entries -->
                 <SubEntries>
                     <Item subMenuId="file-openFolder" name="Abrir pasta de conteúdo"/>
-                    <Item subMenuId="file-closeMore" name="Fechar mais"/>
+                    <Item subMenuId="file-closeMore" name="Fechar múltiplos documentos"/>
                     <Item subMenuId="file-recentFiles" name="Ficheiros recentes"/>
                     <Item subMenuId="edit-insert" name="Inserir"/>
                     <Item subMenuId="edit-copyToClipboard" name="Copiar p/ a área de transferência"/>
@@ -49,7 +49,7 @@ The comments are here for explanation, it's not necessary to translate them.
                     <Item subMenuId="view-zoom" name="Zoom"/>
                     <Item subMenuId="view-moveCloneDocument" name="Mover/Clonar documento atual"/>
                     <Item subMenuId="view-tab"  name="Separador"/>
-                    <Item subMenuId="view-collapseLevel" name="Ocultar nível"/>
+                    <Item subMenuId="view-collapseLevel" name="Recolher nível"/>
                     <Item subMenuId="view-uncollapseLevel" name="Expandir nível"/>
                     <Item subMenuId="view-project" name="Projeto"/>
                     <Item subMenuId="encoding-characterSets" name="Código de carateres"/>
@@ -176,11 +176,11 @@ The comments are here for explanation, it's not necessary to translate them.
                     <Item id="42026" name="Direção do texto - direita para a esquerda"/>
                     <Item id="42027" name="Direção do texto - esquerda para a direita"/>
                     <Item id="42028" name="Definir como apenas-leitura"/>
-                    <Item id="42029" name="Localização do ficheiro atual p/ área de transferência"/>
-                    <Item id="42030" name="Nome do ficheiro atual p/ área de transferência"/>
-                    <Item id="42031" name="Localização dir. atual p/ área de transferência"/>
-                    <Item id="42087" name="Todos os nomes de ficheiros p/ área de transferência"/>
-                    <Item id="42088" name="Todas as localizações de ficheiros p/ área de transferência"/>
+                    <Item id="42029" name="Copiar localização do ficheiro atual"/>
+                    <Item id="42030" name="Copiar nome do ficheiro atual"/>
+                    <Item id="42031" name="Copiar localização do dir. atual"/>
+                    <Item id="42087" name="Copiar todos os nomes de ficheiros"/>
+                    <Item id="42088" name="Copiar todas as localizações de ficheiros"/>
                     <Item id="42032" name="Executar macro várias vezes..."/>
                     <Item id="42033" name="Limpar símbolo apenas-leitura"/>
                     <Item id="42035" name="Comentar bloco"/>
@@ -267,7 +267,7 @@ The comments are here for explanation, it's not necessary to translate them.
                     <Item id="44025" name="Mostrar espaços e tabulações"/>
                     <Item id="44026" name="Mostrar fim da linha"/>
                     <Item id="44029" name="Expandir tudo"/>
-                    <Item id="44030" name="Ocultar nível atual"/>
+                    <Item id="44030" name="Recolher nível atual"/>
                     <Item id="44031" name="Expandir nível atual"/>
                     <Item id="44049" name="Resumo..."/>
                     <Item id="44080" name="Mapa de documentos"/>
@@ -288,6 +288,12 @@ The comments are here for explanation, it's not necessary to translate them.
                     <Item id="44097" name="Monitorização (tail -f)"/>
                     <Item id="44098" name="Mover separador para frente"/>
                     <Item id="44099" name="Mover separador para trás"/>
+                    <Item id="44110" name="Remover cor"/>
+                    <Item id="44111" name="Aplicar cor 1"/>
+                    <Item id="44112" name="Aplicar cor 2"/>
+                    <Item id="44113" name="Aplicar cor 3"/>
+                    <Item id="44114" name="Aplicar cor 4"/>
+                    <Item id="44115" name="Aplicar cor 5"/>
                     <Item id="44032" name="Alternar para modo de ecrã inteiro"/>
                     <Item id="44033" name="Restaurar zoom predefinido"/>
                     <Item id="44034" name="Sempre no topo"/>
@@ -356,6 +362,8 @@ The comments are here for explanation, it's not necessary to translate them.
                     <Item id="50000" name="Conclusão da função"/>
                     <Item id="50001" name="Conclusão da palavra"/>
                     <Item id="50002" name="Dica dos parâmetros da função"/>
+                    <Item id="50010" name="Dica anterior dos parâmetros da função"/>
+                    <Item id="50011" name="Dica seguinte dos parâmetros da função"/>
                     <Item id="50005" name="Alternar para gravação de macro"/>
                     <Item id="50006" name="Conclusão da localização"/>
                     <Item id="44042" name="Ocultar linhas"/>
@@ -385,7 +393,7 @@ The comments are here for explanation, it's not necessary to translate them.
                     <Item CMID="4" name="Imprimir"/>
                     <Item CMID="5" name="Mostrar/Fechar separador lado a lado"/>
                     <Item CMID="6" name="Clonar para outro separador"/>
-                    <Item CMID="7" name="Copiar localização do ficheiro completo"/>
+                    <Item CMID="7" name="Copiar localização completa do ficheiro"/>
                     <Item CMID="8" name="Copiar nome do ficheiro"/>
                     <Item CMID="9" name="Copiar localização dir. atual"/>
                     <Item CMID="10" name="Renomear"/>
@@ -402,6 +410,17 @@ The comments are here for explanation, it's not necessary to translate them.
                     <Item CMID="21" name="Abrir no visualizador predefinido"/>
                     <Item CMID="22" name="Fechar TUDO inalterado"/>
                     <Item CMID="23" name="Abrir pasta de conteúdo como área de trabalho"/>
+                    <Item CMID="24" name="Aplicar cor 1"/>
+                    <Item CMID="25" name="Aplicar cor 2"/>
+                    <Item CMID="26" name="Aplicar cor 3"/>
+                    <Item CMID="27" name="Aplicar cor 4"/>
+                    <Item CMID="28" name="Aplicar cor 5"/>
+                    <Item CMID="29" name="Remover cor"/>
+                    <Item CMID="30" name="Fechar múltiplos separadores"/>
+                    <Item CMID="31" name="Abrir em"/>
+                    <Item CMID="32" name="Copiar para a área de transferência"/>
+                    <Item CMID="33" name="Mover documento"/>
+                    <Item CMID="34" name="Aplicar cor ao separador"/>
             </TabBar>
         </Menu>
 
@@ -509,7 +528,7 @@ The comments are here for explanation, it's not necessary to translate them.
                 <Item id="2"    name="Fechar"/>
             </SHA256FromTextDlg>
 
-            <PluginsAdminDlg title="Admin de plugins" titleAvailable = "Disponível" titleUpdates = "Atualizações" titleInstalled = "Instalado">
+            <PluginsAdminDlg title="Admin de plugins" titleAvailable="Disponível" titleUpdates="Atualizações" titleInstalled="Instalado" titleIncompatible="Incompatível">
                 <ColumnPlugin   name="Plugin"/>
                 <ColumnVersion  name="Versão"/>
                 <Item id="5501" name="Pesquisa:"/>
@@ -517,6 +536,8 @@ The comments are here for explanation, it's not necessary to translate them.
                 <Item id="5504" name="Atualizar"/>
                 <Item id="5505" name="Remover"/>
                 <Item id="5508" name="Seguinte"/>
+                <Item id="5509" name="Versão da lista de plugins: "/>
+                <Item id="5511" name="Repositório de listas de plugins"/>
                 <Item id="2"    name="Fechar"/>
             </PluginsAdminDlg>
 
@@ -647,6 +668,12 @@ The comments are here for explanation, it's not necessary to translate them.
                     <Item id="44107" name="Mudar pasta como área de trabalho"/>
                     <Item id="44109" name="Mudar para lista de documentos"/>
                     <Item id="44108" name="Mudar lista de funções"/>
+                    <Item id="44110" name="Remover a cor do separador"/>
+                    <Item id="44111" name="Aplicar a cor do separador 1"/>
+                    <Item id="44112" name="Aplicar a cor do separador 2"/>
+                    <Item id="44113" name="Aplicar a cor do separador 3"/>
+                    <Item id="44114" name="Aplicar a cor do separador 4"/>
+                    <Item id="44115" name="Aplicar a cor do separador 5"/>
                     <Item id="11002" name="Ordenar por nome de A a Z"/>
                     <Item id="11003" name="Ordenar por nome de Z a A"/>
                     <Item id="11004" name="Ordenar por localização de A a Z"/>
@@ -852,19 +879,21 @@ The comments are here for explanation, it's not necessary to translate them.
 
                     <Item id="6106" name="Barra do separador"/>
                     <Item id="6107" name="Reduzir"/>
-                    <Item id="6108" name="Bloquear (não arrastar e largar)"/>
+                    <Item id="6108" name="Bloquear (sem arrastar e largar)"/>
                     <Item id="6109" name="Escurecer separadores inativos"/>
-                    <Item id="6110" name="Mostrar barra colorida no separador ativo"/>
+                    <Item id="6110" name="Barra colorida no separador ativo"/>
 
                     <Item id="6111" name="Mostrar barra de estado"/>
-                    <Item id="6112" name="Mostrar botão fechar em cada separador"/>
+                    <Item id="6112" name="Botão de fechar em cada separador"/>
                     <Item id="6113" name="Clique duplo para fechar documento"/>
                     <Item id="6118" name="Ocultar"/>
                     <Item id="6119" name="Múltiplas linhas"/>
                     <Item id="6120" name="Vertical"/>
                     <Item id="6121" name="Sair ao fechar o último separador"/>
 
+                    <Item id="6131" name="Menu"/>
                     <Item id="6122" name="Ocultar barra de menu (utilizar Alt ou F10 para alternar)"/>
+                    <Item id="6132" name="Ocultar atalhos ＋ ▼ ✕ da barra de menu (é necessário reiniciar)"/>
                     <Item id="6123" name="Idioma"/>
 
                     <Item id="6128" name="Alternar ícones"/>
@@ -924,7 +953,7 @@ The comments are here for explanation, it's not necessary to translate them.
                 </DarkMode>
 
                 <MarginsBorderEdge title="Margens/Borda/Limite">
-                    <Item id="6201" name="Estilo de margem da pasta"/>
+                    <Item id="6201" name="Recolher estilo da margem"/>
                     <Item id="6202" name="Simples"/>
                     <Item id="6203" name="Seta"/>
                     <Item id="6204" name="Árvore circular"/>
@@ -935,6 +964,7 @@ The comments are here for explanation, it's not necessary to translate them.
                     <Item id="6292" name="Largura dinâmica"/>
                     <Item id="6293" name="Largura constante"/>
                     <Item id="6207" name="Mostrar marcador"/>
+                    <Item id="6223" name="Mostrar histórico de alterações"/>
                     <Item id="6211" name="Definições de limites verticais"/>
                     <Item id="6213" name="Modo de fundo"/>
                     <Item id="6237" name="Adicione o seu marcador de coluna, indicando a sua posição com um número decimal.
@@ -1007,27 +1037,27 @@ Pode definir vários marcadores de coluna utilizando espaço branco para separar
                 <Print title="Impressão">
                     <Item id="6601" name="Imprimir número da linha"/>
                     <Item id="6602" name="Opções da cor"/>
-                    <Item id="6603" name="O que vê é o que obtém (WYSIWYG)"/>
+                    <Item id="6603" name="Imprimir como no ecrã"/>
                     <Item id="6604" name="Inverter"/>
                     <Item id="6605" name="Preto sobre branco"/>
                     <Item id="6606" name="Sem cor de fundo"/>
                     <Item id="6607" name="Definições da margem (mm)"/>
                     <Item id="6612" name="Esquerda"/>
-                    <Item id="6613" name="Topo"/>
+                    <Item id="6613" name="Superior"/>
                     <Item id="6614" name="Direita"/>
-                    <Item id="6615" name="Base"/>
+                    <Item id="6615" name="Inferior"/>
                     <Item id="6706" name="Negrito"/>
                     <Item id="6707" name="Itálico"/>
                     <Item id="6708" name="Cabeçalho"/>
-                    <Item id="6709" name="Parte esquerda"/>
-                    <Item id="6710" name="Parte central"/>
-                    <Item id="6711" name="Parte direita"/>
+                    <Item id="6709" name="Esquerda"/>
+                    <Item id="6710" name="Centro"/>
+                    <Item id="6711" name="Direita"/>
                     <Item id="6717" name="Negrito"/>
                     <Item id="6718" name="Itálico"/>
                     <Item id="6719" name="Rodapé"/>
-                    <Item id="6720" name="Parte esquerda"/>
-                    <Item id="6721" name="Parte central"/>
-                    <Item id="6722" name="Parte direita"/>
+                    <Item id="6720" name="Esquerda"/>
+                    <Item id="6721" name="Centro"/>
+                    <Item id="6722" name="Direita"/>
                     <Item id="6723" name="Adicionar"/>
                     <ComboBox id="6724">
                         <Element name="Localização do nome completo do ficheiro"/>
@@ -1039,17 +1069,19 @@ Pode definir vários marcadores de coluna utilizando espaço branco para separar
                         <Element name="Hora"/>
                     </ComboBox>
                     <Item id="6725" name="Variável:"/>
-                    <Item id="6727" name="Aqui mostra as definições da sua variável"/>
+                    <Item id="6727" name="As variáveis são exibidas aqui"/>
                     <Item id="6728" name="Cabeçalho e Rodapé"/>
                 </Print>
 
                 <Searching title="Procurar">
-                    <Item id="6901" name="Não preencha o campo Encontrar na janela Encontrar com a palavra selecionada"/>
                     <Item id="6902" name="Usar letra monoespaçada na janela Encontrar (é necessário reiniciar o Notepad ++)"/>
                     <Item id="6903" name="A janela Encontrar permanece aberta após a pesquisa que resulta na janela de resultados"/>
                     <Item id="6904" name="Confirmar o substituir tudo em todos os documentos abertos"/>
                     <Item id="6905" name="Substituir: não mover para a seguinte ocorrência"/>
                     <Item id="6906" name="Janela de resultado da pesquisa: mostrar apenas uma entrada por linha encontrada"/>
+                    <Item id="6907" name="Quando a caixa de diálogo Encontrar é invocada"/>
+                    <Item id="6908" name="Preencher o campo Encontrar com o texto selecionado"/>
+                    <Item id="6909" name="Selecionar a palavra sob acento circunflexo quando nada selecionado"/>
                 </Searching>
 
                 <RecentFilesHistory title="Histórico fic. recentes">
@@ -1094,12 +1126,12 @@ Pode definir vários marcadores de coluna utilizando espaço branco para separar
                     <Item id="6814" name="Valor válido: 1 - 9"/>
                     <Item id="6815" name="Sugerir dicas da função ao escrever"/>
                     <Item id="6851" name="Inserir automático"/>
-                    <Item id="6857" name="Etiqueta fechar html/xml"/>
+                    <Item id="6857" name="Etiqueta fechar (html/xml)"/>
                     <Item id="6858" name="Abrir"/>
                     <Item id="6859" name="Fechar"/>
-                    <Item id="6860" name="Par 1 Correspondido:"/>
-                    <Item id="6863" name="Par 2 Correspondido:"/>
-                    <Item id="6866" name="Par 3 Correspondido:"/>
+                    <Item id="6860" name="Par correspondente 1:"/>
+                    <Item id="6863" name="Par correspondente 2:"/>
+                    <Item id="6866" name="Par correspondente 3:"/>
                 </AutoCompletion>
 
                 <MultiInstance title="Multi-instância e Data">
@@ -1330,6 +1362,7 @@ Deseja iniciar o Notepad++ em modo de Administrador?"/>
 O Notepad++ será reiniciado após a conclusão de todas as operações.
 Continuar?"/>
             <NeedToRestartToLoadPlugins title="O Notepad++ necessita de ser iniciado novamente" message="Tem de reiniciar o Notepad++ para carregar os plugins que instalou."/> <!-- HowToReproduce: Import a plugin via menu "Settings->Import->Import Plugin(s)...". -->
+            <ChangeHistoryEnabledWarning title="O Notepad++ necessita de ser iniciado novamente" message="Tem de reiniciar o Notepad++ para ativar o histórico de alterações."/> <!-- HowToReproduce: uncheck "Display Change History" via Preferences dialog "Marges/Border/Edge. -->
         </MessageBox>
         <ClipboardHistory>
             <PanelTitle name="Histórico da área de transferência"/>
@@ -1370,8 +1403,8 @@ Continuar?"/>
         <FolderAsWorkspace>
             <PanelTitle name="Pasta como área de trabalho"/>
             <SelectFolderFromBrowserString name="Selecione uma pasta para adicionar em pasta como painel de área de trabalho"/>
-            <ExpandAllFoldersTip name="Expandir todas as pastas"/>
-            <CollapseAllFoldersTip name="Recolher todas as pastas"/>
+            <ExpandAllFoldersTip name="Expandir tudo"/>
+            <CollapseAllFoldersTip name="Recolher tudo"/>
             <LocateCurrentFileTip name="Localizar ficheiro atual"/>
             <Menus>
                 <Item id="3511" name="Remover"/>
@@ -1585,7 +1618,7 @@ João Pereira <joaopereira@openmailbox.org>
 29/07/2015
 
 Hugo Carvalho <hugokarvalho@hotmail.com>
-14/07/2022 (versão 8.0, 8.1, 8.2, 8.3, 8.4)
+21/09/2022 (versão 8.0, 8.1, 8.2, 8.3, 8.4)
 
 Changelog:
 PT- Corrigidos erros de tradução, palavras por interpretar, ordem das frases e novas traduções concluídas.
