@@ -116,11 +116,19 @@ int PluginsManager::loadPluginFromPath(const TCHAR *pluginFilePath)
 		int archType = nppParams.archType();
 		if (getBinaryArchitectureType(pluginFilePath) != archType)
 		{
-			const TCHAR *archErrMsg = TEXT("Cannot load 64-bit plugin."); // IMAGE_FILE_MACHINE_I386 by default
-			if (archType == IMAGE_FILE_MACHINE_ARM64)
-				archErrMsg = TEXT("Cannot load 32-bit or non-ARM64 plugin.");
-			else if(archType == IMAGE_FILE_MACHINE_AMD64)
-				archErrMsg = TEXT("Cannot load 32-bit plugin.");
+			const TCHAR* archErrMsg = TEXT("Cannot load plugin.");
+			switch (archType)
+			{
+				case IMAGE_FILE_MACHINE_ARM64:
+					archErrMsg = TEXT("Cannot load ARM64 plugin.");
+					break;
+				case IMAGE_FILE_MACHINE_I386:
+					archErrMsg = TEXT("Cannot load 32-bit plugin.");
+					break;
+				case IMAGE_FILE_MACHINE_AMD64:
+					archErrMsg = TEXT("Cannot load 64-bit plugin.");
+					break;
+			}
 
 			throw generic_string(archErrMsg);
 		}
@@ -357,7 +365,7 @@ bool PluginsManager::loadPlugins(const TCHAR* dir, const PluginViewList* pluginU
 	if (hFindFolder != INVALID_HANDLE_VALUE && (foundData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
 	{
 		generic_string foundFileName = foundData.cFileName;
-		if (foundFileName != TEXT(".") && foundFileName != TEXT("..") && generic_stricmp(foundFileName.c_str(), TEXT("Config")) != 0)
+		if (foundFileName != TEXT(".") && foundFileName != TEXT("..") && wcsicmp(foundFileName.c_str(), TEXT("Config")) != 0)
 		{
 			generic_string pluginsFullPathFilter = pluginsFolder;
 			pathAppend(pluginsFullPathFilter, foundFileName);
@@ -429,7 +437,7 @@ bool PluginsManager::loadPlugins(const TCHAR* dir, const PluginViewList* pluginU
 		while (::FindNextFile(hFindFolder, &foundData))
 		{
 			generic_string foundFileName2 = foundData.cFileName;
-			if (foundFileName2 != TEXT(".") && foundFileName2 != TEXT("..") && generic_stricmp(foundFileName2.c_str(), TEXT("Config")) != 0)
+			if (foundFileName2 != TEXT(".") && foundFileName2 != TEXT("..") && wcsicmp(foundFileName2.c_str(), TEXT("Config")) != 0)
 			{
 				generic_string pluginsFullPathFilter2 = pluginsFolder;
 				pathAppend(pluginsFullPathFilter2, foundFileName2);
@@ -589,23 +597,23 @@ void PluginsManager::addInMenuFromPMIndex(int i)
 
 		int cmdID = ID_PLUGINS_CMD + static_cast<int32_t>(_pluginsCommands.size() - 1);
 		_pluginInfos[i]->_funcItems[j]._cmdID = cmdID;
-		generic_string itemName = _pluginInfos[i]->_funcItems[j]._itemName;
+		string itemName = wstring2string(_pluginInfos[i]->_funcItems[j]._itemName, CP_UTF8);
 
 		if (_pluginInfos[i]->_funcItems[j]._pShKey)
 		{
 			ShortcutKey & sKey = *(_pluginInfos[i]->_funcItems[j]._pShKey);
-            PluginCmdShortcut pcs(Shortcut(itemName.c_str(), sKey._isCtrl, sKey._isAlt, sKey._isShift, sKey._key), cmdID, _pluginInfos[i]->_moduleName.c_str(), j);
+            PluginCmdShortcut pcs(Shortcut(itemName.c_str(), sKey._isCtrl, sKey._isAlt, sKey._isShift, sKey._key), cmdID, wstring2string(_pluginInfos[i]->_moduleName, CP_UTF8).c_str(), j);
 			pluginCmdSCList.push_back(pcs);
-			itemName += TEXT("\t");
+			itemName += "\t";
 			itemName += pcs.toString();
 		}
 		else
 		{	//no ShortcutKey is provided, add an disabled shortcut (so it can still be mapped, Paramaters class can still index any changes and the toolbar wont funk out
             Shortcut sc(itemName.c_str(), false, false, false, 0x00);
-            PluginCmdShortcut pcs(sc, cmdID, _pluginInfos[i]->_moduleName.c_str(), j);	//VK_NULL and everything disabled, the menu name is left alone
+            PluginCmdShortcut pcs(sc, cmdID, wstring2string(_pluginInfos[i]->_moduleName, CP_UTF8).c_str(), j);	//VK_NULL and everything disabled, the menu name is left alone
 			pluginCmdSCList.push_back(pcs);
 		}
-		::InsertMenu(_pluginInfos[i]->_pluginMenu, j, MF_BYPOSITION, cmdID, itemName.c_str());
+		::InsertMenu(_pluginInfos[i]->_pluginMenu, j, MF_BYPOSITION, cmdID, string2wstring(itemName, CP_UTF8).c_str());
 
 		if (_pluginInfos[i]->_funcItems[j]._init2Check)
 			::CheckMenuItem(_hPluginsMenu, cmdID, MF_BYCOMMAND | MF_CHECKED);
@@ -656,8 +664,9 @@ void PluginsManager::runPluginCommand(size_t i)
 			}
 			catch (...)
 			{
-				TCHAR funcInfo[128];
-				generic_sprintf(funcInfo, TEXT("runPluginCommand(size_t i : %zd)"), i);
+				constexpr size_t bufSize = 128;
+				TCHAR funcInfo[bufSize] = { '\0' };
+				swprintf(funcInfo, bufSize, TEXT("runPluginCommand(size_t i : %zd)"), i);
 				pluginCrashAlert(_pluginsCommands[i]._pluginName.c_str(), funcInfo);
 			}
 		}
@@ -669,7 +678,7 @@ void PluginsManager::runPluginCommand(const TCHAR *pluginName, int commandID)
 {
 	for (size_t i = 0, len = _pluginsCommands.size() ; i < len ; ++i)
 	{
-		if (!generic_stricmp(_pluginsCommands[i]._pluginName.c_str(), pluginName))
+		if (!wcsicmp(_pluginsCommands[i]._pluginName.c_str(), pluginName))
 		{
 			if (_pluginsCommands[i]._funcID == commandID)
 			{
@@ -683,8 +692,9 @@ void PluginsManager::runPluginCommand(const TCHAR *pluginName, int commandID)
 				}
 				catch (...)
 				{
-					TCHAR funcInfo[128];
-					generic_sprintf(funcInfo, TEXT("runPluginCommand(const TCHAR *pluginName : %s, int commandID : %d)"), pluginName, commandID);
+					constexpr size_t bufSize = 128;
+					TCHAR funcInfo[bufSize] = { '\0' };
+					swprintf(funcInfo, bufSize, TEXT("runPluginCommand(const TCHAR *pluginName : %s, int commandID : %d)"), pluginName, commandID);
 					pluginCrashAlert(_pluginsCommands[i]._pluginName.c_str(), funcInfo);
 				}
 			}
@@ -713,8 +723,9 @@ void PluginsManager::notify(size_t indexPluginInfo, const SCNotification *notifi
 		}
 		catch (...)
 		{
-			TCHAR funcInfo[256];
-			generic_sprintf(funcInfo, TEXT("notify(SCNotification *notification) : \r notification->nmhdr.code == %d\r notification->nmhdr.hwndFrom == %p\r notification->nmhdr.idFrom == %" PRIuPTR), \
+			constexpr size_t bufSize = 256;
+			TCHAR funcInfo[bufSize] = { '\0' };
+			swprintf(funcInfo, bufSize, TEXT("notify(SCNotification *notification) : \r notification->nmhdr.code == %d\r notification->nmhdr.hwndFrom == %p\r notification->nmhdr.idFrom == %" PRIuPTR), \
 				scNotif.nmhdr.code, scNotif.nmhdr.hwndFrom, scNotif.nmhdr.idFrom);
 			pluginCrashAlert(_pluginInfos[indexPluginInfo]->_moduleName.c_str(), funcInfo);
 		}
@@ -751,8 +762,9 @@ void PluginsManager::relayNppMessages(UINT Message, WPARAM wParam, LPARAM lParam
 			}
 			catch (...)
 			{
-				TCHAR funcInfo[128];
-				generic_sprintf(funcInfo, TEXT("relayNppMessages(UINT Message : %u, WPARAM wParam : %" PRIuPTR ", LPARAM lParam : %" PRIiPTR ")"), Message, wParam, lParam);
+				constexpr size_t bufSize = 128;
+				TCHAR funcInfo[bufSize] = { '\0' };
+				swprintf(funcInfo, bufSize, TEXT("relayNppMessages(UINT Message : %u, WPARAM wParam : %" PRIuPTR ", LPARAM lParam : %" PRIiPTR ")"), Message, wParam, lParam);
 				pluginCrashAlert(_pluginInfos[i]->_moduleName.c_str(), funcInfo);
 			}
 		}
@@ -782,8 +794,9 @@ bool PluginsManager::relayPluginMessages(UINT Message, WPARAM wParam, LPARAM lPa
 				}
 				catch (...)
 				{
-					TCHAR funcInfo[128];
-					generic_sprintf(funcInfo, TEXT("relayPluginMessages(UINT Message : %u, WPARAM wParam : %" PRIuPTR ", LPARAM lParam : %" PRIiPTR ")"), Message, wParam, lParam);
+					constexpr size_t bufSize = 128;
+					TCHAR funcInfo[bufSize] = { '\0' };
+					swprintf(funcInfo, bufSize, TEXT("relayPluginMessages(UINT Message : %u, WPARAM wParam : %" PRIuPTR ", LPARAM lParam : %" PRIiPTR ")"), Message, wParam, lParam);
 					pluginCrashAlert(_pluginInfos[i]->_moduleName.c_str(), funcInfo);
 				}
 				return true;

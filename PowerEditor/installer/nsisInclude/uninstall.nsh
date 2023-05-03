@@ -41,28 +41,34 @@ Function un.onUninstSuccess
 	RMDir "$INSTDIR\plugins\"
 	RMDir "$INSTDIR\updater\"
 	RMDir "$INSTDIR\autoCompletion\"
+	RMDir "$INSTDIR\functionList\"
+	RMDir "$INSTDIR\themes\"
+	RMDir "$INSTDIR\contextmenu\"
 	RMDir "$INSTDIR\"
 
 	RMDir "$APPDATA\${APPNAME}\plugins\"
-	RMDir "$installPath\userDefineLangs\"
 	RMDir "$installPath\themes\"	; if files are kept because of $keepUserData, this will not be deleted
+	RMDir "$installPath\userDefineLangs\"
+	RMDir "$installPath\contextmenu\"
 	RMDir "$installPath\"
 FunctionEnd
 
 
 Section un.explorerContextMenu
-	Exec 'regsvr32 /u /s "$INSTDIR\NppShell_01.dll"'
-	Exec 'regsvr32 /u /s "$INSTDIR\NppShell_02.dll"'
-	Exec 'regsvr32 /u /s "$INSTDIR\NppShell_03.dll"'
-	Exec 'regsvr32 /u /s "$INSTDIR\NppShell_04.dll"'
-	Exec 'regsvr32 /u /s "$INSTDIR\NppShell_05.dll"'
-	Exec 'regsvr32 /u /s "$INSTDIR\NppShell_06.dll"'
+	ExecWait 'regsvr32 /u /s "$INSTDIR\NppShell_01.dll"'
+	ExecWait 'regsvr32 /u /s "$INSTDIR\NppShell_02.dll"'
+	ExecWait 'regsvr32 /u /s "$INSTDIR\NppShell_03.dll"'
+	ExecWait 'regsvr32 /u /s "$INSTDIR\NppShell_04.dll"'
+	ExecWait 'regsvr32 /u /s "$INSTDIR\NppShell_05.dll"'
+	ExecWait 'regsvr32 /u /s "$INSTDIR\NppShell_06.dll"'
 	Delete "$INSTDIR\NppShell_01.dll"
 	Delete "$INSTDIR\NppShell_02.dll"
 	Delete "$INSTDIR\NppShell_03.dll"
 	Delete "$INSTDIR\NppShell_04.dll"
 	Delete "$INSTDIR\NppShell_05.dll"
 	Delete "$INSTDIR\NppShell_06.dll"
+	
+	ExecWait 'regsvr32 /u /s "$INSTDIR\contextmenu\NppShell.dll"'
 SectionEnd
 
 Section un.UnregisterFileExt
@@ -223,17 +229,21 @@ Section Uninstall
 		Delete "$INSTDIR\langs.xml"
 		Delete "$INSTDIR\stylers.xml"
 		Delete "$INSTDIR\contextMenu.xml"
+		Delete "$INSTDIR\tabContextMenu.xml"
 		Delete "$INSTDIR\shortcuts.xml"
 		Delete "$INSTDIR\functionList.xml"
 		Delete "$INSTDIR\session.xml"
 		Delete "$INSTDIR\nativeLang.xml"
 		Delete "$INSTDIR\userDefineLang.xml"
 		Delete "$INSTDIR\nppLogNulContentCorruptionIssue.xml"
+		Delete "$INSTDIR\toolbarIcons.xml"
 	${endIf}
 	
 	Delete "$INSTDIR\config.model.xml"
 	Delete "$INSTDIR\langs.model.xml"
 	Delete "$INSTDIR\stylers.model.xml"
+	Delete "$INSTDIR\tabContextMenu_example.xml"
+	Delete "$APPDATA\${APPNAME}\tabContextMenu_example.xml"
 	Delete "$INSTDIR\stylers_remove.xml"
 	Delete "$INSTDIR\localization\english.xml"
 	Delete "$INSTDIR\LINEDRAW.TTF"
@@ -267,6 +277,7 @@ Section Uninstall
 		Delete "$APPDATA\${APPNAME}\userDefineLang.xml"
 		Delete "$APPDATA\${APPNAME}\insertExt.ini"
 		Delete "$APPDATA\${APPNAME}\nppLogNulContentCorruptionIssue.log"
+		Delete "$APPDATA\${APPNAME}\toolbarIcons.xml"
 		Delete "$APPDATA\${APPNAME}\userDefineLangs\userDefinedLang-markdown.default.modern.xml"
 		Delete "$APPDATA\${APPNAME}\userDefineLangs\markdown._preinstalled.udl.xml"
 		Delete "$APPDATA\${APPNAME}\userDefineLangs\markdown._preinstalled_DM.udl.xml"
@@ -279,6 +290,12 @@ Section Uninstall
 			SetShellVarContext all ; make context for all user
 	${endIf}
 	
+	; In order to not delete context menu binary before we unregistered it,
+	; we delete them at the end, using the CleanupDll function, since it can be locked by explorer.
+	ExecWait 'rundll32.exe "$INSTDIR\contextmenu\NppShell.dll",CleanupDll'
+	Delete "$INSTDIR\contextmenu\NppShell.msix"
+	
+	
 	; Remove remaining directories
 	RMDir /r "$INSTDIR\plugins\disabled\"
 	RMDir "$INSTDIR\plugins\APIs\"
@@ -286,6 +303,7 @@ Section Uninstall
 	RMDir "$INSTDIR\themes\"
 	RMDir "$INSTDIR\localization\"
 	RMDir "$INSTDIR\functionList\"
+	RMDir "$INSTDIR\contextmenu\"
 	RMDir "$INSTDIR\"
 	RMDir "$SMPROGRAMS\${APPNAME}"
 

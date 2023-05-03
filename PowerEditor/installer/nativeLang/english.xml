@@ -3,7 +3,7 @@
 The comments are here for explanation, it's not necessary to translate them.
 -->
 <NotepadPlus>
-    <Native-Langue name="English" filename="english.xml" version="8.4.6">
+    <Native-Langue name="English" filename="english.xml" version="8.5.1">
         <Menu>
             <Main>
                 <!-- Main Menu Entries -->
@@ -112,6 +112,7 @@ The comments are here for explanation, it's not necessary to translate them.
                     <Item id="42006" name="&amp;Delete"/>
                     <Item id="42007" name="&amp;Select All"/>
                     <Item id="42020" name="Begin/End &amp;Select"/>
+                    <Item id="42089" name="Begin/End Select in Column Mode"/>
                     <Item id="42084" name="Date Time (short)"/>
                     <Item id="42085" name="Date Time (long)"/>
                     <Item id="42086" name="Date Time (customized)"/>
@@ -158,7 +159,7 @@ The comments are here for explanation, it's not necessary to translate them.
                     <Item id="42042" name="Trim Leading Space"/>
                     <Item id="42043" name="Trim Leading and Trailing Space"/>
                     <Item id="42044" name="EOL to Space"/>
-                    <Item id="42045" name="Remove Unnecessary Blank and EOL"/>
+                    <Item id="42045" name="Trim both and EOL to Space"/>
                     <Item id="42046" name="TAB to Space"/>
                     <Item id="42054" name="Space to TAB (All)"/>
                     <Item id="42053" name="Space to TAB (Leading)"/>
@@ -201,7 +202,7 @@ The comments are here for explanation, it's not necessary to translate them.
                     <Item id="43019" name="Copy Bookmarked Lines"/>
                     <Item id="43020" name="Paste to (Replace) Bookmarked Lines"/>
                     <Item id="43021" name="Remove Bookmarked Lines"/>
-                    <Item id="43051" name="Remove Unmarked Lines"/>
+                    <Item id="43051" name="Remove Non-Bookmarked Lines"/>
                     <Item id="43050" name="Inverse Bookmark"/>
                     <Item id="43052" name="Find characters in rang&amp;e..."/>
                     <Item id="43053" name="Select All Between &amp;Matching Braces"/>
@@ -264,7 +265,7 @@ The comments are here for explanation, it's not necessary to translate them.
                     <Item id="44022" name="Word wrap"/>
                     <Item id="44023" name="Zoom &amp;In (Ctrl+Mouse Wheel Up)"/>
                     <Item id="44024" name="Zoom &amp;Out (Ctrl+Mouse Wheel Down)"/>
-                    <Item id="44025" name="Show White Space and TAB"/>
+                    <Item id="44025" name="Show Space and Tab"/>
                     <Item id="44026" name="Show End of Line"/>
                     <Item id="44029" name="Unfold All"/>
                     <Item id="44030" name="Fold Current Level"/>
@@ -294,6 +295,8 @@ The comments are here for explanation, it's not necessary to translate them.
                     <Item id="44113" name="Apply Color 3"/>
                     <Item id="44114" name="Apply Color 4"/>
                     <Item id="44115" name="Apply Color 5"/>
+                    <Item id="44130" name="Show Non-Printing Characters"/>
+                    <Item id="44131" name="Show Control Characters &amp; Unicode EOL"/>
                     <Item id="44032" name="Toggle Full Screen Mode"/>
                     <Item id="44033" name="Restore Default Zoom"/>
                     <Item id="44034" name="Always on Top"/>
@@ -383,45 +386,51 @@ The comments are here for explanation, it's not necessary to translate them.
                     <Item id="11009" name="Size Larger to Smaller"/>
                 </Commands>
             </Main>
-            <Splitter>
-            </Splitter>
             <TabBar>
-                    <Item CMID="0" name="Close"/>
-                    <Item CMID="1" name="Close All BUT This"/>
-                    <Item CMID="2" name="Save"/>
-                    <Item CMID="3" name="Save As..."/>
-                    <Item CMID="4" name="Print..."/>
-                    <Item CMID="5" name="Move to Other View"/>
-                    <Item CMID="6" name="Clone to Other View"/>
-                    <Item CMID="7" name="Copy Full File Path"/>
-                    <Item CMID="8" name="Copy Filename"/>
-                    <Item CMID="9" name="Copy Current Dir. Path"/>
-                    <Item CMID="10" name="Rename..."/>
-                    <Item CMID="11" name="Move to Recycle Bin"/>
-                    <Item CMID="12" name="Read-Only"/>
-                    <Item CMID="13" name="Clear Read-Only Flag"/>
-                    <Item CMID="14" name="Move to New Instance"/>
-                    <Item CMID="15" name="Open in New Instance"/>
-                    <Item CMID="16" name="Reload"/>
-                    <Item CMID="17" name="Close All to the Left"/>
-                    <Item CMID="18" name="Close All to the Right"/>
-                    <Item CMID="19" name="Open Containing Folder in Explorer"/>
-                    <Item CMID="20" name="Open Containing Folder in cmd"/>
-                    <Item CMID="21" name="Open in Default Viewer"/>
-                    <Item CMID="22" name="Close All Unchanged"/>
-                    <Item CMID="23" name="Open Containing Folder as Workspace"/>
-                    <Item CMID="24" name="Apply Color 1"/>
-                    <Item CMID="25" name="Apply Color 2"/>
-                    <Item CMID="26" name="Apply Color 3"/>
-                    <Item CMID="27" name="Apply Color 4"/>
-                    <Item CMID="28" name="Apply Color 5"/>
-                    <Item CMID="29" name="Remove Color"/>
-                    <Item CMID="30" name="Close Multiple Tabs"/>
-                    <Item CMID="31" name="Open into"/>
-                    <Item CMID="32" name="Copy to Clipboard"/>
-                    <Item CMID="33" name="Move Document"/>
-                    <Item CMID="34" name="Apply Color to Tab"/>
+                <Item CMDID="41003" name="Close"/>
+                <Item CMDID="0" name="Close Multiple Tabs"/>
+                <Item CMDID="41005" name="Close All BUT This"/>
+                <Item CMDID="41009" name="Close All to the Left"/>
+                <Item CMDID="41018" name="Close All to the Right"/>
+                <Item CMDID="41024" name="Close All Unchanged"/>
+                <Item CMDID="41006" name="Save"/>
+                <Item CMDID="41008" name="Save As..."/>
+                <Item CMDID="1" name="Open into"/>
+                <Item CMDID="41019" name="Open Containing Folder in Explorer"/>
+                <Item CMDID="41020" name="Open Containing Folder in cmd"/>
+                <Item CMDID="41025" name="Open Containing Folder as Workspace"/>
+                <Item CMDID="41023" name="Open in Default Viewer"/>
+                <Item CMDID="41017" name="Rename..."/>
+                <Item CMDID="41016" name="Move to Recycle Bin"/>
+                <Item CMDID="41014" name="Reload"/>
+                <Item CMDID="41010" name="Print..."/>
+                <Item CMDID="42028" name="Read-Only"/>
+                <Item CMDID="42033" name="Clear Read-Only Flag"/>
+                <Item CMDID="2" name="Copy to Clipboard"/>
+                <Item CMDID="42029" name="Copy Full File Path"/>
+                <Item CMDID="42030" name="Copy Filename"/>
+                <Item CMDID="42031" name="Copy Current Dir. Path"/>
+                <Item CMDID="3" name="Move Document"/>
+                <Item CMDID="10001" name="Move to Other View"/>
+                <Item CMDID="10002" name="Clone to Other View"/>
+                <Item CMDID="10003" name="Move to New Instance"/>
+                <Item CMDID="10004" name="Open in New Instance"/>
+                <Item CMDID="4" name="Apply Color to Tab"/>
+                <Item CMDID="44111" name="Apply Color 1"/>
+                <Item CMDID="44112" name="Apply Color 2"/>
+                <Item CMDID="44113" name="Apply Color 3"/>
+                <Item CMDID="44114" name="Apply Color 4"/>
+                <Item CMDID="44115" name="Apply Color 5"/>
+                <Item CMDID="44110" name="Remove Color"/>
             </TabBar>
+            <TrayIcon>
+                <Item id="43101" name="Activate"/>
+                <Item id="43102" name="New"/>
+                <Item id="43103" name="New and Paste"/>
+                <Item id="43104" name="Open..."/>
+                <Item id="43013" name="Find in Files..."/>
+                <Item id="43105" name="Close Tray Icon"/>
+            </TrayIcon>
         </Menu>
 
         <Dialog>
@@ -467,6 +476,11 @@ The comments are here for explanation, it's not necessary to translate them.
                 <Item id="1721" name="▲"/>
                 <Item id="1723" name="▼ Find Next"/>
                 <Item id="1725" name="Copy Marked Text"/>
+                <Menu>
+                    <Item id="1726" name="⇅ Swap Find with Replace"/>
+                    <Item id="1727" name="⤵ Copy from Find to Replace"/>
+                    <Item id="1728" name="⤴ Copy from Replace to Find"/>
+                </Menu>
             </Find>
 
             <IncrementalFind title="">
@@ -476,15 +490,15 @@ The comments are here for explanation, it's not necessary to translate them.
             </IncrementalFind>
 
             <FindCharsInRange title="Find Characters in Range...">
-                <Item id="2" name="Close"/>
-                <Item id="2901" name="Non-ASCII Characters (128-255)"/>
-                <Item id="2902" name="ASCII Characters (0-127)"/>
-                <Item id="2903" name="My range:"/>
+                <Item id="2" name="&amp;Close"/>
+                <Item id="2901" name="&amp;Non-ASCII characters (128–255)"/>
+                <Item id="2902" name="&amp;ASCII characters (0–127)"/>
+                <Item id="2903" name="Custom &amp;range (0–255):"/>
                 <Item id="2906" name="&amp;Up"/>
                 <Item id="2907" name="&amp;Down"/>
                 <Item id="2908" name="Direction"/>
                 <Item id="2909" name="Wra&amp;p around"/>
-                <Item id="2910" name="Find"/>
+                <Item id="2910" name="&amp;Find"/>
             </FindCharsInRange>
 
             <GoToLine title="Go to...">
@@ -505,27 +519,27 @@ The comments are here for explanation, it's not necessary to translate them.
             </Run>
 
             <MD5FromFilesDlg title="Generate MD5 digest from files">
-                <Item id="1922" name="Choose files to generate MD5..."/>
-                <Item id="1924" name="Copy to Clipboard"/>
-                <Item id="2"    name="Close"/>
+                <Item id="1922" name="Choose files to &amp;generate MD5..."/>
+                <Item id="1924" name="Co&amp;py to Clipboard"/>
+                <Item id="2"    name="&amp;Close"/>
             </MD5FromFilesDlg>
 
             <MD5FromTextDlg title="Generate MD5 digest">
-                <Item id="1932" name="Treat each line as a separate string"/>
-                <Item id="1934" name="Copy to Clipboard"/>
-                <Item id="2"    name="Close"/>
+                <Item id="1932" name="Treat each line as a &amp;separate string"/>
+                <Item id="1934" name="Co&amp;py to Clipboard"/>
+                <Item id="2"    name="&amp;Close"/>
             </MD5FromTextDlg>
 
             <SHA256FromFilesDlg title="Generate SHA-256 digest from files">
-                <Item id="1922" name="Choose files to generate SHA-256..."/>
-                <Item id="1924" name="Copy to Clipboard"/>
-                <Item id="2"    name="Close"/>
+                <Item id="1922" name="Choose files to &amp;generate SHA-256..."/>
+                <Item id="1924" name="Co&amp;py to Clipboard"/>
+                <Item id="2"    name="&amp;Close"/>
             </SHA256FromFilesDlg>
 
             <SHA256FromTextDlg title="Generate SHA-256 digest">
-                <Item id="1932" name="Treat each line as a separate string"/>
-                <Item id="1934" name="Copy to Clipboard"/>
-                <Item id="2"    name="Close"/>
+                <Item id="1932" name="Treat each line as a &amp;separate string"/>
+                <Item id="1934" name="Co&amp;py to Clipboard"/>
+                <Item id="2"    name="&amp;Close"/>
             </SHA256FromTextDlg>
 
             <PluginsAdminDlg title="Plugins Admin" titleAvailable="Available" titleUpdates="Updates" titleInstalled="Installed" titleIncompatible="Incompatible">
@@ -549,12 +563,12 @@ The comments are here for explanation, it's not necessary to translate them.
                 <SubDialog>
                     <Item id="2204" name="Bold"/>
                     <Item id="2205" name="Italic"/>
-                    <Item id="2206" name="Foreground colour"/>
-                    <Item id="2207" name="Background colour"/>
+                    <Item id="2206" name="Foreground color"/>
+                    <Item id="2207" name="Background color"/>
                     <Item id="2208" name="Font name:"/>
                     <Item id="2209" name="Font size:"/>
                     <Item id="2211" name="Style:"/>
-                    <Item id="2212" name="Colour Style"/>
+                    <Item id="2212" name="Color Style"/>
                     <Item id="2213" name="Font Style"/>
                     <Item id="2214" name="Default ext.:"/>
                     <Item id="2216" name="User ext.:"/>
@@ -562,8 +576,8 @@ The comments are here for explanation, it's not necessary to translate them.
                     <Item id="2219" name="Default keywords"/>
                     <Item id="2221" name="User-defined keywords"/>
                     <Item id="2225" name="Language:"/>
-                    <Item id="2226" name="Enable global foreground colour"/>
-                    <Item id="2227" name="Enable global background colour"/>
+                    <Item id="2226" name="Enable global foreground color"/>
+                    <Item id="2227" name="Enable global background color"/>
                     <Item id="2228" name="Enable global font"/>
                     <Item id="2229" name="Enable global font size"/>
                     <Item id="2230" name="Enable global bold font style"/>
@@ -590,6 +604,20 @@ The comments are here for explanation, it's not necessary to translate them.
                 <ScintillaCommandsTab name="Scintilla commands"/>
                 <ConflictInfoOk name="No shortcut conflicts for this item."/>
                 <ConflictInfoEditing name="No conflicts . . ."/>
+                <WindowCategory name="Window"/>
+                <FileCategory name="File"/>
+                <EditCategory name="Edit"/>
+                <SearchCategory name="Search"/>
+                <ViewCategory name="View"/>
+                <FormatCategory name="Format"/>
+                <LangCategory name="Lang"/>
+                <AboutCategory name="About"/>
+                <SettingCategory name="Setting"/>
+                <ToolCategory name="Tool"/>
+                <ExecuteCategory name="Execute"/>
+                <ModifyContextMenu name="Modify"/>
+                <DeleteContextMenu name="Delete"/>
+                <ClearContextMenu name="Clear"/>
                 <MainCommandNames>
                     <Item id="41019" name="Open containing folder in Explorer"/>
                     <Item id="41020" name="Open containing folder in Command Prompt"/>
@@ -668,12 +696,12 @@ The comments are here for explanation, it's not necessary to translate them.
                     <Item id="44107" name="Switch to Folder as Workspace"/>
                     <Item id="44109" name="Switch to Document List"/>
                     <Item id="44108" name="Switch to Function List"/>
-                    <Item id="44110" name="Remove Tab Colour"/>
-                    <Item id="44111" name="Apply Tab Colour 1"/>
-                    <Item id="44112" name="Apply Tab Colour 2"/>
-                    <Item id="44113" name="Apply Tab Colour 3"/>
-                    <Item id="44114" name="Apply Tab Colour 4"/>
-                    <Item id="44115" name="Apply Tab Colour 5"/>
+                    <Item id="44110" name="Remove Tab Color"/>
+                    <Item id="44111" name="Apply Tab Color 1"/>
+                    <Item id="44112" name="Apply Tab Color 2"/>
+                    <Item id="44113" name="Apply Tab Color 3"/>
+                    <Item id="44114" name="Apply Tab Color 4"/>
+                    <Item id="44115" name="Apply Tab Color 5"/>
                     <Item id="11002" name="Sort By Name A to Z"/>
                     <Item id="11003" name="Sort By Name Z to A"/>
                     <Item id="11004" name="Sort By Path A to Z"/>
@@ -706,10 +734,11 @@ The comments are here for explanation, it's not necessary to translate them.
                 <Item id="20011" name="Transparency"/>
                 <Item id="20015" name="Import..."/>
                 <Item id="20016" name="Export..."/>
+                <Item id="20017" name="Undock"/>
                 <StylerDialog title="Styler Dialog">
                     <Item id="25030" name="Font options:"/>
-                    <Item id="25006" name="Foreground colour"/>
-                    <Item id="25007" name="Background colour"/>
+                    <Item id="25006" name="Foreground color"/>
+                    <Item id="25007" name="Background color"/>
                     <Item id="25031" name="Name:"/>
                     <Item id="25032" name="Size:"/>
                     <Item id="25001" name="Bold"/>
@@ -881,7 +910,7 @@ The comments are here for explanation, it's not necessary to translate them.
                     <Item id="6107" name="Reduce"/>
                     <Item id="6108" name="Lock (no drag and drop)"/>
                     <Item id="6109" name="Darken inactive tabs"/>
-                    <Item id="6110" name="Draw a coloured bar on active tab"/>
+                    <Item id="6110" name="Draw a colored bar on active tab"/>
 
                     <Item id="6111" name="Show status bar"/>
                     <Item id="6112" name="Show close button on each tab"/>
@@ -924,10 +953,17 @@ The comments are here for explanation, it's not necessary to translate them.
                     <Item id="6248" name="Default"/>
                     <Item id="6249" name="Plain Text"/>
                     <Item id="6250" name="Custom Color"/>
+                    <Item id="6252" name="Non-Printing Characters"/>
+                    <Item id="6254" name="Abbreviation"/>
+                    <Item id="6255" name="Codepoint"/>
+                    <Item id="6256" name="Custom Color"/>
+                    <Item id="6258" name="Apply to C0, C1 &amp; Unicode EOL"/>
                 </Scintillas>
 
                 <DarkMode title="Dark Mode">
-                    <Item id="7101" name="Enable dark mode"/>
+                    <Item id="7131" name="Light mode"/>
+                    <Item id="7132" name="Dark mode"/>
+                    <Item id="7133" name="Follow Windows"/>
                     <Item id="7102" name="Black"/>
                     <Item id="7103" name="Red"/>
                     <Item id="7104" name="Green"/>
@@ -1036,11 +1072,11 @@ You can define several column markers by using white space to separate the diffe
 
                 <Print title="Print">
                     <Item id="6601" name="Print line number"/>
-                    <Item id="6602" name="Colour Options"/>
+                    <Item id="6602" name="Color Options"/>
                     <Item id="6603" name="WYSIWYG"/>
                     <Item id="6604" name="Invert"/>
                     <Item id="6605" name="Black on white"/>
-                    <Item id="6606" name="No background colour"/>
+                    <Item id="6606" name="No background color"/>
                     <Item id="6607" name="Margin Settings (Unit:mm)"/>
                     <Item id="6612" name="Left"/>
                     <Item id="6613" name="Top"/>
@@ -1086,7 +1122,7 @@ You can define several column markers by using white space to separate the diffe
 
                 <RecentFilesHistory title="Recent Files History">
                     <Item id="6304" name="Recent Files History"/>
-                    <Item id="6306" name="Max. number of entries :"/>
+                    <Item id="6306" name="Max. number of entries:"/>
                     <Item id="6305" name="Don't check at launch time"/>
                     <Item id="6429" name="Display"/>
                     <Item id="6424" name="In Submenu"/>
@@ -1123,7 +1159,7 @@ You can define several column markers by using white space to separate the diffe
                     <Item id="6824" name="Ignore numbers"/>
                     <Item id="6811" name="From"/>
                     <Item id="6813" name="th character"/>
-                    <Item id="6814" name="Valid value : 1 - 9"/>
+                    <Item id="6872" name="Make auto-completion list brief"/>
                     <Item id="6815" name="Function parameters hint on input"/>
                     <Item id="6851" name="Auto-Insert"/>
                     <Item id="6857" name=" html/xml close tag"/>
@@ -1135,7 +1171,7 @@ You can define several column markers by using white space to separate the diffe
                 </AutoCompletion>
 
                 <MultiInstance title="Multi-Instance &amp; Date">
-                    <Item id="6151" name="Multi-instance settings"/>
+                    <Item id="6151" name="Multi-instance settings *"/>
                     <Item id="6152" name="Open session in a new instance (and save session automatically on exit)"/>
                     <Item id="6153" name="Always in multi-instance mode"/>
                     <Item id="6154" name="Default (mono-instance)"/>
@@ -1143,6 +1179,16 @@ You can define several column markers by using white space to separate the diffe
                     <Item id="6171" name="Customize insert Date Time"/>
                     <Item id="6175" name="Reverse default date time order (short &amp;&amp; long formats)"/>
                     <Item id="6172" name="Custom format:"/>
+                    <Item id="6181" name="Panel State and [-nosession] *"/>
+                    <Item id="6182" name="Remember panel state (panel is open) in other instances (multi-instance mode) or when using command line parameter [-nosession]"/>
+                    <Item id="6183" name="Clipboard History"/>
+                    <Item id="6184" name="Document List"/>
+                    <Item id="6185" name="Character Panel"/>
+                    <Item id="6186" name="Folder as Workspace"/>
+                    <Item id="6187" name="Project Panels"/>
+                    <Item id="6188" name="Document Map"/>
+                    <Item id="6189" name="Function List"/>
+                    <Item id="6190" name="Plugin Panels"/>
                 </MultiInstance>
 
                 <Delimiter title="Delimiter">
@@ -1158,14 +1204,14 @@ You can define several column markers by using white space to separate the diffe
 
                 <Performance title="Performance">
                     <Item id="7141" name="Large File Restriction"/>
-                    <Item id="7142" name="While opening a large file, some features are turned off for optimizing the performance. You can customize them here."/>
-                    <Item id="7143" name="Enable Large File Restriction"/>
+                    <Item id="7143" name="Enable Large File Restriction (no syntax highlighting)"/>
                     <Item id="7144" name="Define Large File Size:"/>
                     <Item id="7146" name="MB   (1 - 4096)"/>
                     <Item id="7147" name="Allow Brace Match"/>
                     <Item id="7148" name="Allow Auto-Completion"/>
                     <Item id="7149" name="Allow Smart Highlighting"/>
-                    <Item id="7150" name="Allow Word Wrap"/>
+                    <Item id="7150" name="Deactivate Word Wrap globally"/>
+                    <Item id="7151" name="Allow URL Clickable Link"/>
                 </Performance>
 
                 <Cloud title="Cloud &amp; Link">
@@ -1219,7 +1265,7 @@ You can define several column markers by using white space to separate the diffe
             <MultiMacro title="Run a Macro Multiple Times">
                 <Item id="1" name="&amp;Run"/>
                 <Item id="2" name="&amp;Cancel"/>
-                <Item id="8006" name="Macro to run :"/>
+                <Item id="8006" name="Macro to run"/>
                 <Item id="8001" name="Run"/>
                 <Item id="8005" name="times"/>
                 <Item id="8002" name="Run until the &amp;end of file"/>
@@ -1236,7 +1282,12 @@ You can define several column markers by using white space to separate the diffe
                 <Item id="2033" name="&amp;Number to Insert"/>
                 <Item id="2030" name="&amp;Initial number :"/>
                 <Item id="2031" name="Increase b&amp;y :"/>
-                <Item id="2035" name="Leading &amp;zeros"/>
+                <Item id="2038" name="&amp;Leading :"/>
+                <ComboBox id="2039">
+                    <Element name="None"/>
+                    <Element name="Zeros"/>
+                    <Element name="Spaces"/>
+                </ComboBox>
                 <Item id="2036" name="&amp;Repeat :"/>
                 <Item id="2032" name="Format"/>
                 <Item id="2024" name="&amp;Dec"/>
@@ -1277,7 +1328,8 @@ You can re-activate this dialog in Preferences later."/>
                 <Item id="4" name="Always Yes"/>
             </DoSaveAll> <!-- HowToReproduce: Check the 'Enable Save All confirm dialog' checkbox in Preference->MISC, now click 'Save all' -->
         </Dialog>
-        <MessageBox> <!-- $INT_REPLACE$ is a place holder, don't translate it -->
+        <MessageBox>
+            <!-- $INT_REPLACE$ and $STR_REPLACE$ are place holders, don't translate these place holders. -->
             <ContextMenuXmlEditWarning title="Editing contextMenu" message="Editing contextMenu.xml allows you to modify your Notepad++ popup context menu.
 You have to restart your Notepad++ to take effect after modifying contextMenu.xml."/>
             <SaveCurrentModifWarning title="Save Current Modification" message="You should save the current modification.
@@ -1305,7 +1357,18 @@ Your settings on cloud will be canceled. Please reset a coherent value via Prefe
             <DroppingFolderAsProjectModeWarning title="Invalid action" message="You can only drop files or folders but not both, because you're in dropping Folder as Project mode.
 you have to enable &quot;Open all files of folder instead of launching Folder as Workspace on folder dropping&quot; in &quot;Default Directory&quot; section of Preferences dialog to make this operation work."/>
             <SortingError title="Sorting Error" message="Unable to perform numeric sorting due to line $INT_REPLACE$."/> <!-- HowToReproduce: this message prevents from system failure. It's hard to reproduce. -->
-            <ColumnModeTip title="Column Mode Tip" message="Please use &quot;ALT+Mouse Selection&quot; or &quot;Alt+Shift+Arrow key&quot; to switch to column mode."/>
+            <ColumnModeTip title="Column Mode Tip" message="
+There are 3 ways to switch to column-select mode:
+
+1. (Keyboard and Mouse)  Hold Alt while left-click dragging
+
+2. (Keyboard only)  Hold Alt+Shift while using arrow keys
+
+3. (Keyboard or Mouse)
+      Put caret at desired start of column block position, then
+       execute &quot;Begin/End Select in Column Mode&quot; command;
+      Move caret to desired end of column block position, then
+       execute &quot;Begin/End Select in Column Mode&quot; command again"/>
             <BufferInvalidWarning title="Save failed" message="Cannot save: Buffer is invalid."/> <!-- HowToReproduce: this message prevents from system failure. It's hard to reproduce. -->
             <DoCloseOrNot title="Keep non existing file" message="The file &quot;$STR_REPLACE$&quot; doesn't exist anymore.
 Keep this file in editor?"/>
@@ -1336,6 +1399,8 @@ Do you want to open it?"/>
             <CreateNewFileOrNot title="Create new file" message="&quot;$STR_REPLACE$&quot; doesn't exist. Create it?"/>
             <CreateNewFileError title="Create new file" message="Cannot create the file &quot;$STR_REPLACE$&quot;."/> <!-- HowToReproduce: this message prevents from system failure. It's hard to reproduce. -->
             <OpenFileError title="ERROR" message="Can not open file &quot;$STR_REPLACE$&quot;."/>
+            <OpenFileNoFolderError title="Cannot open file" message="&quot;$STR_REPLACE1$&quot; cannot be opened:
+Folder &quot;$STR_REPLACE2$&quot; doesn't exist."/>
             <FileBackupFailed title="File Backup Failed" message="The previous version of the file could not be saved into the backup directory at &quot;$STR_REPLACE$&quot;.
 
 Do you want to save the current file anyways?"/> <!-- HowToReproduce: this message prevents from system failure. It's hard to reproduce. -->
@@ -1375,6 +1440,16 @@ Notepad++ will be restarted after all the operations are terminated.
 Continue?"/>
             <NeedToRestartToLoadPlugins title="Notepad++ need to be relaunched" message="You have to restart Notepad++ to load plugins you installed."/> <!-- HowToReproduce: Import a plugin via menu "Settings->Import->Import Plugin(s)...". -->
             <ChangeHistoryEnabledWarning title="Notepad++ need to be relaunched" message="You have to restart Notepad++ to enable Change History."/> <!-- HowToReproduce: uncheck "Display Change History" via Preferences dialog "Marges/Border/Edge. -->
+            <WindowsSessionExit title="Notepad++ - Windows session exit" message="Windows session is about to be terminated but you have some data unsaved. Do you want to exit Notepad++ now?"/>
+            <LanguageMenuCompactWarning title="Compact Language Menu" message="This option will be changed on the next launch."/> <!-- HowToReproduce: toggle "Make language menu compact" via Preferences dialog "Language/Language Menu. -->
+            <SwitchUnsavedThemeWarning title="$STR_REPLACE$" message="Unsaved changes are about to be discarded!
+Do you want to save your changes before switching themes?"/> <!-- HowToReproduce: In the Style Configurator dialog change some theme and switch to other theme without saving. -->
+            <MacroAndRunCmdlWarning title="Macro and Run Commands Compatibility" message="Your Macro and Run commands saved in Notepad++ v.8.5.2 (or older) may not be compatible with the current version of Notepad++.
+Please test those commands and, if needed, re-edit them.
+
+Alternatively, you can downgrade to Notepad++ v8.5.2 and restore your previous data.
+Notepad++ will backup your old &quot;shortcuts.xml&quot; and save it as &quot;shortcuts.xml.v8.5.2.backup&quot;.
+Renaming &quot;shortcuts.xml.v8.5.2.backup&quot; -&gt; &quot;shortcuts.xml&quot;, your commands should be restored and work properly."/> <!-- HowToReproduce: Close Notepad++, remove shortcuts.xml.v8.5.2.backup & v852ShortcutsCompatibilityWarning.xml if present, relaunch Notepad++, delete or modify a shortcuts via Shortcut Mapper, close Notepad++, then the message will show up -->
         </MessageBox>
         <ClipboardHistory>
             <PanelTitle name="Clipboard History"/>
@@ -1384,6 +1459,7 @@ Continue?"/>
             <ColumnName name="Name"/>
             <ColumnExt name="Ext."/>
             <ColumnPath name="Path"/>
+            <ListGroups name="Group by View"/>
         </DocList>
         <WindowsDlg>
             <ColumnName name="Name"/>
@@ -1399,8 +1475,9 @@ Continue?"/>
             <ColumnVal name="Value"/>
             <ColumnHex name="Hex"/>
             <ColumnChar name="Character"/>
-            <ColumnHtmlNumber name="HTML Number"/>
-            <ColumnHtmlName name="HTML Code"/>
+            <ColumnHtmlName name="HTML Name"/>
+            <ColumnHtmlNumber name="HTML Decimal"/>
+            <ColumnHtmlHexNb name="HTML Hexadecimal"/>
         </AsciiInsertion>
         <DocumentMap>
             <PanelTitle name="Document Map"/>
@@ -1418,7 +1495,7 @@ Continue?"/>
             <ExpandAllFoldersTip name="Unfold all"/>
             <CollapseAllFoldersTip name="Fold all"/>
             <LocateCurrentFileTip name="Locate current file"/>
-            <Menus>
+            <Menu>
                 <Item id="3511" name="Remove"/>
                 <Item id="3512" name="Remove All"/>
                 <Item id="3513" name="Add"/>
@@ -1429,7 +1506,7 @@ Continue?"/>
                 <Item id="3518" name="Explorer here"/>
                 <Item id="3519" name="CMD here"/>
                 <Item id="3520" name="Copy file name"/>
-            </Menus>
+            </Menu>
         </FolderAsWorkspace>
         <ProjectManager>
             <PanelTitle name="Project"/>
@@ -1479,7 +1556,7 @@ Continue?"/>
             </Menus>
         </ProjectManager>
         <MiscStrings>
-            <!-- $INT_REPLACE$  and $STR_REPLACE$ are a place holders, don't translate these place holders -->
+            <!-- $INT_REPLACE$ and $STR_REPLACE$ are place holders, don't translate these place holders. -->
             <word-chars-list-tip value="This allows you to include additional character into current word characters while double clicking for selection or searching with &quot;Match whole word only&quot; option checked."/> <!-- HowToReproduce: In "Delimiter" section of Preferences dialog, hover your mouse on the "?" button. -->
 
             <!-- Don't translate "(&quot;EOL custom color&quot;)" -->
@@ -1559,13 +1636,9 @@ Find in all files but exclude all folders log or logs recursively:
             <tabrename-newname value="New Name: "/>
             <splitter-rotate-left value="Rotate to left"/>
             <splitter-rotate-right value="Rotate to right"/>
-            <recent-file-history-maxfile value="Max File: "/>
-            <language-tabsize value="Tab Size: "/>
             <userdefined-title-new value="Create New Language..."/>
             <userdefined-title-save value="Save Current Language Name As..."/>
             <userdefined-title-rename value="Rename Current Language Name"/>
-            <autocomplete-nb-char value="Nb char: "/>
-            <edit-verticaledge-nb-col value="Nb of Column:"/>
             <summary value="Summary"/>
             <summary-filepath value="Full file path: "/>
             <summary-filecreatetime value="Created: "/>
@@ -1577,6 +1650,9 @@ Find in all files but exclude all folders log or logs recursively:
             <summary-nbsel1 value=" selected characters ("/>
             <summary-nbsel2 value=" bytes) in "/>
             <summary-nbrange value=" ranges"/>
+            <progress-hits-title value="Hits:"/>
+            <progress-cancel-button value="Cancel"/>
+            <progress-cancel-info value="Cancelling operation, please wait..."/>
             <find-in-files-progress-title value="Find In Files progress..."/>
             <replace-in-files-confirm-title value="Are you sure?"/>
             <replace-in-files-confirm-directory value="Are you sure you want to replace all occurrences in :"/>
@@ -1606,6 +1682,38 @@ Find in all files but exclude all folders log or logs recursively:
             <contextMenu-styleOneToken value="Style one token" />
             <contextMenu-clearStyle value="Clear style" />
             <contextMenu-PluginCommands value="Plugin commands" />
+            <largeFileRestriction-tip value="Some features may slow performance in large files. These features can be auto-disabled on opening a large file. You can customize them here.
+
+NOTE:
+1. Modifying options here requires re-open currently opened large files to get proper behavior.
+
+2. If &quot;Deactivate Word Wrap globally&quot; is checked and you open a large file, &quot;Word Wrap&quot; will be disabled for all files. You can re-enable it via menu &quot;View-&gt;Word Wrap&quot;." />
+            <npcNote-tip value="Representation of selected &quot;non-ASCII&quot; whitespace and non-printing (control) characters.
+
+NOTE:
+Using representation will disable character effects on text.
+
+For the full list of selected whitespace and non-printing characters check User Manual.
+
+Click on this button to open website with User Manual." />
+            <npcAbbreviation-tip value="Abbreviation : name
+NBSP : no-break space
+ZWSP : zero-width space
+ZWNBSP : zero-width no-break space
+
+For the full list check User Manual.
+Click on &quot;?&quot; button on right to open website with User Manual." />
+            <npcCodepoint-tip value="Codepoint : name
+U+00A0 : no-break space
+U+200B : zero-width space
+U+FEFF : zero-width no-break space
+
+For the full list check User Manual.
+Click on &quot;?&quot; button on right to open website with User Manual." />
+
+            <!-- Don't translate "(&quot;Non-printing characters custom color&quot;)" -->
+            <npcCustomColor-tip value="Go to Style Configurator to change the default custom color for selected whitespace and non-printing characters (&quot;Non-printing characters custom color&quot;)." />
+            <npcIncludeCcUniEol-tip value="Apply non-printing characters appearance settings to C0, C1 control and Unicode EOL (next line, line separator and paragraph separator) characters." />
         </MiscStrings>
     </Native-Langue>
 </NotepadPlus>

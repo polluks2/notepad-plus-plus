@@ -19,60 +19,71 @@ echo on
 
 if %SIGN% == 0 goto NoSign
 
-signtool.exe sign /f %NPP_CERT% /p %NPP_CERT_PWD% /d "Notepad++" /du https://notepad-plus-plus.org/ /t http://timestamp.digicert.com/ ..\bin\notepad++.exe
+set signtoolWin11="C:\Program Files (x86)\Windows Kits\10\bin\10.0.22621.0\x64\signtool.exe"
+set signtoolWin10="C:\Program Files (x86)\Windows Kits\10\bin\10.0.19041.0\x64\signtool.exe"
+
+set signBinary=%signtoolWin11% sign /fd SHA256 /tr http://timestamp.digicert.com /td sha256 /a /f %NPP_CERT% /p %NPP_CERT_PWD% /d "Notepad++" /du https://notepad-plus-plus.org/
+
+set signArmBinary=%signtoolWin10% sign /f %NPP_CERT% /p %NPP_CERT_PWD% /d "Notepad++" /du https://notepad-plus-plus.org/ /t http://timestamp.digicert.com/
+
+%signBinary% ..\bin\notepad++.exe
 If ErrorLevel 1 goto End
-signtool.exe sign /f %NPP_CERT% /p %NPP_CERT_PWD% /d "Notepad++" /du https://notepad-plus-plus.org/ /t http://timestamp.digicert.com/ ..\bin64\notepad++.exe
+%signBinary% ..\bin64\notepad++.exe
 If ErrorLevel 1 goto End
-signtool.exe sign /f %NPP_CERT% /p %NPP_CERT_PWD% /d "Notepad++" /du https://notepad-plus-plus.org/ /t http://timestamp.digicert.com/ ..\binarm64\notepad++.exe
+%signArmBinary% ..\binarm64\notepad++.exe
 If ErrorLevel 1 goto End
 
-signtool.exe sign /f %NPP_CERT% /p %NPP_CERT_PWD% /d "Notepad++" /du https://notepad-plus-plus.org/ /t http://timestamp.digicert.com/ ..\bin\NppShell_06.dll
+%signBinary% ..\bin\NppShell.x86.dll
 If ErrorLevel 1 goto End
-signtool.exe sign /f %NPP_CERT% /p %NPP_CERT_PWD% /d "Notepad++" /du https://notepad-plus-plus.org/ /t http://timestamp.digicert.com/ ..\bin\NppShell64_06.dll
+%signBinary% ..\bin64\NppShell.msix
 If ErrorLevel 1 goto End
-signtool.exe sign /f %NPP_CERT% /p %NPP_CERT_PWD% /d "Notepad++" /du https://notepad-plus-plus.org/ /t http://timestamp.digicert.com/ ..\binarm64\NppShell64.dll
+%signBinary% ..\bin64\NppShell.x64.dll
 If ErrorLevel 1 goto End
-
-signtool.exe sign /f %NPP_CERT% /p %NPP_CERT_PWD% /d "Notepad++" /du https://notepad-plus-plus.org/ /t http://timestamp.digicert.com/ ..\bin\plugins\Config\nppPluginList.dll
+%signBinary% ..\binarm64\NppShell.msix
 If ErrorLevel 1 goto End
-signtool.exe sign /f %NPP_CERT% /p %NPP_CERT_PWD% /d "Notepad++" /du https://notepad-plus-plus.org/ /t http://timestamp.digicert.com/ ..\bin64\plugins\Config\nppPluginList.dll
-If ErrorLevel 1 goto End
-signtool.exe sign /f %NPP_CERT% /p %NPP_CERT_PWD% /d "Notepad++" /du https://notepad-plus-plus.org/ /t http://timestamp.digicert.com/ ..\binarm64\plugins\Config\nppPluginList.dll
+%signArmBinary% ..\binarm64\NppShell.arm64.dll
 If ErrorLevel 1 goto End
 
-signtool.exe sign /f %NPP_CERT% /p %NPP_CERT_PWD% /d "Notepad++" /du https://notepad-plus-plus.org/ /t http://timestamp.digicert.com/ ..\bin\updater\GUP.exe
+%signBinary% ..\bin\plugins\Config\nppPluginList.dll
 If ErrorLevel 1 goto End
-signtool.exe sign /f %NPP_CERT% /p %NPP_CERT_PWD% /d "Notepad++" /du https://notepad-plus-plus.org/ /t http://timestamp.digicert.com/ ..\bin64\updater\GUP.exe
+%signBinary% ..\bin64\plugins\Config\nppPluginList.dll
 If ErrorLevel 1 goto End
-signtool.exe sign /f %NPP_CERT% /p %NPP_CERT_PWD% /d "Notepad++" /du https://notepad-plus-plus.org/ /t http://timestamp.digicert.com/ ..\binarm64\updater\GUP.exe
-If ErrorLevel 1 goto End
-
-signtool.exe sign /f %NPP_CERT% /p %NPP_CERT_PWD% /d "Notepad++" /du https://notepad-plus-plus.org/ /t http://timestamp.digicert.com/ ..\bin\updater\libcurl.dll
-If ErrorLevel 1 goto End
-signtool.exe sign /f %NPP_CERT% /p %NPP_CERT_PWD% /d "Notepad++" /du https://notepad-plus-plus.org/ /t http://timestamp.digicert.com/ ..\bin64\updater\libcurl.dll
-If ErrorLevel 1 goto End
-signtool.exe sign /f %NPP_CERT% /p %NPP_CERT_PWD% /d "Notepad++" /du https://notepad-plus-plus.org/ /t http://timestamp.digicert.com/ ..\binarm64\updater\libcurl.dll
+%signArmBinary% ..\binarm64\plugins\Config\nppPluginList.dll
 If ErrorLevel 1 goto End
 
-signtool.exe sign /f %NPP_CERT% /p %NPP_CERT_PWD% /d "Notepad++" /du https://notepad-plus-plus.org/ /t http://timestamp.digicert.com/ ..\bin\plugins\NppExport\NppExport.dll
+%signBinary% ..\bin\updater\GUP.exe
 If ErrorLevel 1 goto End
-signtool.exe sign /f %NPP_CERT% /p %NPP_CERT_PWD% /d "Notepad++" /du https://notepad-plus-plus.org/ /t http://timestamp.digicert.com/ ..\bin64\plugins\NppExport\NppExport.dll
+%signBinary% ..\bin64\updater\GUP.exe
 If ErrorLevel 1 goto End
-signtool.exe sign /f %NPP_CERT% /p %NPP_CERT_PWD% /d "Notepad++" /du https://notepad-plus-plus.org/ /t http://timestamp.digicert.com/ ..\binarm64\plugins\NppExport\NppExport.dll
-If ErrorLevel 1 goto End
-
-signtool.exe sign /f %NPP_CERT% /p %NPP_CERT_PWD% /d "Notepad++" /du https://notepad-plus-plus.org/ /t http://timestamp.digicert.com/ ..\bin\plugins\mimeTools\mimeTools.dll
-If ErrorLevel 1 goto End
-signtool.exe sign /f %NPP_CERT% /p %NPP_CERT_PWD% /d "Notepad++" /du https://notepad-plus-plus.org/ /t http://timestamp.digicert.com/ ..\bin64\plugins\mimeTools\mimeTools.dll
-If ErrorLevel 1 goto End
-signtool.exe sign /f %NPP_CERT% /p %NPP_CERT_PWD% /d "Notepad++" /du https://notepad-plus-plus.org/ /t http://timestamp.digicert.com/ ..\binarm64\plugins\mimeTools\mimeTools.dll
+%signArmBinary% ..\binarm64\updater\GUP.exe
 If ErrorLevel 1 goto End
 
-signtool.exe sign /f %NPP_CERT% /p %NPP_CERT_PWD% /d "Notepad++" /du https://notepad-plus-plus.org/ /t http://timestamp.digicert.com/ ..\bin\plugins\NppConverter\NppConverter.dll
+%signBinary% ..\bin\updater\libcurl.dll
 If ErrorLevel 1 goto End
-signtool.exe sign /f %NPP_CERT% /p %NPP_CERT_PWD% /d "Notepad++" /du https://notepad-plus-plus.org/ /t http://timestamp.digicert.com/ ..\bin64\plugins\NppConverter\NppConverter.dll
+%signBinary% ..\bin64\updater\libcurl.dll
 If ErrorLevel 1 goto End
-signtool.exe sign /f %NPP_CERT% /p %NPP_CERT_PWD% /d "Notepad++" /du https://notepad-plus-plus.org/ /t http://timestamp.digicert.com/ ..\binarm64\plugins\NppConverter\NppConverter.dll
+%signArmBinary% ..\binarm64\updater\libcurl.dll
+If ErrorLevel 1 goto End
+
+%signBinary% ..\bin\plugins\NppExport\NppExport.dll
+If ErrorLevel 1 goto End
+%signBinary% ..\bin64\plugins\NppExport\NppExport.dll
+If ErrorLevel 1 goto End
+%signArmBinary% ..\binarm64\plugins\NppExport\NppExport.dll
+If ErrorLevel 1 goto End
+
+%signBinary% ..\bin\plugins\mimeTools\mimeTools.dll
+If ErrorLevel 1 goto End
+%signBinary% ..\bin64\plugins\mimeTools\mimeTools.dll
+If ErrorLevel 1 goto End
+%signArmBinary% ..\binarm64\plugins\mimeTools\mimeTools.dll
+If ErrorLevel 1 goto End
+
+%signBinary% ..\bin\plugins\NppConverter\NppConverter.dll
+If ErrorLevel 1 goto End
+%signBinary% ..\bin64\plugins\NppConverter\NppConverter.dll
+If ErrorLevel 1 goto End
+%signArmBinary% ..\binarm64\plugins\NppConverter\NppConverter.dll
 If ErrorLevel 1 goto End
 
 :NoSign
@@ -101,6 +112,8 @@ copy /Y ..\src\stylers.model.xml .\minimalist\
 If ErrorLevel 1 goto End
 copy /Y ..\src\contextMenu.xml .\minimalist\
 If ErrorLevel 1 goto End
+copy /Y ..\src\tabContextMenu_example.xml .\minimalist\
+If ErrorLevel 1 goto End
 copy /Y ..\src\shortcuts.xml .\minimalist\
 If ErrorLevel 1 goto End
 copy /Y ..\bin\doLocalConf.xml .\minimalist\
@@ -110,6 +123,8 @@ If ErrorLevel 1 goto End
 copy /Y ..\bin\"notepad++.exe" .\minimalist\
 If ErrorLevel 1 goto End
 copy /Y ".\themes\DarkModeDefault.xml" .\minimalist\themes\
+If ErrorLevel 1 goto End
+copy /Y ..\src\toolbarIcons.xml .\minimalist\
 If ErrorLevel 1 goto End
 
 
@@ -132,6 +147,8 @@ copy /Y ..\src\stylers.model.xml .\minimalist64\
 If ErrorLevel 1 goto End
 copy /Y ..\src\contextMenu.xml .\minimalist64\
 If ErrorLevel 1 goto End
+copy /Y ..\src\tabContextMenu_example.xml .\minimalist64\
+If ErrorLevel 1 goto End
 copy /Y ..\src\shortcuts.xml .\minimalist64\
 If ErrorLevel 1 goto End
 copy /Y ..\bin\doLocalConf.xml .\minimalist64\
@@ -141,6 +158,8 @@ If ErrorLevel 1 goto End
 copy /Y ..\bin64\"notepad++.exe" .\minimalist64\
 If ErrorLevel 1 goto End
 copy /Y ".\themes\DarkModeDefault.xml" .\minimalist64\themes\
+If ErrorLevel 1 goto End
+copy /Y ..\src\toolbarIcons.xml .\minimalist64\
 If ErrorLevel 1 goto End
 
 
@@ -163,6 +182,8 @@ copy /Y ..\src\stylers.model.xml .\minimalistArm64\
 If ErrorLevel 1 goto End
 copy /Y ..\src\contextMenu.xml .\minimalistArm64\
 If ErrorLevel 1 goto End
+copy /Y ..\src\tabContextMenu_example.xml .\minimalistArm64\
+If ErrorLevel 1 goto End
 copy /Y ..\src\shortcuts.xml .\minimalistArm64\
 If ErrorLevel 1 goto End
 copy /Y ..\bin\doLocalConf.xml .\minimalistArm64\
@@ -172,6 +193,8 @@ If ErrorLevel 1 goto End
 copy /Y ..\binarm64\"notepad++.exe" .\minimalistArm64\
 If ErrorLevel 1 goto End
 copy /Y ".\themes\DarkModeDefault.xml" .\minimalistArm64\themes\
+If ErrorLevel 1 goto End
+copy /Y ..\src\toolbarIcons.xml .\minimalistArm64\
 If ErrorLevel 1 goto End
 
 
@@ -245,6 +268,8 @@ copy /Y ..\src\stylers.model.xml .\zipped.package.release\
 If ErrorLevel 1 goto End
 copy /Y ..\src\contextMenu.xml .\zipped.package.release\
 If ErrorLevel 1 goto End
+copy /Y ..\src\tabContextMenu_example.xml .\zipped.package.release\
+If ErrorLevel 1 goto End
 copy /Y ..\src\shortcuts.xml .\zipped.package.release\
 If ErrorLevel 1 goto End
 copy /Y ..\bin\doLocalConf.xml .\zipped.package.release\
@@ -253,6 +278,9 @@ copy /Y ..\bin\nppLogNulContentCorruptionIssue.xml .\zipped.package.release\
 If ErrorLevel 1 goto End
 copy /Y ..\bin\"notepad++.exe" .\zipped.package.release\
 If ErrorLevel 1 goto End
+copy /Y ..\src\toolbarIcons.xml .\zipped.package.release\
+If ErrorLevel 1 goto End
+
 
 
 rem Basic Copy needed files into Notepad++ 64-bit package folders
@@ -268,6 +296,8 @@ copy /Y ..\src\stylers.model.xml .\zipped.package.release64\
 If ErrorLevel 1 goto End
 copy /Y ..\src\contextMenu.xml .\zipped.package.release64\
 If ErrorLevel 1 goto End
+copy /Y ..\src\tabContextMenu_example.xml .\zipped.package.release64\
+If ErrorLevel 1 goto End
 copy /Y ..\src\shortcuts.xml .\zipped.package.release64\
 If ErrorLevel 1 goto End
 copy /Y ..\bin\doLocalConf.xml .\zipped.package.release64\
@@ -275,6 +305,8 @@ If ErrorLevel 1 goto End
 copy /Y ..\bin\nppLogNulContentCorruptionIssue.xml .\zipped.package.release64\
 If ErrorLevel 1 goto End
 copy /Y ..\bin64\"notepad++.exe" .\zipped.package.release64\
+If ErrorLevel 1 goto End
+copy /Y ..\src\toolbarIcons.xml .\zipped.package.release64\
 If ErrorLevel 1 goto End
 
 
@@ -291,6 +323,8 @@ copy /Y ..\src\stylers.model.xml .\zipped.package.releaseArm64\
 If ErrorLevel 1 goto End
 copy /Y ..\src\contextMenu.xml .\zipped.package.releaseArm64\
 If ErrorLevel 1 goto End
+copy /Y ..\src\tabContextMenu_example.xml .\zipped.package.releaseArm64\
+If ErrorLevel 1 goto End
 copy /Y ..\src\shortcuts.xml .\zipped.package.releaseArm64\
 If ErrorLevel 1 goto End
 copy /Y ..\bin\doLocalConf.xml .\zipped.package.releaseArm64\
@@ -298,6 +332,8 @@ If ErrorLevel 1 goto End
 copy /Y ..\bin\nppLogNulContentCorruptionIssue.xml .\zipped.package.releaseArm64\
 If ErrorLevel 1 goto End
 copy /Y ..\binarm64\"notepad++.exe" .\zipped.package.releaseArm64\
+If ErrorLevel 1 goto End
+copy /Y ..\src\toolbarIcons.xml .\zipped.package.releaseArm64\
 If ErrorLevel 1 goto End
 
 
@@ -507,11 +543,11 @@ ren npp.portable.minimalist.x64.7z !7zvarMin64!
 ren npp.portable.minimalist.arm64.7z !7zvarMinArm64!
 
 if %SIGN% == 0 goto NoSignInstaller
-signtool.exe sign /f %NPP_CERT% /p %NPP_CERT_PWD% /d "Notepad++ Installer" /du https://notepad-plus-plus.org/ /t http://timestamp.digicert.com/ !nppInstallerVar!
+%signBinary% !nppInstallerVar!
 If ErrorLevel 1 goto End
-signtool.exe sign /f %NPP_CERT% /p %NPP_CERT_PWD% /d "Notepad++ Installer" /du https://notepad-plus-plus.org/ /t http://timestamp.digicert.com/ !nppInstallerVar64!
+%signBinary% !nppInstallerVar64!
 If ErrorLevel 1 goto End
-signtool.exe sign /f %NPP_CERT% /p %NPP_CERT_PWD% /d "Notepad++ Installer" /du https://notepad-plus-plus.org/ /t http://timestamp.digicert.com/ !nppInstallerVarArm64!
+%signArmBinary% !nppInstallerVarArm64!
 If ErrorLevel 1 goto End
 :NoSignInstaller
 

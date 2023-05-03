@@ -46,17 +46,17 @@ MenuPosition menuPos[] = {
 	{ 0,  13, -1, "file-closeMore" },
 	{ 0,  22, -1, "file-recentFiles" },
 
-	{ 1,  10, -1, "edit-insert" },
-	{ 1,  11, -1, "edit-copyToClipboard" },
-	{ 1,  12, -1, "edit-indent" },
-	{ 1,  13, -1, "edit-convertCaseTo" },
-	{ 1,  14, -1, "edit-lineOperations" },
-	{ 1,  15, -1, "edit-comment" },
-	{ 1,  16, -1, "edit-autoCompletion" },
-	{ 1,  17, -1, "edit-eolConversion" },
-	{ 1,  18, -1, "edit-blankOperations" },
-	{ 1,  19, -1, "edit-pasteSpecial" },
-	{ 1,  20, -1, "edit-onSelection" },
+	{ 1,  11, -1, "edit-insert" },
+	{ 1,  12, -1, "edit-copyToClipboard" },
+	{ 1,  13, -1, "edit-indent" },
+	{ 1,  14, -1, "edit-convertCaseTo" },
+	{ 1,  15, -1, "edit-lineOperations" },
+	{ 1,  16, -1, "edit-comment" },
+	{ 1,  17, -1, "edit-autoCompletion" },
+	{ 1,  18, -1, "edit-eolConversion" },
+	{ 1,  19, -1, "edit-blankOperations" },
+	{ 1,  20, -1, "edit-pasteSpecial" },
+	{ 1,  21, -1, "edit-onSelection" },
 
 	{ 2,  18, -1, "search-markAll" },
 	{ 2,  19, -1, "search-markOne" },
@@ -144,14 +144,14 @@ void NativeLangSpeaker::init(TiXmlDocumentA *nativeLangDocRootA, bool loadIfEngl
     }
 }
 
-generic_string NativeLangSpeaker::getSpecialMenuEntryName(const char *entryName) const
+generic_string NativeLangSpeaker::getSubMenuEntryName(const char *nodeName) const
 {
 	if (!_nativeLangA) return TEXT("");
 	TiXmlNodeA *mainMenu = _nativeLangA->FirstChild("Menu");
 	if (!mainMenu) return TEXT("");
 	mainMenu = mainMenu->FirstChild("Main");
 	if (!mainMenu) return TEXT("");
-	TiXmlNodeA *entriesRoot = mainMenu->FirstChild("Entries");
+	TiXmlNodeA *entriesRoot = mainMenu->FirstChild("SubEntries");
 	if (!entriesRoot) return TEXT("");
 
 	WcharMbcsConvertor& wmc = WcharMbcsConvertor::getInstance();
@@ -162,11 +162,11 @@ generic_string NativeLangSpeaker::getSpecialMenuEntryName(const char *entryName)
 	{
 		TiXmlElementA *element = childNode->ToElement();
 
-		const char *idName = element->Attribute("idName");
+		const char *idName = element->Attribute("subMenuId");
 		if (idName)
 		{
 			const char *name = element->Attribute("name");
-			if (!strcmp(idName, entryName))
+			if (!strcmp(idName, nodeName))
 			{
 				return wmc.char2wchar(name, _nativeLangEncoding);
 			}
@@ -377,57 +377,25 @@ void NativeLangSpeaker::changeMenuLang(HMENU menuHandle)
 }
 
 
-static const std::pair<int, int> tabContextMenuItemPos[] =
+static const int tabCmSubMenuEntryPos[] =
 {
-//   +-------------- The item position on the top level of tab context menu
+//   +-------------- The submenu entry item position on the top level of tab context menu
 //   |
-//   |    +-------------- The item position in sub-menu of tab context menu. The item is on top level if -1, otherwise it's in the sub-menu
-//   |    |
-//   |    |         +--------- Index order (CMID: Context Menu ID) in <TabBar> of english.xml - the number and the order of this array should be synchronized with <TabBar>
-//   |    |         |
-    {0,  -1},   //  0: Close
-    {1,   0},   //  1: Close ALL BUT This
-    {2,  -1},   //  2: Save
-    {3,  -1},   //  3: Save As
-    {8,  -1},   //  4: Print
-    {14,  0},   //  5: Move to Other View
-    {14,  1},   //  6: Clone to Other View
-    {13,  0},   //  7: Copy Full File Path
-    {13,  1},   //  8: Copy Filename
-    {13,  2},   //  9: Copy Current Dir. Path
-    {5,  -1},   // 10: Rename
-    {6,  -1},   // 11: Move to Recycle Bin
-    {10, -1},   // 12: Read-Only
-    {11, -1},   // 13: Clear Read-Only Flag
-    {14,  2},   // 14: Move to New Instance
-    {14,  3},   // 15: Open to New Instance
-    {7,  -1},   // 16: Reload
-    {1,   1},   // 17: Close ALL to the Left
-    {1,   2},   // 18: Close ALL to the Right
-    {4,   0},   // 19: Open Containing Folder in Explorer
-    {4,   1},   // 20: Open Containing Folder in cmd
-    {4,   4},   // 21: Open in Default Viewer
-    {1,   3},   // 22: Close ALL Unchanged
-    {4,   2},   // 23: Open Containing Folder as Workspace
-    {15,  0},   // 24: Apply Color
-    {15,  1},   // 25: Apply Color
-    {15,  2},   // 26: Apply Color
-    {15,  3},   // 27: Apply Color
-    {15,  4},   // 28: Apply Color
-    {15,  5},   // 29: Remove Color
-    {1,  -1},   // 30: Close Multiple Tabs
-    {4,  -1},   // 31: Open into
-    {13, -1},   // 32: Copy to Clipboard
-    {14, -1},   // 33: Move Document
-    {15, -1},   // Apply Color to Tab
-
-    {-1, -1},   //-------End
+//   |       +------- Index order (CMDID: Context Menu submenu entry ID): in <TabBar> of english.xml - the number and the order of this array should be synchronized with <TabBar>
+//   |       |
+//   |       |
+//   |       |
+     1,   // 0  Close Multiple Tabs
+     4,   // 1  Open into
+    13,   // 2  Copy to Clipboard
+    14,   // 3  Move Document
+    15,   // 4  Apply Color to Tab
 };
 
 
 void NativeLangSpeaker::changeLangTabContextMenu(HMENU hCM)
 {
-	if (nullptr != _nativeLangA)
+	if (_nativeLangA != nullptr)
 	{
 		TiXmlNodeA *tabBarMenu = _nativeLangA->FirstChild("Menu");
 		if (tabBarMenu)
@@ -436,37 +404,37 @@ void NativeLangSpeaker::changeLangTabContextMenu(HMENU hCM)
 			if (tabBarMenu)
 			{
 				WcharMbcsConvertor& wmc = WcharMbcsConvertor::getInstance();
-				int nbCMItems = sizeof(tabContextMenuItemPos)/sizeof(std::pair<int, int>);
+				int nbSubEntry = sizeof(tabCmSubMenuEntryPos)/sizeof(int);
 
 				for (TiXmlNodeA *childNode = tabBarMenu->FirstChildElement("Item");
 					childNode ;
 					childNode = childNode->NextSibling("Item") )
 				{
 					TiXmlElementA *element = childNode->ToElement();
-					int index;
-					const char *indexStr = element->Attribute("CMID", &index);
-					if (!indexStr || (index < 0 || index >= nbCMItems-1))
+					int cmd;
+					const char *cmdStr = element->Attribute("CMDID", &cmd);
+					if (!cmdStr || (cmd < 0))
 						continue;
 
-					std::pair<int, int> pos = tabContextMenuItemPos[index];
-					const char *pName = element->Attribute("name");
-					if (pName)
-					{
-						const wchar_t *pNameW = wmc.char2wchar(pName, _nativeLangEncoding);
-						
-						if (pos.second == -1) // the 1st level
-						{
-							int cmdID = ::GetMenuItemID(hCM, pos.first);
-							::ModifyMenu(hCM, pos.first, MF_BYPOSITION, cmdID, pNameW);
-						}
-						else // it's the sub-menu item
-						{
-							HMENU hSubMenu = ::GetSubMenu(hCM, pos.first);
-							if (!hSubMenu)
-								continue;
+					const char* pName = element->Attribute("name");
+					const wchar_t* pNameW = wmc.char2wchar(pName, _nativeLangEncoding);
 
-							int cmdID = ::GetMenuItemID(hSubMenu, pos.second);
-							::ModifyMenu(hSubMenu, pos.second, MF_BYPOSITION, cmdID, pNameW);
+					if (cmd > nbSubEntry) // menu item CMD
+					{
+						::ModifyMenu(hCM, cmd, MF_BYCOMMAND, cmd, pNameW);
+
+						// Here CMDID are default Tab Context Menu commands.
+						// User can always add any command beyond the default commands in tabContextMenu.xml file.
+						// But such command won't be translated.
+					}
+					else // sub-menu entry id.
+					{
+						if (!NppParameters::getInstance().hasCustomTabContextMenu()) // The customized sub-menu entry cannot be translated.
+                                                                                     // User can use his/her native language as value of attribute "FolderName" in tabContextMenu.xml file.
+						{
+							int subEntryIndex = cmd;
+							int subEntrypos = tabCmSubMenuEntryPos[subEntryIndex];
+							::ModifyMenu(hCM, subEntrypos, MF_BYPOSITION, cmd, pNameW);
 						}
 					}
 				}
@@ -475,7 +443,7 @@ void NativeLangSpeaker::changeLangTabContextMenu(HMENU hCM)
 	}
 }
 
-void NativeLangSpeaker::changeLangTabDrapContextMenu(HMENU hCM)
+void NativeLangSpeaker::changeLangTabDropContextMenu(HMENU hCM)
 {
 	const int POS_GO2VIEW = 0;
 	const int POS_CLONE2VIEW = 1;
@@ -497,10 +465,10 @@ void NativeLangSpeaker::changeLangTabDrapContextMenu(HMENU hCM)
 			{
 				TiXmlElementA *element = childNode->ToElement();
 				int ordre;
-				element->Attribute("CMID", &ordre);
-				if (ordre == 5)
+				element->Attribute("CMDID", &ordre);
+				if (ordre == IDM_VIEW_GOTO_ANOTHER_VIEW)
 					goToViewA = element->Attribute("name");
-				else if (ordre == 6)
+				else if (ordre == IDM_VIEW_CLONE_TO_ANOTHER_VIEW)
 					cloneToViewA = element->Attribute("name");
 			}
 		}
@@ -521,6 +489,33 @@ void NativeLangSpeaker::changeLangTabDrapContextMenu(HMENU hCM)
 	}
 }
 
+void NativeLangSpeaker::changeLangTrayIconContexMenu(HMENU hCM)
+{
+	if (!_nativeLangA) return;
+
+	TiXmlNodeA *tryIconMenu = _nativeLangA->FirstChild("Menu");
+	if (!tryIconMenu) return;
+
+	tryIconMenu = tryIconMenu->FirstChild("TrayIcon");
+	if (!tryIconMenu) return;
+
+	WcharMbcsConvertor& wmc = WcharMbcsConvertor::getInstance();
+
+	for (TiXmlNodeA *childNode = tryIconMenu->FirstChildElement("Item");
+		childNode ;
+		childNode = childNode->NextSibling("Item") )
+	{
+		TiXmlElementA *element = childNode->ToElement();
+		int id;
+		const char *sentinel = element->Attribute("id", &id);
+		const char *name = element->Attribute("name");
+		if (sentinel && (name && name[0]))
+		{
+			const wchar_t *nameW = wmc.char2wchar(name, _nativeLangEncoding);
+			::ModifyMenu(hCM, id, MF_BYCOMMAND, id, nameW);
+		}
+	}
+}
 
 void NativeLangSpeaker::changeConfigLang(HWND hDlg)
 {
@@ -686,8 +681,16 @@ void NativeLangSpeaker::changeUserDefineLang(UserDefineDialog *userDefineDlg)
 				HWND hItem = ::GetDlgItem(hDlg, id);
 				if (hItem)
 				{
-					const wchar_t *nameW = wmc.char2wchar(name, _nativeLangEncoding);
-					::SetWindowText(hItem, nameW);
+					if (id == IDC_DOCK_BUTTON && userDefineDlg->isDocked())
+					{
+						generic_string name = getAttrNameByIdStr(TEXT("Undock"), userDefineDlgNode, std::to_string(IDC_UNDOCK_BUTTON).c_str());
+						::SetWindowText(hItem, name.c_str());
+					}
+					else
+					{
+						const wchar_t *nameW = wmc.char2wchar(name, _nativeLangEncoding);
+						::SetWindowText(hItem, nameW);
+					}
 				}
 			}
 		}
@@ -734,6 +737,8 @@ void NativeLangSpeaker::changeUserDefineLang(UserDefineDialog *userDefineDlg)
 			}
 		}
 	}
+
+	userDefineDlg->redraw();
 }
 
 void NativeLangSpeaker::changeFindReplaceDlgLang(FindReplaceDlg & findReplaceDlg)
@@ -1038,9 +1043,7 @@ void NativeLangSpeaker::changeShortcutLang()
 				CommandShortcut & csc = mainshortcuts[index];
 				if (csc.getID() == (unsigned long)id) 
 				{
-					WcharMbcsConvertor& wmc = WcharMbcsConvertor::getInstance();
-					const wchar_t * nameW = wmc.char2wchar(name, _nativeLangEncoding);
-					csc.setName(nameW);
+					csc.setName(name);
 				}
 			}
 		}
@@ -1068,10 +1071,7 @@ void NativeLangSpeaker::changeShortcutLang()
 			{
 				const char *name = element->Attribute("name");
 				ScintillaKeyMap & skm = scinshortcuts[index];
-
-				WcharMbcsConvertor& wmc = WcharMbcsConvertor::getInstance();
-				const wchar_t * nameW = wmc.char2wchar(name, _nativeLangEncoding);
-				skm.setName(nameW);
+				skm.setName(name);
 			}
 		}
 	}
@@ -1272,14 +1272,20 @@ bool NativeLangSpeaker::getMsgBoxLang(const char *msgBoxTagName, generic_string 
 	return false;
 }
 
-generic_string NativeLangSpeaker::getFileBrowserLangMenuStr(int cmdID, const TCHAR *defaultStr) const
+generic_string NativeLangSpeaker::getDlgLangMenuStr(const char* firstLevelNodeName, const char* secondLevelNodeName, int cmdID, const TCHAR* defaultStr) const
 {
 	if (!_nativeLangA) return defaultStr;
 
-	TiXmlNodeA *targetNode = _nativeLangA->FirstChild(FOLDERASWORKSPACE_NODE);
+	TiXmlNodeA *targetNode = _nativeLangA->FirstChild(firstLevelNodeName);
 	if (!targetNode) return defaultStr;
 
-	targetNode = targetNode->FirstChild("Menus");
+	if (secondLevelNodeName && secondLevelNodeName[0])
+	{
+		targetNode = targetNode->FirstChild(secondLevelNodeName);
+		if (!targetNode) return defaultStr;
+	}
+	
+	targetNode = targetNode->FirstChild("Menu");
 	if (!targetNode) return defaultStr;
 
 	const char *name = NULL;
@@ -1363,8 +1369,34 @@ generic_string NativeLangSpeaker::getAttrNameStr(const TCHAR *defaultStr, const 
 	return defaultStr;
 }
 
+	generic_string NativeLangSpeaker::getAttrNameByIdStr(const TCHAR *defaultStr, TiXmlNodeA *targetNode, const char *nodeL1Value, const char *nodeL1Name, const char *nodeL2Name) const
+{
+	if (!targetNode) return defaultStr;
+
+	for (TiXmlNodeA *childNode = targetNode->FirstChildElement("Item");
+		childNode;
+		childNode = childNode->NextSibling("Item"))
+	{
+		TiXmlElementA *element = childNode->ToElement();
+		const char *id = element->Attribute(nodeL1Name);
+		if (id && id[0] && !strcmp(id, nodeL1Value))
+		{
+			const char *name = element->Attribute(nodeL2Name);
+			if (name && name[0])
+			{
+				WcharMbcsConvertor& wmc = WcharMbcsConvertor::getInstance();
+				return wmc.char2wchar(name, _nativeLangEncoding);
+			}
+		}
+	}
+	return defaultStr;
+}
+
 int NativeLangSpeaker::messageBox(const char *msgBoxTagName, HWND hWnd, const TCHAR *defaultMessage, const TCHAR *defaultTitle, int msgBoxType, int intInfo, const TCHAR *strInfo)
 {
+	if ((NppParameters::getInstance()).isEndSessionCritical())
+		return IDCANCEL; // simulate Esc-key or Cancel-button as there should not be any big delay / code-flow block
+
 	generic_string msg, title;
 	if (!getMsgBoxLang(msgBoxTagName, title, msg))
 	{

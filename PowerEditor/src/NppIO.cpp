@@ -28,6 +28,7 @@
 #include "fileBrowser.h"
 #include <tchar.h>
 #include <unordered_set>
+#include "Common.h"
 
 using namespace std;
 
@@ -120,8 +121,10 @@ DWORD WINAPI Notepad_plus::monitorFileOnChange(void * params)
 	return EXIT_SUCCESS;
 }
 
-void resolveLinkFile(generic_string& linkFilePath)
+bool resolveLinkFile(generic_string& linkFilePath)
 {
+	bool isResolved = false;
+
 	IShellLink* psl;
 	WCHAR targetFilePath[MAX_PATH];
 	WIN32_FIND_DATA wfd = {};
@@ -149,6 +152,7 @@ void resolveLinkFile(generic_string& linkFilePath)
 						if (SUCCEEDED(hres) && hres != S_FALSE)
 						{
 							linkFilePath = targetFilePath;
+							isResolved = true;
 						}
 					}
 				}
@@ -158,6 +162,8 @@ void resolveLinkFile(generic_string& linkFilePath)
 		}
 		CoUninitialize();
 	}
+
+	return isResolved;
 }
 
 BufferID Notepad_plus::doOpen(const generic_string& fileName, bool isRecursive, bool isReadOnly, int encoding, const TCHAR *backupFileName, FILETIME fileNameTimestamp)
@@ -167,30 +173,75 @@ BufferID Notepad_plus::doOpen(const generic_string& fileName, bool isRecursive, 
 		return BUFFER_INVALID;
 
 	generic_string targetFileName = fileName;
-	resolveLinkFile(targetFileName);
+	bool isResolvedLinkFileName = resolveLinkFile(targetFileName);
+
+	bool isRawFileName;
+	if (isResolvedLinkFileName)
+		isRawFileName = false;
+	else
+		isRawFileName = isWin32NamespacePrefixedFileName(fileName);
+
+	if (isUnsupportedFileName(isResolvedLinkFileName ? targetFileName : fileName))
+	{
+		// TODO:
+		// for the raw filenames we can allow even the usually unsupported filenames in the future,
+		// but not now as it is not fully supported by the Notepad++ COM IFileDialog based Open/SaveAs dialogs
+		//if (isRawFileName)
+		//{
+		//	int answer = _nativeLangSpeaker.messageBox("OpenNonconformingWin32FileName",
+		//		_pPublicInterface->getHSelf(),
+		//		TEXT("You are about to open a file with unusual filename:\n\"$STR_REPLACE$\""),
+		//		TEXT("Open Nonconforming Win32-Filename"),
+		//		MB_OKCANCEL | MB_ICONWARNING | MB_APPLMODAL,
+		//		0,
+		//		isResolvedLinkFileName ? targetFileName.c_str() : fileName.c_str());
+		//	if (answer != IDOK)
+		//		return BUFFER_INVALID; // aborted by user
+		//}
+		//else
+		//{
+			// unsupported, use the existing Notepad++ file dialog to report
+			_nativeLangSpeaker.messageBox("OpenFileError",
+				_pPublicInterface->getHSelf(),
+				TEXT("Cannot open file \"$STR_REPLACE$\"."),
+				TEXT("ERROR"),
+				MB_OK,
+				0,
+				isResolvedLinkFileName ? targetFileName.c_str() : fileName.c_str());
+			return BUFFER_INVALID;
+		//}
+	}
 
 	//If [GetFullPathName] succeeds, the return value is the length, in TCHARs, of the string copied to lpBuffer, not including the terminating null character.
 	//If the lpBuffer buffer is too small to contain the path, the return value [of GetFullPathName] is the size, in TCHARs, of the buffer that is required to hold the path and the terminating null character.
 	//If [GetFullPathName] fails for any other reason, the return value is zero.
 
 	NppParameters& nppParam = NppParameters::getInstance();
-	TCHAR longFileName[longFileNameBufferSize];
+	WCHAR longFileName[longFileNameBufferSize] = { 0 };
 
-	const DWORD getFullPathNameResult = ::GetFullPathName(targetFileName.c_str(), longFileNameBufferSize, longFileName, NULL);
-	if (getFullPathNameResult == 0)
+	if (isRawFileName)
 	{
-		return BUFFER_INVALID;
+		// use directly the raw file name, skip the GetFullPathName WINAPI and alike...)
+		wcsncpy_s(longFileName, _countof(longFileName), fileName.c_str(), _TRUNCATE);
 	}
-	if (getFullPathNameResult > longFileNameBufferSize)
+	else
 	{
-		return BUFFER_INVALID;
-	}
-	assert(_tcslen(longFileName) == getFullPathNameResult);
+		const DWORD getFullPathNameResult = ::GetFullPathName(targetFileName.c_str(), longFileNameBufferSize, longFileName, NULL);
+		if (getFullPathNameResult == 0)
+		{
+			return BUFFER_INVALID;
+		}
+		if (getFullPathNameResult > longFileNameBufferSize)
+		{
+			return BUFFER_INVALID;
+		}
+		assert(wcslen(longFileName) == getFullPathNameResult);
 
-	if (_tcschr(longFileName, '~'))
-	{
-		// ignore the returned value of function due to win64 redirection system
-		::GetLongPathName(longFileName, longFileName, longFileNameBufferSize);
+		if (wcschr(longFileName, '~'))
+		{
+			// ignore the returned value of function due to win64 redirection system
+			::GetLongPathName(longFileName, longFileName, longFileNameBufferSize);
+		}
 	}
 
 	bool isSnapshotMode = backupFileName != NULL && PathFileExists(backupFileName);
@@ -257,7 +308,11 @@ BufferID Notepad_plus::doOpen(const generic_string& fileName, bool isRecursive, 
         isWow64Off = true;
     }
 
-    bool globbing = wcsrchr(longFileName, TCHAR('*')) || wcsrchr(longFileName, TCHAR('?'));
+	bool globbing;
+	if (isRawFileName)
+		globbing = (wcsrchr(longFileName, TCHAR('*')) || (abs(longFileName - wcsrchr(longFileName, TCHAR('?'))) > 3));
+	else
+		globbing = (wcsrchr(longFileName, TCHAR('*')) || wcsrchr(longFileName, TCHAR('?')));
 
 	if (!isSnapshotMode) // if not backup mode, or backupfile path is invalid
 	{
@@ -298,12 +353,22 @@ BufferID Notepad_plus::doOpen(const generic_string& fileName, bool isRecursive, 
 			}
 			else
 			{
-				generic_string str2display = TEXT("\"");
-				str2display += longFileName;
-				str2display += TEXT("\" cannot be opened:\nFolder \"");
-				str2display += longFileDir;
-				str2display += TEXT("\" doesn't exist.");
-				::MessageBox(_pPublicInterface->getHSelf(), str2display.c_str(), TEXT("Cannot open file"), MB_OK);
+				generic_string msg, title;
+				if (!_nativeLangSpeaker.getMsgBoxLang("OpenFileNoFolderError", title, msg))
+				{
+					title = TEXT("Cannot open file");
+					msg = TEXT("\"");
+					msg += longFileName;
+					msg += TEXT("\" cannot be opened:\nFolder \"");
+					msg += longFileDir;
+					msg += TEXT("\" doesn't exist.");
+				}
+				else
+				{
+					msg = stringReplace(msg, TEXT("$STR_REPLACE1$"), longFileName);
+					msg = stringReplace(msg, TEXT("$STR_REPLACE2$"), longFileDir);
+				}
+				::MessageBox(_pPublicInterface->getHSelf(), msg.c_str(), title.c_str(), MB_OK);
 			}
 
 			if (!isCreateFileSuccessful)
@@ -740,6 +805,8 @@ void Notepad_plus::doClose(BufferID id, int whichOne, bool doDeleteBackup)
 		if (!isBufRemoved && hiddenBufferID != BUFFER_INVALID && _pDocumentListPanel)
 			_pDocumentListPanel->closeItem(hiddenBufferID, whichOne);
 	}
+
+	checkSyncState();
 
 	// Notify plugins that current file is closed
 	if (isBufRemoved)
@@ -1554,7 +1621,7 @@ bool Notepad_plus::fileSave(BufferID id)
 				today = localtime(&ltime);
 				if (today)
 				{
-					generic_strftime(tmpbuf, temBufLen, TEXT("%Y-%m-%d_%H%M%S"), today);
+					wcsftime(tmpbuf, temBufLen, L"%Y-%m-%d_%H%M%S", today);
 
 					fn_bak += name;
 					fn_bak += TEXT(".");
@@ -1934,7 +2001,7 @@ void Notepad_plus::fileOpen()
 	size_t sz = fns.size();
 	for (size_t i = 0 ; i < sz ; ++i)
 	{
-		BufferID test = doOpen(fns.at(i).c_str(), fDlg.isReadOnly());
+		BufferID test = doOpen(fns.at(i).c_str(), false, fDlg.isReadOnly());
 		if (test != BUFFER_INVALID)
 			lastOpened = test;
 	}
@@ -1979,7 +2046,7 @@ bool Notepad_plus::isFileSession(const TCHAR * filename)
 		}
 		usrSessionExt += definedSessionExt;
 
-		if (!generic_stricmp(pExt, usrSessionExt.c_str()))
+		if (!wcsicmp(pExt, usrSessionExt.c_str()))
 		{
 			return true;
 		}
@@ -2003,7 +2070,7 @@ bool Notepad_plus::isFileWorkspace(const TCHAR * filename)
 		}
 		usrWorkspaceExt += definedWorkspaceExt;
 
-		if (!generic_stricmp(pExt, usrWorkspaceExt.c_str()))
+		if (!wcsicmp(pExt, usrWorkspaceExt.c_str()))
 		{
 			return true;
 		}
@@ -2231,6 +2298,8 @@ bool Notepad_plus::loadSession(Session & session, bool isSnapshotMode, bool shou
 			if (isSnapshotMode && session._subViewFiles[k]._backupFilePath != TEXT("") && PathFileExists(session._subViewFiles[k]._backupFilePath.c_str()))
 				buf->setDirty(true);
 
+			_subDocTab.setIndividualTabColour(lastOpened, session._subViewFiles[k]._individualTabColour);
+
 			//Force in the document so we can add the markers
 			//Don't use default methods because of performance
 			Document prevDoc = _subEditView.execute(SCI_GETDOCPOINTER);
@@ -2275,6 +2344,8 @@ bool Notepad_plus::loadSession(Session & session, bool isSnapshotMode, bool shou
 		hideView(otherView());
 	else if (canHideView(currentView()))
 		hideView(currentView());
+
+	checkSyncState();
 
 	if (_pDocumentListPanel)
 		_pDocumentListPanel->reload();

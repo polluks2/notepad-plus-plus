@@ -111,6 +111,7 @@ InstType "Minimalist"
 Var diffArchDir2Remove
 Var noUpdater
 
+
 !ifdef ARCH64 || ARCHARM64
 ; this is needed for the 64-bit InstallDirRegKey patch
 !include "StrFunc.nsh"
@@ -126,7 +127,7 @@ Function .onInit
 	;   so the InstallDirRegKey checks for the irrelevant HKLM\SOFTWARE\WOW6432Node\Notepad++, explanation:
 	;   https://nsis.sourceforge.io/Reference/SetRegView
 	;
-!ifdef ARCH64 || ARCHARM64
+!ifdef ARCH64 || ARCHARM64	
 	${If} ${RunningX64}
 		System::Call kernel32::GetCommandLine()t.r0 ; get the original cmdline (where a possible "/D=..." is not hidden from us by NSIS)
 		${StrStr} $1 $0 "/D="
@@ -261,26 +262,38 @@ FunctionEnd
 
 !include "nsisInclude\themes.nsh"
 
+
 ${MementoSection} "Context Menu Entry" explorerContextMenu
+
 	SetOverwrite try
-	SetOutPath "$INSTDIR\"
+	SetOutPath "$INSTDIR\contextMenu\"
 	
-	; There is no need to keep x86 NppShell_06.dll in 64 bit installer
-	; But in 32bit installer both the Dlls are required
-	; As user can install 32bit npp version on x64 bit machine, that time x64 bit NppShell is required.
-	
+
+	IfFileExists $INSTDIR\contextmenu\NppShell.dll 0 +2
+		ExecWait 'rundll32.exe "$INSTDIR\contextmenu\NppShell.dll",CleanupDll'
+
+
 	!ifdef ARCH64
-		File /oname=$INSTDIR\NppShell_06.dll "..\bin\NppShell64_06.dll"
+		File /oname=$INSTDIR\contextMenu\NppShell.msix "..\bin64\NppShell.msix"
+		File /oname=$INSTDIR\contextMenu\NppShell.dll "..\bin64\NppShell.x64.dll"
 	!else ifdef ARCHARM64
-		File /oname=$INSTDIR\NppShell_06.dll "..\binarm64\NppShell64.dll"
+		File /oname=$INSTDIR\contextMenu\NppShell.msix "..\binarm64\NppShell.msix"
+		File /oname=$INSTDIR\contextMenu\NppShell.dll "..\binarm64\NppShell.arm64.dll"
 	!else
+		; We need to test which arch we are running on, since 32bit exe can be run on both 32bit and 64bit Windows.
 		${If} ${RunningX64}
-			File /oname=$INSTDIR\NppShell_06.dll "..\bin\NppShell64_06.dll"
+			; We are running on 64bit Windows, so we need the msix as well, since it might be Windows 11.
+			File /oname=$INSTDIR\contextMenu\NppShell.msix "..\bin64\NppShell.msix"
+			File /oname=$INSTDIR\contextMenu\NppShell.dll "..\bin64\NppShell.x64.dll"
 		${Else}
-			File "..\bin\NppShell_06.dll"
-		${EndIf}
+			; We are running on 32bit Windows, so no need for the msix file, since there is no way this could even be upgraded to Windows 11.
+			File /oname=$INSTDIR\contextMenu\NppShell.dll "..\bin\NppShell.x86.dll"
+		${EndIf}    
+
 	!endif
-	Exec 'regsvr32 /s "$INSTDIR\NppShell_06.dll"'
+	
+	ExecWait 'regsvr32 /s "$INSTDIR\contextMenu\NppShell.dll"'
+
 ${MementoSectionEnd}
 
 ${MementoSectionDone}

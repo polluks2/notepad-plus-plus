@@ -197,8 +197,8 @@ bool ShortcutMapper::isFilterValid(Shortcut sc)
 	if (_shortcutFilter.empty())
 		return true;
 
-	generic_string shortcut_name = stringToLower(generic_string(sc.getName()));
-	generic_string shortcut_value = stringToLower(sc.toString());
+	wstring shortcut_name = stringToLower(string2wstring(sc.getName(), CP_UTF8));
+	wstring shortcut_value = stringToLower(string2wstring(sc.toString(), CP_UTF8));
 
 	// test the filter on the shortcut name and value
 	return (shortcut_name.find(_shortcutFilter) != std::string::npos) || 
@@ -210,7 +210,7 @@ bool ShortcutMapper::isFilterValid(PluginCmdShortcut sc)
 	// Do like a classic search on shortcut name, then search on the plugin name.
 	Shortcut shortcut = sc;
 	bool match = false;
-	generic_string module_name = stringToLower(generic_string(sc.getModuleName()));
+	wstring module_name = stringToLower(string2wstring(sc.getModuleName(), CP_UTF8));
 	if (isFilterValid(shortcut)){
 		return true;
 	}
@@ -296,10 +296,14 @@ void ShortcutMapper::fillOutBabyGrid()
 					if (findKeyConflicts(nullptr, cshortcuts[i].getKeyCombo(), i))
 						isMarker = _babygrid.setMarker(true);
 
-					_babygrid.setText(cs_index, 1, cshortcuts[i].getName());
+					_babygrid.setText(cs_index, 1, string2wstring(cshortcuts[i].getName(), CP_UTF8).c_str());
 					if (cshortcuts[i].isEnabled()) //avoid empty strings for better performance
-						_babygrid.setText(cs_index, 2, cshortcuts[i].toString().c_str());
-					_babygrid.setText(cs_index, 3, cshortcuts[i].getCategory());
+						_babygrid.setText(cs_index, 2, string2wstring(cshortcuts[i].toString(), CP_UTF8).c_str());
+
+					const TCHAR* category = cshortcuts[i].getCategory();
+					generic_string categoryStr = nativeLangSpeaker->getShortcutMapperLangStr((std::string(wstring2string(category, CP_UTF8)) + "Category").c_str(), category);
+					_babygrid.setText(cs_index, 3, categoryStr.c_str());
+
 					if (isMarker)
 						isMarker = _babygrid.setMarker(false);
 					_shortcutIndex.push_back(i);
@@ -324,9 +328,9 @@ void ShortcutMapper::fillOutBabyGrid()
 					if (findKeyConflicts(nullptr, cshortcuts[i].getKeyCombo(), i))
 						isMarker = _babygrid.setMarker(true);
 
-					_babygrid.setText(cs_index, 1, cshortcuts[i].getName());
+					_babygrid.setText(cs_index, 1, string2wstring(cshortcuts[i].getName(), CP_UTF8).c_str());
 					if (cshortcuts[i].isEnabled()) //avoid empty strings for better performance
-						_babygrid.setText(cs_index, 2, cshortcuts[i].toString().c_str());
+						_babygrid.setText(cs_index, 2, string2wstring(cshortcuts[i].toString(), CP_UTF8).c_str());
 	
 					if (isMarker)
 						isMarker = _babygrid.setMarker(false);
@@ -353,9 +357,9 @@ void ShortcutMapper::fillOutBabyGrid()
 					if (findKeyConflicts(nullptr, cshortcuts[i].getKeyCombo(), i))
 						isMarker = _babygrid.setMarker(true);
 
-					_babygrid.setText(cs_index, 1, cshortcuts[i].getName());
+					_babygrid.setText(cs_index, 1, string2wstring(cshortcuts[i].getName(), CP_UTF8).c_str());
 					if (cshortcuts[i].isEnabled()) //avoid empty strings for better performance
-						_babygrid.setText(cs_index, 2, cshortcuts[i].toString().c_str());
+						_babygrid.setText(cs_index, 2, string2wstring(cshortcuts[i].toString(), CP_UTF8).c_str());
 	
 					if (isMarker)
 						isMarker = _babygrid.setMarker(false);
@@ -383,10 +387,10 @@ void ShortcutMapper::fillOutBabyGrid()
 					if (findKeyConflicts(nullptr, cshortcuts[i].getKeyCombo(), i))
 						isMarker = _babygrid.setMarker(true);
 
-					_babygrid.setText(cs_index, 1, cshortcuts[i].getName());
+					_babygrid.setText(cs_index, 1, string2wstring(cshortcuts[i].getName(), CP_UTF8).c_str());
 					if (cshortcuts[i].isEnabled()) //avoid empty strings for better performance
-						_babygrid.setText(cs_index, 2, cshortcuts[i].toString().c_str());
-					_babygrid.setText(cs_index, 3, cshortcuts[i].getModuleName());
+						_babygrid.setText(cs_index, 2, string2wstring(cshortcuts[i].toString(), CP_UTF8).c_str());
+					_babygrid.setText(cs_index, 3, string2wstring(cshortcuts[i].getModuleName(), CP_UTF8).c_str());
 	
 					if (isMarker)
 						isMarker = _babygrid.setMarker(false);
@@ -423,9 +427,9 @@ void ShortcutMapper::fillOutBabyGrid()
 						}
 					}
 
-					_babygrid.setText(cs_index, 1, cshortcuts[i].getName());
+					_babygrid.setText(cs_index, 1, string2wstring(cshortcuts[i].getName(), CP_UTF8).c_str());
 					if (cshortcuts[i].isEnabled()) //avoid empty strings for better performance
-						_babygrid.setText(cs_index, 2, cshortcuts[i].toString().c_str());
+						_babygrid.setText(cs_index, 2, string2wstring(cshortcuts[i].toString(), CP_UTF8).c_str());
 	
 					if (isMarker)
 						isMarker = _babygrid.setMarker(false);
@@ -947,11 +951,6 @@ intptr_t CALLBACK ShortcutMapper::run_dlgProc(UINT message, WPARAM wParam, LPARA
 						const int row = _babygrid.getSelectedRow();
 						size_t shortcutIndex = _shortcutIndex[row-1];
 						
-						// Menu data
-						int32_t posBase = 0;
-						size_t nbElem = 0;
-						HMENU hMenu = NULL;
-                        int modifCmd = IDM_SETTING_SHORTCUT_MAPPER_RUN;
 						switch(_currentState) 
 						{
 							case STATE_MENU:
@@ -964,8 +963,7 @@ intptr_t CALLBACK ShortcutMapper::run_dlgProc(UINT message, WPARAM wParam, LPARA
 							case STATE_MACRO: 
 							{
 								vector<MacroShortcut> & theMacros = nppParam.getMacroList();
-								vector<MacroShortcut>::iterator it = theMacros.begin();
-								theMacros.erase(it + shortcutIndex);
+								theMacros.erase(theMacros.begin() + shortcutIndex);
 
 								//save the current view
 								_lastHomeRow[_currentState] = _babygrid.getHomeRow();
@@ -979,18 +977,39 @@ intptr_t CALLBACK ShortcutMapper::run_dlgProc(UINT message, WPARAM wParam, LPARA
 
 								fillOutBabyGrid();
 
-								// preparing to remove from menu
-								posBase = 6;
-								nbElem = theMacros.size();
-								HMENU m = reinterpret_cast<HMENU>(::SendMessage(_hParent, NPPM_INTERNAL_GETMENU, 0, 0));
-								hMenu = ::GetSubMenu(m, MENUINDEX_MACRO);
+								// clear all menu
+								DynamicMenu& macroMenu = nppParam.getMacroMenuItems();
+								macroMenu.clearMenu();
 
-								modifCmd = IDM_SETTING_SHORTCUT_MAPPER_MACRO;
+								// Erase the menu item
+								macroMenu.erase(shortcutIndex);
+
+								size_t nbElem = theMacros.size();
 								for (size_t i = shortcutIndex; i < nbElem; ++i)	//lower the IDs of the remaining items so there are no gaps
 								{
 									MacroShortcut ms = theMacros[i];
 									ms.setID(ms.getID() - 1);	//shift all IDs
 									theMacros[i] = ms;
+
+									// Ajust menu items
+									MenuItemUnit& miu = macroMenu.getItemFromIndex(i);
+									miu._cmdID -= 1;	//shift all IDs
+								}
+								// create from scratch according the new menu items structure
+								macroMenu.createMenu();
+
+								HMENU m = reinterpret_cast<HMENU>(::SendMessage(_hParent, NPPM_INTERNAL_GETMENU, 0, 0));
+								HMENU hMenu = ::GetSubMenu(m, MENUINDEX_MACRO);
+								if (!hMenu) return FALSE;
+
+								int32_t posBase = macroMenu.getPosBase();
+								if (nbElem == 0)
+								{
+									::RemoveMenu(hMenu, IDM_SETTING_SHORTCUT_MAPPER_MACRO, MF_BYCOMMAND);
+
+									//remove separator
+									::RemoveMenu(hMenu, posBase - 1, MF_BYPOSITION);
+									::RemoveMenu(hMenu, posBase - 1, MF_BYPOSITION);
 								}
 							}
 							break; 
@@ -998,8 +1017,7 @@ intptr_t CALLBACK ShortcutMapper::run_dlgProc(UINT message, WPARAM wParam, LPARA
 							case STATE_USER: 
 							{
 								vector<UserCommand> & theUserCmds = nppParam.getUserCommandList();
-								vector<UserCommand>::iterator it = theUserCmds.begin();
-								theUserCmds.erase(it + shortcutIndex);
+								theUserCmds.erase(theUserCmds.begin() + shortcutIndex);
 
 								//save the current view
 								_lastHomeRow[_currentState] = _babygrid.getHomeRow();
@@ -1013,18 +1031,41 @@ intptr_t CALLBACK ShortcutMapper::run_dlgProc(UINT message, WPARAM wParam, LPARA
 
 								fillOutBabyGrid();
 
-								// preparing to remove from menu
-								posBase = 2;
-								nbElem = theUserCmds.size();
-								HMENU m = reinterpret_cast<HMENU>(::SendMessage(_hParent, NPPM_INTERNAL_GETMENU, 0, 0));
-								hMenu = ::GetSubMenu(m, MENUINDEX_RUN);
+								// clear all menu
+								DynamicMenu& runMenu = nppParam.getRunMenuItems();
+								runMenu.clearMenu();
 
-								modifCmd = IDM_SETTING_SHORTCUT_MAPPER_RUN;
+								// Erase the menu item
+								runMenu.erase(shortcutIndex);
+
+								// preparing to remove from menu
+			
+								size_t nbElem = theUserCmds.size();
 								for (size_t i = shortcutIndex; i < nbElem; ++i)	//lower the IDs of the remaining items so there are no gaps
 								{
 									UserCommand uc = theUserCmds[i];
 									uc.setID(uc.getID() - 1);	//shift all IDs
 									theUserCmds[i] = uc;
+
+									// Ajust menu items
+									MenuItemUnit& miu = runMenu.getItemFromIndex(i);
+									miu._cmdID -= 1;	//shift all IDs
+								}
+								// create from scratch according the new menu items structure
+								runMenu.createMenu();
+
+								HMENU m = reinterpret_cast<HMENU>(::SendMessage(_hParent, NPPM_INTERNAL_GETMENU, 0, 0));
+								HMENU hMenu = ::GetSubMenu(m, MENUINDEX_RUN);
+								if (!hMenu) return FALSE;
+
+								int32_t posBase = runMenu.getPosBase();
+								if (nbElem == 0)
+								{
+									::RemoveMenu(hMenu, IDM_SETTING_SHORTCUT_MAPPER_RUN, MF_BYCOMMAND);
+
+									//remove separator
+									::RemoveMenu(hMenu, posBase - 1, MF_BYPOSITION);
+									::RemoveMenu(hMenu, posBase - 1, MF_BYPOSITION);
 								}
 							}
 							break;
@@ -1033,20 +1074,6 @@ intptr_t CALLBACK ShortcutMapper::run_dlgProc(UINT message, WPARAM wParam, LPARA
                         // updateShortcuts() will update all menu item - the menu items will be shifted
 						nppParam.getAccelerator()->updateShortcuts();
 						nppParam.setShortcutDirty();
-
-						if (!hMenu) return FALSE;
-
-                        // All menu items are shifted up. So we delete the last item
-						::RemoveMenu(hMenu, posBase + static_cast<int32_t>(nbElem), MF_BYPOSITION);
-
-                        if (nbElem == 0) 
-                        {
-                            ::RemoveMenu(hMenu, modifCmd, MF_BYCOMMAND);
-                            
-                            //remove separator
-							::RemoveMenu(hMenu, posBase-1, MF_BYPOSITION);
-                            ::RemoveMenu(hMenu, posBase-1, MF_BYPOSITION);
-						}
 					}
 					return TRUE;
 				}
@@ -1067,9 +1094,13 @@ intptr_t CALLBACK ShortcutMapper::run_dlgProc(UINT message, WPARAM wParam, LPARA
 							if (!_rightClickMenu.isCreated())
 							{
 								vector<MenuItemUnit> itemUnitArray;
-								itemUnitArray.push_back(MenuItemUnit(IDM_BABYGRID_MODIFY, TEXT("Modify")));
-								itemUnitArray.push_back(MenuItemUnit(IDM_BABYGRID_DELETE, TEXT("Delete")));
-								itemUnitArray.push_back(MenuItemUnit(IDM_BABYGRID_CLEAR, TEXT("Clear")));
+								NativeLangSpeaker* nativeLangSpeaker = NppParameters::getInstance().getNativeLangSpeaker();
+								generic_string modifyStr = nativeLangSpeaker->getShortcutMapperLangStr("ModifyContextMenu", TEXT("Modify"));
+								generic_string deleteStr = nativeLangSpeaker->getShortcutMapperLangStr("DeleteContextMenu", TEXT("Delete"));
+								generic_string clearStr = nativeLangSpeaker->getShortcutMapperLangStr("ClearContextMenu", TEXT("Clear"));
+								itemUnitArray.push_back(MenuItemUnit(IDM_BABYGRID_MODIFY, modifyStr.c_str()));
+								itemUnitArray.push_back(MenuItemUnit(IDM_BABYGRID_DELETE, deleteStr.c_str()));
+								itemUnitArray.push_back(MenuItemUnit(IDM_BABYGRID_CLEAR, clearStr.c_str()));
 								_rightClickMenu.create(_hSelf, itemUnitArray);
 							}
 
@@ -1189,6 +1220,7 @@ intptr_t CALLBACK ShortcutMapper::run_dlgProc(UINT message, WPARAM wParam, LPARA
 							return TRUE;
 						}
 					}
+					break;
 				}
 				case IDC_BABYGRID_FILTER:
 				{
@@ -1198,7 +1230,13 @@ intptr_t CALLBACK ShortcutMapper::run_dlgProc(UINT message, WPARAM wParam, LPARA
 					}
 					return TRUE;
 				}
+
+				default:
+				{
+					break;
+				}
 			}
+			break;
 		}
 
 		default:
@@ -1247,9 +1285,9 @@ bool ShortcutMapper::findKeyConflicts(__inout_opt generic_string * const keyConf
 							*keyConflictLocation += TEXT("  |  ");
 							*keyConflictLocation += std::to_wstring(itemIndex + 1);
 							*keyConflictLocation += TEXT("   ");
-							*keyConflictLocation += vShortcuts[itemIndex].getName();
+							*keyConflictLocation += string2wstring(vShortcuts[itemIndex].getName(), CP_UTF8);
 							*keyConflictLocation += TEXT("  ( ");
-							*keyConflictLocation += vShortcuts[itemIndex].toString();
+							*keyConflictLocation += string2wstring(vShortcuts[itemIndex].toString(), CP_UTF8);
 							*keyConflictLocation += TEXT(" )");
 						}
 					}
@@ -1281,9 +1319,9 @@ bool ShortcutMapper::findKeyConflicts(__inout_opt generic_string * const keyConf
 							*keyConflictLocation += TEXT("  |  ");
 							*keyConflictLocation += std::to_wstring(itemIndex + 1);
 							*keyConflictLocation += TEXT("   ");
-							*keyConflictLocation += vShortcuts[itemIndex].getName();
+							*keyConflictLocation += string2wstring(vShortcuts[itemIndex].getName(), CP_UTF8);
 							*keyConflictLocation += TEXT("  ( ");
-							*keyConflictLocation += vShortcuts[itemIndex].toString();
+							*keyConflictLocation += string2wstring(vShortcuts[itemIndex].toString(), CP_UTF8);
 							*keyConflictLocation += TEXT(" )");
 						}
 					}
@@ -1315,9 +1353,9 @@ bool ShortcutMapper::findKeyConflicts(__inout_opt generic_string * const keyConf
 							*keyConflictLocation += TEXT("  |  ");
 							*keyConflictLocation += std::to_wstring(itemIndex + 1);
 							*keyConflictLocation += TEXT("   ");
-							*keyConflictLocation += vShortcuts[itemIndex].getName();
+							*keyConflictLocation += string2wstring(vShortcuts[itemIndex].getName(), CP_UTF8);
 							*keyConflictLocation += TEXT("  ( ");
-							*keyConflictLocation += vShortcuts[itemIndex].toString();
+							*keyConflictLocation += string2wstring(vShortcuts[itemIndex].toString(), CP_UTF8);
 							*keyConflictLocation += TEXT(" )");
 						}
 					}
@@ -1349,9 +1387,9 @@ bool ShortcutMapper::findKeyConflicts(__inout_opt generic_string * const keyConf
 							*keyConflictLocation += TEXT("  |  ");
 							*keyConflictLocation += std::to_wstring(itemIndex + 1);
 							*keyConflictLocation += TEXT("   ");
-							*keyConflictLocation += vShortcuts[itemIndex].getName();
+							*keyConflictLocation += string2wstring(vShortcuts[itemIndex].getName(), CP_UTF8);;
 							*keyConflictLocation += TEXT("  ( ");
-							*keyConflictLocation += vShortcuts[itemIndex].toString();
+							*keyConflictLocation += string2wstring(vShortcuts[itemIndex].toString(), CP_UTF8);
 							*keyConflictLocation += TEXT(" )");
 						}
 					}
@@ -1389,9 +1427,9 @@ bool ShortcutMapper::findKeyConflicts(__inout_opt generic_string * const keyConf
 									*keyConflictLocation += TEXT("*   ");
 								else
 									*keyConflictLocation += TEXT("   ");
-								*keyConflictLocation += vShortcuts[itemIndex].getName();
+								*keyConflictLocation += string2wstring(vShortcuts[itemIndex].getName(), CP_UTF8);
 								*keyConflictLocation += TEXT("  ( ");
-								*keyConflictLocation += vShortcuts[itemIndex].toString(sciIndex);
+								*keyConflictLocation += string2wstring(vShortcuts[itemIndex].toString(sciIndex), CP_UTF8);
 								*keyConflictLocation += TEXT(" )");
 							}
 						}

@@ -18,7 +18,7 @@
 
 #include "ProjectPanel.h"
 #include "resource.h"
-#include "tinyxml.h"
+//#include "tinyxml.h"
 #include "CustomFileDialog.h"
 #include "localization.h"
 #include "Parameters.h"
@@ -33,7 +33,7 @@
 
 ProjectPanel::~ProjectPanel()
 {
-	for (const auto s : fullPathStrs)
+	for (const auto& s : fullPathStrs)
 	{
 		delete s;
 	}
@@ -52,7 +52,7 @@ intptr_t CALLBACK ProjectPanel::run_dlgProc(UINT message, WPARAM wParam, LPARAM 
 			_hToolbarMenu = CreateWindowEx(0,TOOLBARCLASSNAME,NULL, style,
 								   0,0,0,0,_hSelf, nullptr, _hInst, nullptr);
 
-			TBBUTTON tbButtons[2];
+			TBBUTTON tbButtons[2]{};
 
 			NativeLangSpeaker *pNativeSpeaker = (NppParameters::getInstance()).getNativeLangSpeaker();
 			generic_string workspace_entry = pNativeSpeaker->getProjectPanelLangMenuStr("Entries", 0, PM_WORKSPACEMENUENTRY);
@@ -125,7 +125,7 @@ intptr_t CALLBACK ProjectPanel::run_dlgProc(UINT message, WPARAM wParam, LPARAM 
 		{
 			int width = LOWORD(lParam);
 			int height = HIWORD(lParam);
-			RECT toolbarMenuRect;
+			RECT toolbarMenuRect{};
 			::GetClientRect(_hToolbarMenu, &toolbarMenuRect);
 
 			::MoveWindow(_hToolbarMenu, 0, 0, width, toolbarMenuRect.bottom, TRUE);
@@ -150,7 +150,7 @@ intptr_t CALLBACK ProjectPanel::run_dlgProc(UINT message, WPARAM wParam, LPARAM 
 
 					if (selectedItem)
 					{
-						RECT selectedItemRect;
+						RECT selectedItemRect{};
 						if (TreeView_GetItemRect(_treeView.getHSelf(), selectedItem, &selectedItemRect, TRUE))
 						{
 							showContextMenuFromMenuKey(selectedItem, (selectedItemRect.left + selectedItemRect.right) / 2, (selectedItemRect.top + selectedItemRect.bottom) / 2);
@@ -384,15 +384,15 @@ bool ProjectPanel::saveWorkSpace()
 	} 
 }
 
-bool ProjectPanel::writeWorkSpace(const TCHAR *projectFileName)
+bool ProjectPanel::writeWorkSpace(const TCHAR *projectFileName, bool doUpdateGUI)
 {
 	//write <NotepadPlus>: use the default file name if new file name is not given
 	const TCHAR * fn2write = projectFileName?projectFileName:_workSpaceFilePath.c_str();
 	TiXmlDocument projDoc(fn2write);
 	TiXmlNode *root = projDoc.InsertEndChild(TiXmlElement(TEXT("NotepadPlus")));
 
-	TCHAR textBuffer[MAX_PATH];
-	TVITEM tvItem;
+	TCHAR textBuffer[MAX_PATH] = { '\0' };
+	TVITEM tvItem{};
 	tvItem.mask = TVIF_TEXT;
 	tvItem.pszText = textBuffer;
 	tvItem.cchTextMax = MAX_PATH;
@@ -429,14 +429,17 @@ bool ProjectPanel::writeWorkSpace(const TCHAR *projectFileName)
 		return false;
 	}
 	TCHAR * fileName = PathFindFileName(fn2write);
-	_treeView.renameItem(tvRoot, fileName);
+	if (doUpdateGUI)
+	{
+		_treeView.renameItem(tvRoot, fileName);
+	}
 	return true;
 }
 
 void ProjectPanel::buildProjectXml(TiXmlNode *node, HTREEITEM hItem, const TCHAR* fn2write)
 {
-	TCHAR textBuffer[MAX_PATH];
-	TVITEM tvItem;
+	TCHAR textBuffer[MAX_PATH] = { '\0' };
+	TVITEM tvItem{};
 	tvItem.mask = TVIF_TEXT | TVIF_PARAM;
 	tvItem.pszText = textBuffer;
 	tvItem.cchTextMax = MAX_PATH;
@@ -465,8 +468,8 @@ void ProjectPanel::buildProjectXml(TiXmlNode *node, HTREEITEM hItem, const TCHAR
 
 bool ProjectPanel::enumWorkSpaceFiles(HTREEITEM tvFrom, const std::vector<generic_string> & patterns, std::vector<generic_string> & fileNames)
 {
-	TCHAR textBuffer[MAX_PATH];
-	TVITEM tvItem;
+	TCHAR textBuffer[MAX_PATH] = { '\0' };
+	TVITEM tvItem{};
 	tvItem.mask = TVIF_TEXT | TVIF_PARAM;
 	tvItem.pszText = textBuffer;
 	tvItem.cchTextMax = MAX_PATH;
@@ -498,7 +501,7 @@ bool ProjectPanel::enumWorkSpaceFiles(HTREEITEM tvFrom, const std::vector<generi
 
 generic_string ProjectPanel::getRelativePath(const generic_string & filePath, const TCHAR *workSpaceFileName)
 {
-	TCHAR wsfn[MAX_PATH];
+	TCHAR wsfn[MAX_PATH] = { '\0' };
 	wcscpy_s(wsfn, workSpaceFileName);
 	::PathRemoveFileSpec(wsfn);
 
@@ -550,7 +553,7 @@ generic_string ProjectPanel::getAbsoluteFilePath(const TCHAR * relativePath)
 	if (!::PathIsRelative(relativePath))
 		return relativePath;
 
-	TCHAR absolutePath[MAX_PATH];
+	TCHAR absolutePath[MAX_PATH] = { '\0' };
 	wcscpy_s(absolutePath, _workSpaceFilePath.c_str());
 	::PathRemoveFileSpec(absolutePath);
 	::PathAppend(absolutePath, relativePath);
@@ -559,7 +562,7 @@ generic_string ProjectPanel::getAbsoluteFilePath(const TCHAR * relativePath)
 
 void ProjectPanel::openSelectFile()
 {
-	TVITEM tvItem;
+	TVITEM tvItem{};
 	tvItem.mask = TVIF_PARAM;
 	tvItem.hItem = _treeView.getSelection();
 	::SendMessage(_treeView.getHSelf(), TVM_GETITEM, 0, reinterpret_cast<LPARAM>(&tvItem));
@@ -592,10 +595,10 @@ void ProjectPanel::notified(LPNMHDR notification)
 		::SendMessage(_hParent, WM_COMMAND, IDM_VIEW_PROJECT_PANEL_1 + _panelID, 0);
 		SetWindowLongPtr (getHSelf(), DWLP_MSGRESULT, _isClosed ? 0 : 1);
 	}
-	else if ((notification->hwndFrom == _treeView.getHSelf()))
+	else if (notification->hwndFrom == _treeView.getHSelf())
 	{
 		TCHAR textBuffer[MAX_PATH] = { '\0' };
-		TVITEM tvItem;
+		TVITEM tvItem{};
 		tvItem.mask = TVIF_TEXT | TVIF_PARAM;
 		tvItem.pszText = textBuffer;
 		tvItem.cchTextMax = MAX_PATH;
@@ -1194,7 +1197,7 @@ bool ProjectPanel::saveWorkSpaceAs(bool saveCopyAs)
 	if (fn.empty())
 		return false;
 
-	if (!writeWorkSpace(fn.c_str()))
+	if (!writeWorkSpace(fn.c_str(), !saveCopyAs))
 		return false;
 
 	if (!saveCopyAs)
@@ -1308,7 +1311,7 @@ void ProjectPanel::addFilesFromDirectory(HTREEITEM hTreeItem)
 {
 	if (_selDirOfFilesFromDirDlg == TEXT("") && _workSpaceFilePath != TEXT(""))
 	{
-		TCHAR dir[MAX_PATH];
+		TCHAR dir[MAX_PATH] = { '\0' };
 		wcscpy_s(dir, _workSpaceFilePath.c_str());
 		::PathRemoveFileSpec(dir);
 		_selDirOfFilesFromDirDlg = dir;
@@ -1332,19 +1335,49 @@ intptr_t CALLBACK FileRelocalizerDlg::run_dlgProc(UINT Message, WPARAM wParam, L
 {
 	switch (Message)
 	{
-		case WM_INITDIALOG :
+		case WM_INITDIALOG:
 		{
-			goToCenter();
 			::SetDlgItemText(_hSelf, IDC_EDIT_FILEFULLPATHNAME, _fullFilePath.c_str());
+			NppDarkMode::autoSubclassAndThemeChildControls(_hSelf);
+
+			goToCenter(SWP_SHOWWINDOW | SWP_NOSIZE);
+
 			return TRUE;
 		}
-		case WM_COMMAND : 
+
+		case WM_ERASEBKGND:
+		{
+			if (NppDarkMode::isEnabled())
+			{
+				RECT rect{};
+				GetClientRect(_hSelf, &rect);
+				::FillRect(reinterpret_cast<HDC>(wParam), &rect, NppDarkMode::getDarkerBackgroundBrush());
+				return TRUE;
+			}
+			break;
+		}
+
+		case WM_CTLCOLOREDIT:
+		{
+			return NppDarkMode::onCtlColorSofter(reinterpret_cast<HDC>(wParam));
+		}
+
+		case WM_PRINTCLIENT:
+		{
+			if (NppDarkMode::isEnabled())
+			{
+				return TRUE;
+			}
+			break;
+		}
+
+		case WM_COMMAND:
 		{
 			switch (wParam)
 			{
 				case IDOK :
 				{
-					TCHAR textBuf[MAX_PATH];
+					TCHAR textBuf[MAX_PATH] = { '\0' };
 					::GetDlgItemText(_hSelf, IDC_EDIT_FILEFULLPATHNAME, textBuf, MAX_PATH);
 					_fullFilePath = textBuf;
 					::EndDialog(_hSelf, 0);
@@ -1362,9 +1395,10 @@ intptr_t CALLBACK FileRelocalizerDlg::run_dlgProc(UINT Message, WPARAM wParam, L
 		default :
 			return FALSE;
 	}
+	return FALSE;
 }
 
-int FileRelocalizerDlg::doDialog(const TCHAR *fn, bool isRTL) 
+int FileRelocalizerDlg::doDialog(const TCHAR *fn, bool isRTL)
 {
 	_fullFilePath = fn;
 
@@ -1378,4 +1412,3 @@ int FileRelocalizerDlg::doDialog(const TCHAR *fn, bool isRTL)
 	}
 	return static_cast<int32_t>(::DialogBoxParam(_hInst, MAKEINTRESOURCE(IDD_FILERELOCALIZER_DIALOG), _hParent, dlgProc, reinterpret_cast<LPARAM>(this)));
 }
-

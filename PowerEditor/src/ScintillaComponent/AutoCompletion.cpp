@@ -62,19 +62,77 @@ const char* xpmfn[] = {
 	"y c #F6F6F6",
 	/* pixels */
 	"uuuuuuuuuuuuuuuu",
-	"uuuuu5o.:yuuuuuu",
+	"uuuuu5o.:uuuuuuu",
 	"uuuu8 $:.0uuuuuu",
-	"uuuu2 yuuuuuuuuu",
+	"uuuu2 uuuuuuuuuu",
 	"uuu6$ 46uuuuuuuu",
 	"uuuO   Ouuuuuuuu",
 	"uuuu;#uuuuuuuuuu",
-	"uuuu##y& 3uu<+uu",
+	"uuuu##u& 3uu<+uu",
 	"uuuu#;0.@X0, >uu",
-	"uuuu+>uuroo >uuu",
+	"uuuu+>uuuoo >uuu",
 	"uuuu >uuu* =uuuu",
 	"uuuu 2uu, Xotuuu",
-	"uuue 4u< >9 %owu",
-	"u:,#X0uO>uu1 $yu",
+	"uuu# 4u< >9 %ouu",
+	"u:,#X0uO>uu1 $ u",
+	"u- +7uuuuuuuuuuu",
+	"uuuuuuuuuuuuuuuu"
+};
+
+const char* xpmfnDark[] = {
+	/* columns rows colors chars-per-pixel */
+	"16 16 36 1 ",
+	"u c None",
+	"  c #ECECEC",
+	". c #DADADA",
+	"X c #E9E9E9",
+	"o c #DFDFDF",
+	"O c #C6C6C6",
+	"+ c #DBDBDB",
+	"@ c #D7D7D7",
+	"# c #B1B1B1",
+	"$ c #CBCBCB",
+	"% c #A4A4A4",
+	"& c #A0A0A0",
+	"* c #9D9D9D",
+	"= c #404040",
+	"- c #BFBFBF",
+	"; c #BCBCBC",
+	": c #B9B9B9",
+	"> c #B7B7B7",
+	", c #494949",
+	"< c #B6B6B6",
+	"1 c #6D6D6D",
+	"2 c #646464",
+	"3 c #9C9C9C",
+	"4 c #9A9A9A",
+	"5 c #505050",
+	"6 c #484848",
+	"7 c #8A8A8A",
+	"8 c #323232",
+	"9 c #7A7A7A",
+	"0 c #797979",
+	"q c #222222",
+	"w c #1E1E1E",
+	"e c #161616",
+	"r c #111111",
+	"t c #6A6A6A",
+	"y c #090909",
+	/* pixels */
+	"uuuuuuuuuuuuuuuu",
+	"uuuuu5o.:uuuuuuu",
+	"uuuu8 $:.0uuuuuu",
+	"uuuu2 uuuuuuuuuu",
+	"uuu6$ 46uuuuuuuu",
+	"uuuO   Ouuuuuuuu",
+	"uuuu;#uuuuuuuuuu",
+	"uuuu##u& 3uu<+uu",
+	"uuuu#;0.@X0, >uu",
+	"uuuu+>uuuoo >uuu",
+	"uuuu >uuu* =uuuu",
+	"uuuu 2uu, Xotuuu",
+	"uuu# 4u< >9 %ouu",
+	"u:,#X0uO>uu1 $ u",
 	"u- +7uuuuuuuuuuu",
 	"uuuuuuuuuuuuuuuu"
 };
@@ -118,25 +176,81 @@ const char* xpmbox[] = {
     "e c #979797",
     /* pixels */
     "rrrrrrrrrrrrrrrr",
-    "rrrrrrrrqrrrrrrr",
-    "rrre4;$  *0rrrrr",
-    "r4@ $-4w6;X*0rrr",
-    "r1oX>rrrrr5+ 1rr",
-    "r1*9%O2r9XO*&;rr",
-    "r1*rr4==%rrr1;rr",
+    "rrrrrrrrrrrrrrrr",
+    "rrre4;$  *rrrrrr",
+    "r4@ $-rr6;X rrrr",
+    "r1oX>rrrrr5+  rr",
+    "r1*r%OrrrXO*&;rr",
+    "r1*rrr==%rrr1;rr",
     "r1*rrrr$rrrr1;rr",
     "r1*rrrr$rrrr1;rr",
     "r1*rrrr$rrrr1;rr",
     "r1*rrrr$rrrr1;rr",
     "r3o<rrr$rrr8$;rr",
-    "rr7#%9r$r4 #;rrr",
+    "rr7#%rr$rr #;rrr",
     "rrrr,o.$.%:rrrrr",
-    "rrrrr9w,7rrrrrrr",
+    "rrrrrr7*7rrrrrrr",
     "rrrrrrrrrrrrrrrr"
 };
 
+const char* xpmboxDark[] = {
+	/* columns rows colors chars-per-pixel */
+	"16 16 33 1 ",
+	"r c None",
+	"  c #FFFFFF",
+	". c #FCFCFC",
+	"X c #EFEFEF",
+	"o c #E7E7E7",
+	"O c #DFDFDF",
+	"+ c #D7D7D7",
+	"@ c #E6E6E6",
+	"# c #DDDDDD",
+	"$ c #DADADA",
+	"% c #B7B7B7",
+	"& c #AFAFAF",
+	"* c #9F9F9F",
+	"= c #BBBBBB",
+	"- c #B8B8B8",
+	"; c #AFAFAF",
+	": c #ACACAC",
+	"> c #A9A9A9",
+	", c #686868",
+	"< c #656565",
+	"1 c #606060",
+	"2 c #585858",
+	"3 c #505050",
+	"4 c #484848",
+	"5 c #8A8A8A",
+	"6 c #898989",
+	"7 c #878787",
+	"8 c #7E7E7E",
+	"9 c #282828",
+	"0 c #202020",
+	"q c #181818",
+	"w c #101010",
+	"e c #686868",
+	/* pixels */
+	"rrrrrrrrrrrrrrrr",
+	"rrrrrrrrrrrrrrrr",
+	"rrre4;$  *rrrrrr",
+	"r4@ $-rr6;X rrrr",
+	"r1oX>rrrrr5+  rr",
+	"r1*r%OrrrXO*&;rr",
+	"r1*rrr==%rrr1;rr",
+	"r1*rrrr$rrrr1;rr",
+	"r1*rrrr$rrrr1;rr",
+	"r1*rrrr$rrrr1;rr",
+	"r1*rrrr$rrrr1;rr",
+	"r3o<rrr$rrr8$;rr",
+	"rr7#%rr$rr #;rrr",
+	"rrrr,o.$.%:rrrrr",
+	"rrrrrr7*7rrrrrrr",
+	"rrrrrrrrrrrrrrrr"
+};
 
 using namespace std;
+
+constexpr size_t tagMaxLen = 256;
 
 static bool isInList(const generic_string& word, const vector<generic_string> & wordArray)
 {
@@ -156,13 +270,33 @@ static bool isAllDigits(const generic_string &str)
 	return true;
 }
 
-
-bool AutoCompletion::showApiComplete()
+static void sortInsensitive(vector<generic_string> &wordArray)
 {
-	if (!_funcCompletionActive)
+	sort(
+		wordArray.begin(),
+		wordArray.end(),
+		[](const generic_string &a, const generic_string &b)
+		{
+			return lexicographical_compare(
+				a.begin(), a.end(),
+				b.begin(), b.end(),
+				[](const wchar_t &ch1, const wchar_t &ch2)
+				{
+					return towupper(ch1) < towupper(ch2);
+				}
+			);
+		}
+	);
+}
+
+
+bool AutoCompletion::showAutoComplete(AutocompleteType autocType, bool autoInsert)
+{
+	if (autocType == autocFunc && !_funcCompletionActive)
 		return false;
 
-	// calculate entered word's length
+	// Get beginning of word and complete word
+
 	intptr_t curPos = _pEditView->execute(SCI_GETCURRENTPOS);
 	intptr_t startPos = _pEditView->execute(SCI_WORDSTARTPOSITION, curPos, true);
 
@@ -170,108 +304,152 @@ bool AutoCompletion::showApiComplete()
 		return false;
 
 	size_t len = (curPos > startPos)?(curPos - startPos):(startPos - curPos);
-	if (len >= _keyWordMaxLen)
-		return false;
 
-	if (!_isFxImageRegistered)
+	generic_string words;
+
+	if (autocType == autocFunc)
 	{
-		_pEditView->execute(SCI_REGISTERIMAGE, FUNC_IMG_ID, LPARAM(xpmfn));
-		_pEditView->execute(SCI_REGISTERIMAGE, BOX_IMG_ID, LPARAM(xpmbox));
-		_isFxImageRegistered = true;
+		if (len >= _keyWordMaxLen)
+			return false;
 	}
+	else
+	{
+		const size_t bufSize = 256;
+		if (len >= bufSize)
+			return false;
+
+		intptr_t endPos = _pEditView->execute(SCI_WORDENDPOSITION, curPos, true);
+
+		size_t lena = (endPos > startPos)?(endPos - startPos):(startPos - endPos);
+		if (lena >= bufSize)
+			return false;
+
+		TCHAR beginChars[bufSize];
+		_pEditView->getGenericText(beginChars, bufSize, startPos, curPos);
+
+		// Get word array containing all words beginning with beginChars, excluding word equal to allChars
+
+		vector<generic_string> wordArray;
+
+		if (autocType == autocWord || autocType == autocFuncAndWord)
+		{
+			TCHAR allChars[bufSize];
+			_pEditView->getGenericText(allChars, bufSize, startPos, endPos);
+			getWordArray(wordArray, beginChars, allChars);
+		}
+
+		// Add keywords to word array
+
+		if (autocType == autocFuncBrief || autocType == autocFuncAndWord)
+		{
+			for (size_t i = 0, kwlen = _keyWordArray.size(); i < kwlen; ++i)
+
+			{
+				int compareResult = 0;
+
+				if (_ignoreCase)
+				{
+					generic_string kwSufix = _keyWordArray[i].substr(0, len);
+					compareResult = wcsicmp(beginChars, kwSufix.c_str());
+				}
+				else
+				{
+					compareResult = _keyWordArray[i].compare(0, len, beginChars);
+				}
+
+				if (compareResult == 0)
+				{
+					if (!isInList(_keyWordArray[i], wordArray))
+						wordArray.push_back(_keyWordArray[i]);
+				}
+			}
+		}
+
+		if (!wordArray.size())
+			return false;
+
+		// Optionally, auto-insert word
+
+		if (autocType == autocWord && wordArray.size() == 1 && autoInsert)
+		{
+			size_t typeSeparatorPos = wordArray[0].find(L"\x1E");
+
+			intptr_t replacedLength = _pEditView->replaceTarget(
+				(typeSeparatorPos == std::string::npos) ?
+				wordArray[0].c_str() :
+				wordArray[0].substr(0, typeSeparatorPos).c_str(),
+				startPos, curPos
+			);
+
+			_pEditView->execute(SCI_GOTOPOS, startPos + replacedLength);
+			return true;
+		}
+
+		// Sort word array and convert it to a single string with space-separated words
+
+		if (autocType == autocWord || autocType & autocFuncAndWord)
+		{
+			if (_ignoreCase)
+				sortInsensitive(wordArray);
+			else
+				sort(wordArray.begin(), wordArray.end());
+		}
+
+		for (size_t i = 0, wordArrayLen = wordArray.size(); i < wordArrayLen; ++i)
+		{
+			words += wordArray[i];
+			if (i != wordArrayLen - 1)
+				words += TEXT(" ");
+		}
+	}
+
+	// Make Scintilla show the autocompletion menu
+
+	if (NppDarkMode::isThemeDark())
+	{
+		if (!_isFxImageRegisteredDark)
+		{
+			_pEditView->execute(SCI_CLEARREGISTEREDIMAGES);
+			_pEditView->execute(SCI_REGISTERIMAGE, FUNC_IMG_ID, LPARAM(xpmfnDark));
+			_pEditView->execute(SCI_REGISTERIMAGE, BOX_IMG_ID, LPARAM(xpmboxDark));
+			_isFxImageRegistered = false;
+			_isFxImageRegisteredDark = true;
+		}
+	}
+	else
+	{
+		if (!_isFxImageRegistered)
+		{
+			_pEditView->execute(SCI_CLEARREGISTEREDIMAGES);
+			_pEditView->execute(SCI_REGISTERIMAGE, FUNC_IMG_ID, LPARAM(xpmfn));
+			_pEditView->execute(SCI_REGISTERIMAGE, BOX_IMG_ID, LPARAM(xpmbox));
+			_isFxImageRegistered = true;
+			_isFxImageRegisteredDark = false;
+		}
+	}
+
 	_pEditView->execute(SCI_AUTOCSETTYPESEPARATOR, WPARAM('\x1E'));
 	_pEditView->execute(SCI_AUTOCSETSEPARATOR, WPARAM(' '));
 	_pEditView->execute(SCI_AUTOCSETIGNORECASE, _ignoreCase);
-	_pEditView->showAutoComletion(curPos - startPos, _keyWords.c_str());
+	_pEditView->execute(SCI_AUTOCSETCASEINSENSITIVEBEHAVIOUR, _ignoreCase);
+
+	if (autocType == autocFunc)
+		_pEditView->showAutoComletion(curPos - startPos, _keyWords.c_str());
+	else
+		_pEditView->showAutoComletion(curPos - startPos, words.c_str());
 
 	return true;
+}
+
+bool AutoCompletion::showApiComplete()
+{
+	return showAutoComplete(autocFunc, false);
 }
 
 bool AutoCompletion::showApiAndWordComplete()
 {
-
-	// Get beginning of word and complete word
-
-	auto curPos = _pEditView->execute(SCI_GETCURRENTPOS);
-	auto startPos = _pEditView->execute(SCI_WORDSTARTPOSITION, curPos, true);
-	auto endPos = _pEditView->execute(SCI_WORDENDPOSITION, curPos, true);
-
-	if (curPos == startPos)
-		return false;
-
-	const size_t bufSize = 256;
-	TCHAR beginChars[bufSize];
-	TCHAR allChars[bufSize];
-
-	size_t len = (curPos > startPos)?(curPos - startPos):(startPos - curPos);
-	if (len >= bufSize)
-		return false;
-
-	size_t lena = (endPos > startPos)?(endPos - startPos):(startPos - endPos);
-	if (lena >= bufSize)
-		return false;
-
-	_pEditView->getGenericText(beginChars, bufSize, startPos, curPos);
-	_pEditView->getGenericText(allChars, bufSize, startPos, endPos);
-
-	// Get word array containing all words beginning with beginChars, excluding word equal to allChars
-
-	vector<generic_string> wordArray;
-	getWordArray(wordArray, beginChars, allChars);
-
-	// Add keywords to word array
-
-	for (size_t i = 0, kwlen = _keyWordArray.size(); i < kwlen; ++i)
-	{
-		int compareResult = 0;
-
-		if (_ignoreCase)
-		{
-			generic_string kwSufix = _keyWordArray[i].substr(0, len);
-			compareResult = generic_stricmp(beginChars, kwSufix.c_str());
-		}
-		else
-		{
-			compareResult = _keyWordArray[i].compare(0, len, beginChars);
-		}
-
-		if (compareResult == 0)
-		{
-			if (!isInList(_keyWordArray[i], wordArray))
-				wordArray.push_back(_keyWordArray[i]);
-		}
-	}
-
-	if (!wordArray.size())
-		return false;
-
-	// Sort word array and convert it to a single string with space-separated words
-
-	sort(wordArray.begin(), wordArray.end());
-
-	generic_string words;
-
-	for (size_t i = 0, wordArrayLen = wordArray.size(); i < wordArrayLen; ++i)
-	{
-		words += wordArray[i];
-		if (i != wordArrayLen - 1)
-			words += TEXT(" ");
-	}
-
-	// Make Scintilla show the autocompletion menu
-	if (!_isFxImageRegistered)
-	{
-		_pEditView->execute(SCI_REGISTERIMAGE, FUNC_IMG_ID, LPARAM(xpmfn));
-		_pEditView->execute(SCI_REGISTERIMAGE, BOX_IMG_ID, LPARAM(xpmbox));
-		_isFxImageRegistered = true;
-	}
-	_pEditView->execute(SCI_AUTOCSETTYPESEPARATOR, WPARAM('\x1E'));
-	_pEditView->execute(SCI_AUTOCSETSEPARATOR, WPARAM(' '));
-	_pEditView->execute(SCI_AUTOCSETIGNORECASE, _ignoreCase);
-	_pEditView->showAutoComletion(curPos - startPos, words.c_str());
-	return true;
+	return showAutoComplete(autocFuncAndWord, false);
 }
-
 
 void AutoCompletion::getWordArray(vector<generic_string> & wordArray, TCHAR *beginChars, TCHAR *allChars)
 {
@@ -287,10 +465,16 @@ void AutoCompletion::getWordArray(vector<generic_string> & wordArray, TCHAR *beg
 
 	size_t docLength = _pEditView->execute(SCI_GETLENGTH);
 
-	int flags = SCFIND_WORDSTART | SCFIND_MATCHCASE | SCFIND_REGEXP | SCFIND_POSIX;
+	int flags = SCFIND_WORDSTART | SCFIND_REGEXP | SCFIND_POSIX;
+
+	if (!_ignoreCase || (!_funcCompletionActive && _curLang == L_TEXT))
+		flags |= SCFIND_MATCHCASE;
 
 	_pEditView->execute(SCI_SETSEARCHFLAGS, flags);
 	intptr_t posFind = _pEditView->searchInTarget(expr.c_str(), expr.length(), 0, docLength);
+
+	generic_string boxId = TEXT("\x1E") + intToString(BOX_IMG_ID);
+	generic_string funcId = TEXT("\x1E") + intToString(FUNC_IMG_ID);
 
 	while (posFind >= 0)
 	{
@@ -302,10 +486,30 @@ void AutoCompletion::getWordArray(vector<generic_string> & wordArray, TCHAR *beg
 		{
 			TCHAR w[bufSize];
 			_pEditView->getGenericText(w, bufSize, wordStart, wordEnd);
-			if (!allChars || (generic_strncmp (w, allChars, bufSize) != 0))
+			if (!allChars || (wcsncmp(w, allChars, bufSize) != 0))
 			{
-				if (!isInList(w, wordArray))
-					wordArray.push_back(w);
+				if (_funcCompletionActive)
+				{
+					if (isInList(w + boxId, _keyWordArray))
+					{
+						if (!isInList(w + boxId, wordArray))
+							wordArray.push_back(w + boxId);
+					}
+					else if (isInList(w + funcId, _keyWordArray))
+					{
+						if (!isInList(w + funcId, wordArray))
+							wordArray.push_back(w + funcId);
+					}
+					else if (!isInList(w, wordArray))
+					{
+						wordArray.push_back(w);
+					}
+				}
+				else
+				{
+					if (!isInList(w, wordArray))
+						wordArray.push_back(w);
+				}
 			}
 		}
 		posFind = _pEditView->searchInTarget(expr.c_str(), expr.length(), wordEnd, docLength);
@@ -404,9 +608,9 @@ void AutoCompletion::showPathCompletion()
 	generic_string currentLine;
 	{
 		const intptr_t bufSize = MAX_PATH;
-		TCHAR buf[bufSize + 1];
+		TCHAR buf[bufSize + 1] = { '\0' };
 		const intptr_t currentPos = _pEditView->execute(SCI_GETCURRENTPOS);
-		const auto startPos = max(0, currentPos - bufSize);
+		const auto startPos = std::max<intptr_t>(0, currentPos - bufSize);
 		_pEditView->getGenericText(buf, bufSize + 1, startPos, currentPos);
 		currentLine = buf;
 	}
@@ -433,7 +637,7 @@ void AutoCompletion::showPathCompletion()
 		hFind = ::FindFirstFile(searchString.c_str(), &data);
 		if (hFind != INVALID_HANDLE_VALUE)
 		{
-			// Maximum number of entries to show. Without this it appears to the user like N++ hangs when autocompleting
+			// Maximum number of entries to show. Without this it appears to the user like Notepad++ hangs when autocompleting
 			// some really large directories (c:\windows\winxsys on my system for instance).
 			const unsigned int maxEntries = 2000;
 			unsigned int counter = 0;
@@ -463,71 +667,14 @@ void AutoCompletion::showPathCompletion()
 	// Show autocompletion box.
 	_pEditView->execute(SCI_AUTOCSETSEPARATOR, WPARAM('\n'));
 	_pEditView->execute(SCI_AUTOCSETIGNORECASE, true);
+	_pEditView->execute(SCI_AUTOCSETCASEINSENSITIVEBEHAVIOUR, true);
 	_pEditView->showAutoComletion(rawPath.length(), autoCompleteEntries.c_str());
 	return;
 }
 
 bool AutoCompletion::showWordComplete(bool autoInsert)
 {
-	// Get beginning of word and complete word
-
-	intptr_t curPos = _pEditView->execute(SCI_GETCURRENTPOS);
-	intptr_t startPos = _pEditView->execute(SCI_WORDSTARTPOSITION, curPos, true);
-	intptr_t endPos = _pEditView->execute(SCI_WORDENDPOSITION, curPos, true);
-
-	if (curPos == startPos)
-		return false;
-
-	const size_t bufSize = 256;
-	TCHAR beginChars[bufSize];
-	TCHAR allChars[bufSize];
-
-	size_t len = (curPos > startPos)?(curPos - startPos):(startPos - curPos);
-	if (len >= bufSize)
-		return false;
-
-	size_t lena = (endPos > startPos)?(endPos - startPos):(startPos - endPos);
-	if (lena >= bufSize)
-		return false;
-
-	_pEditView->getGenericText(beginChars, bufSize, startPos, curPos);
-	_pEditView->getGenericText(allChars, bufSize, startPos, endPos);
-
-	// Get word array containing all words beginning with beginChars, excluding word equal to allChars
-
-	vector<generic_string> wordArray;
-	getWordArray(wordArray, beginChars, allChars);
-
-	if (wordArray.size() == 0) return false;
-
-	// Optionally, auto-insert word
-
-	if (wordArray.size() == 1 && autoInsert)
-	{
-		intptr_t replacedLength = _pEditView->replaceTarget(wordArray[0].c_str(), startPos, curPos);
-		_pEditView->execute(SCI_GOTOPOS, startPos + replacedLength);
-		return true;
-	}
-
-	// Sort word array and convert it to a single string with space-separated words
-
-	sort(wordArray.begin(), wordArray.end());
-
-	generic_string words(TEXT(""));
-
-	for (size_t i = 0, wordArrayLen = wordArray.size(); i < wordArrayLen; ++i)
-	{
-		words += wordArray[i];
-		if (i != wordArrayLen -1)
-			words += TEXT(" ");
-	}
-
-	// Make Scintilla show the autocompletion menu
-
-	_pEditView->execute(SCI_AUTOCSETSEPARATOR, WPARAM(' '));
-	_pEditView->execute(SCI_AUTOCSETIGNORECASE, _ignoreCase);
-	_pEditView->showAutoComletion(curPos - startPos, words.c_str());
-	return true;
+	return showAutoComplete(autocWord, autoInsert);
 }
 
 bool AutoCompletion::showFunctionComplete()
@@ -896,7 +1043,7 @@ void AutoCompletion::update(int character)
 	}
 
 	//If autocomplete already active, let Scintilla handle it
-	if (_pEditView->execute(SCI_AUTOCACTIVE) != 0)
+	if (!nppGUI._autocBrief && _pEditView->execute(SCI_AUTOCACTIVE) != 0)
 		return;
 
 	const int wordSize = 64;
@@ -908,7 +1055,10 @@ void AutoCompletion::update(int character)
 		if (nppGUI._autocStatus == nppGUI.autoc_word)
 			showWordComplete(false);
 		else if (nppGUI._autocStatus == nppGUI.autoc_func)
-			showApiComplete();
+			if (nppGUI._autocBrief)
+				showAutoComplete(autocFuncBrief, false);
+			else
+				showApiComplete();
 		else if (nppGUI._autocStatus == nppGUI.autoc_both)
 			showApiAndWordComplete();
 	}
@@ -1046,7 +1196,10 @@ bool AutoCompletion::setLanguage(LangType language)
 			}
 		}
 
-		sort(_keyWordArray.begin(), _keyWordArray.end());
+		if (_ignoreCase)
+			sortInsensitive(_keyWordArray);
+		else
+			sort(_keyWordArray.begin(), _keyWordArray.end());
 
 		for (size_t i = 0, len = _keyWordArray.size(); i < len; ++i)
 		{

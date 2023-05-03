@@ -66,7 +66,8 @@ enum WindowStatus {	//bitwise mask
 enum trimOp {
 	lineHeader = 0,
 	lineTail = 1,
-	lineEol = 2
+	lineBoth = 2,
+	lineEol = 3
 };
 
 enum spaceTab {
@@ -195,6 +196,7 @@ public:
 	bool saveGUIParams();
 	bool saveProjectPanelsParams();
 	bool saveFileBrowserParam();
+	bool saveColumnEditorParams();
 	void saveDockingParams();
     void saveUserDefineLangs();
     void saveShortcuts();
@@ -354,7 +356,7 @@ private:
 	bool _isFolding = false;
 
 	//For Dynamic selection highlight
-	Sci_CharacterRange _prevSelectedRange;
+	Sci_CharacterRangeFull _prevSelectedRange;
 
 	//Synchronized Scolling
 	struct SyncInfo final
@@ -382,11 +384,8 @@ private:
 	bool _isFileOpening = false;
 	bool _isAdministrator = false;
 
-	bool _isEndingSessionButNotReady = false; // If Windows 10 update needs to restart 
-                                              // and Notepad++ has one (some) dirty document(s)
-                                              // and "Enable session snapshot and periodic backup" is not enabled
-                                              // then WM_ENDSESSION is send with wParam == FALSE
-                                              // in this case this boolean is set true, so Notepad++ will quit and its current session will be saved 
+	bool _isNppSessionSavedAtExit = false; // guard flag, it prevents emptying of the Notepad++ session.xml in case of multiple WM_ENDSESSION or WM_CLOSE messages
+
 	ScintillaCtrls _scintillaCtrls4Plugins;
 
 	std::vector<std::pair<int, int> > _hideLinesMarks;
@@ -499,7 +498,7 @@ private:
 	intptr_t findMachedBracePos(size_t startPos, size_t endPos, char targetSymbol, char matchedSymbol);
 	void maintainIndentation(TCHAR ch);
 
-	void addHotSpot(ScintillaEditView* view = NULL);
+	void addHotSpot(ScintillaEditView* view = nullptr);
 
     void bookmarkAdd(intptr_t lineno) const {
 		if (lineno == -1)
@@ -600,11 +599,12 @@ private:
 
 	void wsTabConvert(spaceTab whichWay);
 	void doTrim(trimOp whichPart);
+	void eol2ws();
 	void removeEmptyLine(bool isBlankContained);
 	void removeDuplicateLines();
 	void launchAnsiCharPanel();
 	void launchClipboardHistoryPanel();
-	void launchDocumentListPanel();
+	void launchDocumentListPanel(bool changeFromBtnCmd = false);
 	void checkProjectMenuItem();
 	void launchProjectPanel(int cmdID, ProjectPanel ** pProjPanel, int panelID);
 	void launchDocMap();

@@ -280,6 +280,20 @@ LRESULT DockingCont::runProcCaption(HWND hwnd, UINT Message, WPARAM wParam, LPAR
 
 	switch (Message)
 	{
+		case WM_ERASEBKGND:
+		{
+			if (!NppDarkMode::isEnabled())
+			{
+				break;
+			}
+
+			RECT rc{};
+			::GetClientRect(hwnd, &rc);
+			::FillRect(reinterpret_cast<HDC>(wParam), &rc, NppDarkMode::getDarkerBackgroundBrush());
+
+			return TRUE;
+		}
+
 		case WM_LBUTTONDOWN:
 		{
 			_isMouseDown = TRUE;
@@ -296,11 +310,11 @@ LRESULT DockingCont::runProcCaption(HWND hwnd, UINT Message, WPARAM wParam, LPAR
 				if (!hookMouse)
 				{
 					DWORD dwError = ::GetLastError();
-					TCHAR  str[128];
+					TCHAR str[128]{};
 					::wsprintf(str, TEXT("GetLastError() returned %lu"), dwError);
 					::MessageBox(NULL, str, TEXT("SetWindowsHookEx(MOUSE) failed on runProcCaption"), MB_OK | MB_ICONERROR);
 				}
-				::RedrawWindow(hwnd, NULL, NULL, TRUE);
+				::RedrawWindow(hwnd, nullptr, nullptr, RDW_INVALIDATE);
 			}
 
 			focusClient();
@@ -366,7 +380,7 @@ LRESULT DockingCont::runProcCaption(HWND hwnd, UINT Message, WPARAM wParam, LPAR
 					if (_isMouseOver != isMouseOver)
 					{
 						::SetFocus(NULL);
-						::RedrawWindow(hwnd, NULL, NULL, TRUE);
+						::RedrawWindow(hwnd, nullptr, nullptr, RDW_INVALIDATE);
 					}
 				}
 			}
@@ -376,7 +390,7 @@ LRESULT DockingCont::runProcCaption(HWND hwnd, UINT Message, WPARAM wParam, LPAR
 
 				if ((_bCaptionTT == TRUE) || (_hoverMPos == posClose))
 				{
-					TRACKMOUSEEVENT tme;
+					TRACKMOUSEEVENT tme{};
 					tme.cbSize = sizeof(tme);
 					tme.hwndTrack = hwnd;
 					tme.dwFlags = TME_LEAVE | TME_HOVER;
@@ -428,7 +442,7 @@ LRESULT DockingCont::runProcCaption(HWND hwnd, UINT Message, WPARAM wParam, LPAR
 		}
 		case WM_SETTEXT:
 		{
-			::RedrawWindow(hwnd, NULL, NULL, TRUE);
+			::RedrawWindow(hwnd, nullptr, nullptr, RDW_INVALIDATE);
 			return TRUE;
 		}
 		default:
@@ -681,6 +695,10 @@ LRESULT DockingCont::runProcTab(HWND hwnd, UINT Message, WPARAM wParam, LPARAM l
 				break;
 			}
 
+			RECT rc{};
+			::GetClientRect(hwnd, &rc);
+			::FillRect(reinterpret_cast<HDC>(wParam), &rc, NppDarkMode::getDarkerBackgroundBrush());
+
 			return TRUE;
 		}
 
@@ -697,7 +715,7 @@ LRESULT DockingCont::runProcTab(HWND hwnd, UINT Message, WPARAM wParam, LPARAM l
 				break;
 			}
 
-			PAINTSTRUCT ps;
+			PAINTSTRUCT ps{};
 			HDC hdc = ::BeginPaint(hwnd, &ps);
 			::FillRect(hdc, &ps.rcPaint, NppDarkMode::getDarkerBackgroundBrush());
 
@@ -717,7 +735,15 @@ LRESULT DockingCont::runProcTab(HWND hwnd, UINT Message, WPARAM wParam, LPARAM l
 			int nSelTab = TabCtrl_GetCurSel(hwnd);
 			for (int i = 0; i < nTabs; ++i)
 			{
-				DRAWITEMSTRUCT dis = { ODT_TAB, id, (UINT)i, ODA_DRAWENTIRE, ODS_DEFAULT, hwnd, hdc };
+				DRAWITEMSTRUCT dis{};
+				dis.CtlType = ODT_TAB;
+				dis.CtlID = id;
+				dis.itemID = static_cast<UINT>(i);
+				dis.itemAction = ODA_DRAWENTIRE;
+				dis.itemState = ODS_DEFAULT;
+				dis.hwndItem = hwnd;
+				dis.hDC = hdc;
+
 				TabCtrl_GetItemRect(hwnd, i, &dis.rcItem);
 
 				if (i == nFocusTab)
@@ -857,7 +883,7 @@ LRESULT DockingCont::runProcTab(HWND hwnd, UINT Message, WPARAM wParam, LPARAM l
 
 				if ((_bTabTTHover == FALSE) && (iItem != iItemSel))
 				{
-					TRACKMOUSEEVENT tme;
+					TRACKMOUSEEVENT tme{};
 					tme.cbSize = sizeof(tme);
 					tme.hwndTrack = hwnd;
 					tme.dwFlags = TME_LEAVE | TME_HOVER;
@@ -1111,7 +1137,7 @@ intptr_t CALLBACK DockingCont::run_dlgProc(UINT Message, WPARAM wParam, LPARAM l
 			int tabDpiDynamicalMinWidth = NppParameters::getInstance()._dpiManager.scaleX(24);
 			::SendMessage(_hContTab, TCM_SETMINTABWIDTH, 0, tabDpiDynamicalMinWidth);
 
-			break;
+			return TRUE;
 		}
 		case WM_NCCALCSIZE:
 		case WM_SIZE:
@@ -1125,10 +1151,16 @@ intptr_t CALLBACK DockingCont::run_dlgProc(UINT Message, WPARAM wParam, LPARAM l
 			{
 				break;
 			}
-			RECT rc = {};
+			RECT rc{};
 			getClientRect(rc);
 			::FillRect(reinterpret_cast<HDC>(wParam), &rc, NppDarkMode::getDarkerBackgroundBrush());
 			return TRUE;
+		}
+
+		case WM_CTLCOLORDLG:
+		case WM_CTLCOLORSTATIC:
+		{
+			return NppDarkMode::onCtlColorDarker(reinterpret_cast<HDC>(wParam));
 		}
 
 		case WM_DRAWITEM :
@@ -1324,7 +1356,7 @@ void DockingCont::onSize()
 							SWP_NOZORDER);
 
 			// Notify switch in
-			NMHDR nmhdr;
+			NMHDR nmhdr{};
 			nmhdr.code		= DMN_FLOATDROPPED;
 			nmhdr.hwndFrom	= _hSelf;
 			nmhdr.idFrom	= 0;
@@ -1543,7 +1575,7 @@ void DockingCont::selectTab(int iTab)
 		::SetFocus(((tTbData*)tcItem.lParam)->hClient);
 
 		// Notify switch in
-		NMHDR nmhdr;
+		NMHDR nmhdr{};
 		nmhdr.code		= DMN_SWITCHIN;
 		nmhdr.hwndFrom	= _hSelf;
 		nmhdr.idFrom	= 0;
@@ -1559,7 +1591,7 @@ void DockingCont::selectTab(int iTab)
 			::ShowWindow(((tTbData*)tcItem.lParam)->hClient, SW_HIDE);
 		
 			// Notify switch off
-			NMHDR nmhdr;
+			NMHDR nmhdr{};
 			nmhdr.code		= DMN_SWITCHOFF;
 			nmhdr.hwndFrom	= _hSelf;
 			nmhdr.idFrom	= 0;

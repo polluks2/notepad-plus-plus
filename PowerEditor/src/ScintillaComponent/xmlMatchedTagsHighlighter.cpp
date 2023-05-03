@@ -22,6 +22,7 @@
 
 #include "xmlMatchedTagsHighlighter.h"
 #include "ScintillaEditView.h"
+#include <shlwapi.h>
 
 using namespace std;
 
@@ -563,11 +564,16 @@ XmlMatchedTagsHighlighter::FindResult XmlMatchedTagsHighlighter::findCloseTag(co
 XmlMatchedTagsHighlighter::FindResult XmlMatchedTagsHighlighter::findText(const char *text, intptr_t start, intptr_t end, int flags)
 {
 	FindResult returnValue;
-	
+
 	Sci_TextToFindFull search{};
 	search.lpstrText = const_cast<char *>(text); // Grrrrrr
 	search.chrg.cpMin = static_cast<Sci_Position>(start);
 	search.chrg.cpMax = static_cast<Sci_Position>(end);
+
+	LangType lang = (_pEditView->getCurrentBuffer())->getLangType();
+	if (lang == L_XML || (lang == L_HTML && wcsicmp(PathFindExtension((_pEditView->getCurrentBuffer())->getFileName()), TEXT(".xhtml")) == 0))
+		flags = flags | SCFIND_MATCHCASE;
+
 	intptr_t result = _pEditView->execute(SCI_FINDTEXTFULL, flags, reinterpret_cast<LPARAM>(&search));
 	if (-1 == result)
 	{
@@ -620,7 +626,7 @@ void XmlMatchedTagsHighlighter::tagMatch(bool doHiliteAttr)
 
 	XmlMatchedTagsPos xmlTags;
 
-    // Detect if it's a xml/html tag. If yes, Colour it!
+    // Detect if it's a xml/html tag. If yes, Colorize it
 	if (getXmlMatchedTagsPos(xmlTags))
 	{
 		_pEditView->execute(SCI_SETINDICATORCURRENT, SCE_UNIVERSAL_TAGMATCH);
