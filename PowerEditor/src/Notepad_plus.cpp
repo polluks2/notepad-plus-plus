@@ -227,7 +227,7 @@ LRESULT Notepad_plus::init(HWND hwnd)
 	int tabBarStatus = nppGUI._tabStatus;
 
 	_toReduceTabBar = ((tabBarStatus & TAB_REDUCE) != 0);
-	int iconDpiDynamicalSize = nppParam._dpiManager.scaleY(_toReduceTabBar ? 13 : 20);
+	int iconDpiDynamicalSize = nppParam._dpiManager.scaleX(g_TabIconSize);
 	_docTabIconList.create(iconDpiDynamicalSize, _pPublicInterface->getHinst(), docTabIconIDs, sizeof(docTabIconIDs) / sizeof(int));
 	_docTabIconListAlt.create(iconDpiDynamicalSize, _pPublicInterface->getHinst(), docTabIconIDs_alt, sizeof(docTabIconIDs_alt) / sizeof(int));
 	_docTabIconListDarkMode.create(iconDpiDynamicalSize, _pPublicInterface->getHinst(), docTabIconIDs_darkMode, sizeof(docTabIconIDs_darkMode) / sizeof(int));
@@ -375,20 +375,18 @@ LRESULT Notepad_plus::init(HWND hwnd)
 
 	TabBarPlus::doDragNDrop(true);
 
-	if (_toReduceTabBar)
+	const auto& hf = _mainDocTab.getFont(_toReduceTabBar);
+	if (hf)
 	{
-		HFONT hf = static_cast<HFONT>(::GetStockObject(DEFAULT_GUI_FONT));
-
-		if (hf)
-		{
-			::SendMessage(_mainDocTab.getHSelf(), WM_SETFONT, reinterpret_cast<WPARAM>(hf), MAKELPARAM(TRUE, 0));
-			::SendMessage(_subDocTab.getHSelf(), WM_SETFONT, reinterpret_cast<WPARAM>(hf), MAKELPARAM(TRUE, 0));
-		}
-		int tabDpiDynamicalHeight = nppParam._dpiManager.scaleY(22);
-		int tabDpiDynamicalWidth = nppParam._dpiManager.scaleX(45);
-		TabCtrl_SetItemSize(_mainDocTab.getHSelf(), tabDpiDynamicalWidth, tabDpiDynamicalHeight);
-		TabCtrl_SetItemSize(_subDocTab.getHSelf(), tabDpiDynamicalWidth, tabDpiDynamicalHeight);
+		::SendMessage(_mainDocTab.getHSelf(), WM_SETFONT, reinterpret_cast<WPARAM>(hf), MAKELPARAM(TRUE, 0));
+		::SendMessage(_subDocTab.getHSelf(), WM_SETFONT, reinterpret_cast<WPARAM>(hf), MAKELPARAM(TRUE, 0));
 	}
+
+	int tabDpiDynamicalHeight = nppParam._dpiManager.scaleY(_toReduceTabBar ? g_TabHeight : g_TabHeightLarge);
+	int tabDpiDynamicalWidth = nppParam._dpiManager.scaleX(g_TabWidth);
+	TabCtrl_SetItemSize(_mainDocTab.getHSelf(), tabDpiDynamicalWidth, tabDpiDynamicalHeight);
+	TabCtrl_SetItemSize(_subDocTab.getHSelf(), tabDpiDynamicalWidth, tabDpiDynamicalHeight);
+
 	_mainDocTab.display();
 
 
@@ -501,21 +499,54 @@ LRESULT Notepad_plus::init(HWND hwnd)
 	// Add external languages to menu
 	for (int i = 0; i < nppParam.getNbExternalLang(); ++i)
 	{
+		HMENU subMenu = hLangMenu;
 		ExternalLangContainer & externalLangContainer = nppParam.getELCFromIndex(i);
 
-		int numLangs = ::GetMenuItemCount(hLangMenu);
-		const int bufferSize = 100;
-		TCHAR buffer[bufferSize] = { '\0' };
+		int nbItem = ::GetMenuItemCount(subMenu);
+		TCHAR buffer[MAX_EXTERNAL_LEXER_NAME_LEN]{TEXT('\0')};
 		const TCHAR* lexerNameW = wmc.char2wchar(externalLangContainer._name.c_str(), CP_ACP);
 
+		// Find the first separator which is between IDM_LANG_TEXT and languages
 		int x = 0;
-		for (; (x == 0 || lstrcmp(lexerNameW, buffer) > 0) && x < numLangs; ++x)
+		MENUITEMINFO menuItemInfo
 		{
-			::GetMenuString(hLangMenu, x, buffer, bufferSize, MF_BYPOSITION);
+			.cbSize = sizeof(MENUITEMINFO),
+			.fMask = MIIM_FTYPE
+		};
+		for (; x < nbItem; ++x)
+		{
+			::GetMenuItemInfo(subMenu, x, TRUE, &menuItemInfo);
+			if (menuItemInfo.fType & MFT_SEPARATOR)
+			{
+				break;
+			}
 		}
 
-		::InsertMenu(hLangMenu, x - 1, MF_BYPOSITION, IDM_LANG_EXTERNAL + i, lexerNameW);
+		// Find the location in existing language menu to insert to. This includes submenu if using compact language menu.
+		TCHAR firstLetter = towupper(lexerNameW[0]);
+		menuItemInfo.fMask = MIIM_SUBMENU;
+		for (++x; x < nbItem; ++x)
+		{
+			::GetMenuItemInfo(subMenu, x, TRUE, &menuItemInfo);
+			::GetMenuString(subMenu, x, buffer, MAX_EXTERNAL_LEXER_NAME_LEN, MF_BYPOSITION);
+
+			// Check if using compact language menu.
+			if (menuItemInfo.hSubMenu && buffer[0] == firstLetter)
+			{
+				// Found the submenu for the language's first letter. Search in it instead.
+				subMenu = menuItemInfo.hSubMenu;
+				nbItem = ::GetMenuItemCount(subMenu);
+				x = -1;
+			}
+			else if (lstrcmp(lexerNameW, buffer) < 0)
+			{
+				break;
+			}
+		}
+
+		::InsertMenu(subMenu, x, MF_BYPOSITION, IDM_LANG_EXTERNAL + i, lexerNameW);
 	}
+
 
 	if (nppGUI._excludedLangList.size() > 0)
 	{
@@ -587,12 +618,12 @@ LRESULT Notepad_plus::init(HWND hwnd)
 	// Update Scintilla context menu strings (translated)
 	vector<MenuItemUnit> & tmp = nppParam.getContextMenuItems();
 	size_t len = tmp.size();
-	TCHAR menuName[64];
+	TCHAR menuName[menuItemStrLenMax];
 	for (size_t i = 0; i < len; ++i)
 	{
 		if (tmp[i]._itemName.empty())
 		{
-			::GetMenuString(_mainMenuHandle, tmp[i]._cmdID, menuName, 64, MF_BYCOMMAND);
+			::GetMenuString(_mainMenuHandle, tmp[i]._cmdID, menuName, menuItemStrLenMax, MF_BYCOMMAND);
 			tmp[i]._itemName = purgeMenuItemString(menuName);
 		}
 	}
@@ -605,7 +636,7 @@ LRESULT Notepad_plus::init(HWND hwnd)
 	{
 		if (tmp2[i]._itemName.empty())
 		{
-			::GetMenuString(_mainMenuHandle, tmp2[i]._cmdID, menuName, 64, MF_BYCOMMAND);
+			::GetMenuString(_mainMenuHandle, tmp2[i]._cmdID, menuName, menuItemStrLenMax, MF_BYCOMMAND);
 			tmp2[i]._itemName = purgeMenuItemString(menuName);
 		}
 	}
@@ -2613,11 +2644,11 @@ void Notepad_plus::checkLangsMenu(int id) const
 			if (curBuf->isUserDefineLangExt())
 			{
 				const TCHAR *userLangName = curBuf->getUserDefineLangName();
-				TCHAR menuLangName[langNameLenMax];
+				TCHAR menuLangName[menuItemStrLenMax];
 
 				for (int i = IDM_LANG_USER + 1 ; i <= IDM_LANG_USER_LIMIT ; ++i)
 				{
-					if (::GetMenuString(_mainMenuHandle, i, menuLangName, langNameLenMax, MF_BYCOMMAND))
+					if (::GetMenuString(_mainMenuHandle, i, menuLangName, menuItemStrLenMax, MF_BYCOMMAND))
 					{
 						if (!lstrcmp(userLangName, menuLangName))
 						{
@@ -2928,9 +2959,8 @@ void Notepad_plus::setUniModeText()
 		}
 		cmdID += IDM_FORMAT_ENCODE;
 
-		const int itemSize = 64;
-		TCHAR uniModeText[itemSize] = {};
-		::GetMenuString(_mainMenuHandle, cmdID, uniModeText, itemSize, MF_BYCOMMAND);
+		TCHAR uniModeText[menuItemStrLenMax]{};
+		::GetMenuString(_mainMenuHandle, cmdID, uniModeText, menuItemStrLenMax, MF_BYCOMMAND);
 		uniModeTextString = uniModeText;
 		// Remove the shortcut text from the menu text.
 		const size_t tabPos = uniModeTextString.find_last_of('\t');
@@ -6042,8 +6072,24 @@ void Notepad_plus::getCurrentOpenedFiles(Session & session, bool includUntitledD
 					continue;
 
 
-			generic_string	languageName = getLangFromMenu(buf);
-			const TCHAR *langName = languageName.c_str();
+			wstring	languageName = getLangFromMenu(buf);
+
+			if (languageName.empty()) // The lang menu item in question is hidden
+			{
+				NppParameters& nppParam = NppParameters::getInstance();
+				const NppGUI& nppGUI = nppParam.getNppGUI();
+
+				for (size_t k = 0; k < nppGUI._excludedLangList.size(); ++k) // try to find it in exclude lang list
+				{
+					if (buf->getLangType() == nppGUI._excludedLangList[k]._langType)
+					{
+						languageName = nppGUI._excludedLangList[k]._langName;
+						break;
+					}
+				}
+			}
+
+			const wchar_t* langName = languageName.c_str();
 			sessionFileInfo sfi(buf->getFullPathName(), langName, buf->getEncoding(), buf->getUserReadOnly(), buf->getPosition(editView), buf->getBackupFileName().c_str(), buf->getLastModifiedTimestamp(), buf->getMapPosition());
 
 			sfi._isMonitoring = buf->isMonitoringOn();
@@ -6732,11 +6778,10 @@ void Notepad_plus::setWorkingDir(const TCHAR *dir)
 int Notepad_plus::getLangFromMenuName(const TCHAR * langName)
 {
 	int	id	= 0;
-	const int menuSize = 64;
-	TCHAR menuLangName[menuSize];
+	TCHAR menuLangName[menuItemStrLenMax];
 
 	for ( int i = IDM_LANG_C; i <= IDM_LANG_USER; ++i )
-		if ( ::GetMenuString( _mainMenuHandle, i, menuLangName, menuSize, MF_BYCOMMAND ) )
+		if ( ::GetMenuString( _mainMenuHandle, i, menuLangName, menuItemStrLenMax, MF_BYCOMMAND ) )
 			if ( !lstrcmp( langName, menuLangName ) )
 			{
 				id	= i;
@@ -6746,7 +6791,7 @@ int Notepad_plus::getLangFromMenuName(const TCHAR * langName)
 	if ( id == 0 )
 	{
 		for ( int i = IDM_LANG_USER + 1; i <= IDM_LANG_USER_LIMIT; ++i )
-			if ( ::GetMenuString( _mainMenuHandle, i, menuLangName, menuSize, MF_BYCOMMAND ) )
+			if ( ::GetMenuString( _mainMenuHandle, i, menuLangName, menuItemStrLenMax, MF_BYCOMMAND ) )
 				if ( !lstrcmp( langName, menuLangName ) )
 				{
 					id	= i;
@@ -6759,16 +6804,14 @@ int Notepad_plus::getLangFromMenuName(const TCHAR * langName)
 
 generic_string Notepad_plus::getLangFromMenu(const Buffer * buf)
 {
-
 	int	id;
 	generic_string userLangName;
-	const int nbChar = 32;
-	TCHAR menuLangName[nbChar];
+	TCHAR menuLangName[menuItemStrLenMax]{};
 
 	id = (NppParameters::getInstance()).langTypeToCommandID( buf->getLangType() );
 	if ( ( id != IDM_LANG_USER ) || !( buf->isUserDefineLangExt() ) )
 	{
-		::GetMenuString(_mainMenuHandle, id, menuLangName, nbChar-1, MF_BYCOMMAND);
+		::GetMenuString(_mainMenuHandle, id, menuLangName, menuItemStrLenMax, MF_BYCOMMAND);
 		userLangName = menuLangName;
 	}
 	else
@@ -6822,12 +6865,12 @@ bool Notepad_plus::reloadLang()
 	// Update scintilla context menu strings
 	vector<MenuItemUnit> & tmp = nppParam.getContextMenuItems();
 	size_t len = tmp.size();
-	TCHAR menuName[64];
+	TCHAR menuName[menuItemStrLenMax];
 	for (size_t i = 0 ; i < len ; ++i)
 	{
 		if (tmp[i]._itemName == TEXT(""))
 		{
-			::GetMenuString(_mainMenuHandle, tmp[i]._cmdID, menuName, 64, MF_BYCOMMAND);
+			::GetMenuString(_mainMenuHandle, tmp[i]._cmdID, menuName, menuItemStrLenMax, MF_BYCOMMAND);
 			tmp[i]._itemName = purgeMenuItemString(menuName);
 		}
 	}
@@ -8557,8 +8600,8 @@ void Notepad_plus::updateCommandShortcuts()
 
 		if (menuName.length() == 0)
 		{
-			TCHAR szMenuName[64];
-			if (::GetMenuString(_mainMenuHandle, csc.getID(), szMenuName, _countof(szMenuName), MF_BYCOMMAND))
+			TCHAR szMenuName[menuItemStrLenMax];
+			if (::GetMenuString(_mainMenuHandle, csc.getID(), szMenuName, menuItemStrLenMax, MF_BYCOMMAND))
 				menuName = purgeMenuItemString(szMenuName, true);
 			else
 				menuName = csc.getShortcutName();

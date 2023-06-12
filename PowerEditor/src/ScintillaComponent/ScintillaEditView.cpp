@@ -2808,12 +2808,22 @@ void ScintillaEditView::performGlobalStyles()
 	execute(SCI_SETMARGINTYPEN, _SC_MARGE_SYMBOL, SC_MARGIN_COLOUR);
 	execute(SCI_SETMARGINBACKN, _SC_MARGE_SYMBOL, bookmarkMarginColor);
 
+	COLORREF changeHistoryMarginColor = veryLiteGrey;
 	pStyle = stylers.findByName(TEXT("Change History margin"));
-	if (pStyle)
+	if (!pStyle)
 	{
-		execute(SCI_SETMARGINTYPEN, _SC_MARGE_CHANGEHISTORY, SC_MARGIN_COLOUR);
-		execute(SCI_SETMARGINBACKN, _SC_MARGE_CHANGEHISTORY, pStyle->_bgColor);
+		pStyle = stylers.findByName(TEXT("Line number margin"));
+		if (pStyle)
+		{
+			changeHistoryMarginColor = pStyle->_bgColor;
+		}
 	}
+	else
+	{
+		changeHistoryMarginColor = pStyle->_bgColor;
+	}
+	execute(SCI_SETMARGINTYPEN, _SC_MARGE_CHANGEHISTORY, SC_MARGIN_COLOUR);
+	execute(SCI_SETMARGINBACKN, _SC_MARGE_CHANGEHISTORY, changeHistoryMarginColor);
 
 	COLORREF urlHoveredFG = grey;
 	pStyle = stylers.findByName(TEXT("URL hovered"));
@@ -2872,6 +2882,10 @@ void ScintillaEditView::showNpc(bool willBeShowed, bool isSearchResult)
 		{
 			setNpcAndCcUniEOL();
 		}
+
+		// in some case npc representation is not redrawn correctly on first line
+		// therefore use of showEOL(isShownEol()) instead of redraw()
+		showEOL(isShownEol());
 	}
 	else
 	{
@@ -2885,10 +2899,6 @@ void ScintillaEditView::showNpc(bool willBeShowed, bool isSearchResult)
 
 		showCcUniEol(svp._ccUniEolShow);
 	}
-
-	// in some case npc representation is not redrawn correctly on first line
-	// therefore use of showEOL(isShownEol()) instead of redraw()
-	showEOL(isShownEol());
 }
 
 void ScintillaEditView::showCcUniEol(bool willBeShowed, bool isSearchResult)
@@ -2927,6 +2937,7 @@ void ScintillaEditView::showCcUniEol(bool willBeShowed, bool isSearchResult)
 		if (svp._npcShow)
 		{
 			showNpc();
+			return; // showEOL(isShownEol()) already in showNpc()
 		}
 	}
 
